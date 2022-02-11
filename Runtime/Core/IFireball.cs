@@ -8,6 +8,8 @@ namespace KAU.FireballSDK
     public interface IFireball
     {
         FireballSession CurrentSession { get; set; }
+        string LastActionID { get; }
+        bool IsInit { get; }
         bool IsAuth { get; }
         bool IsDemo { get; }
 

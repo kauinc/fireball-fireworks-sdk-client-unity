@@ -34,7 +34,11 @@ namespace KAU.FireballSDK
         }
 
         public FireballSession CurrentSession { get; set; }
+        public string LastActionID => _lastActionID;
 
+        public bool IsInit => CurrentSession != null
+                               && !string.IsNullOrEmpty(CurrentSession.WsToken)
+                               && _messenger.IsInit;
         public bool IsAuth => CurrentSession != null
                               && !string.IsNullOrEmpty(CurrentSession.GameSession)
                               && !string.IsNullOrEmpty(CurrentSession.PlayerId);
@@ -57,9 +61,6 @@ namespace KAU.FireballSDK
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
         private readonly Dictionary<string, string> _pendingResponses = new Dictionary<string, string>();
 
-        private bool IsInit => CurrentSession != null
-                               && !string.IsNullOrEmpty(CurrentSession.WsToken)
-                               && _messenger.IsInit;
         
         private string URLRouter =>
             !string.IsNullOrEmpty(_customRouterUrl) ? _customRouterUrl : FireballConfig.URL_ROUTER_DEFAULT;
