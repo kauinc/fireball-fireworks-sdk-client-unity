@@ -48,7 +48,6 @@ namespace KAU.FireballSDK
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
         
-        private const float TIMEOUT = 12.0f;
         private const float UPDATE_TIME = 0.1f;
         private string _customRouterUrl;
 
@@ -222,7 +221,7 @@ namespace KAU.FireballSDK
             TRequest data,
             Action<TResponse> onSuccess, 
             Action<ErrorResponse> onError = null, 
-            float timeout = 0, 
+            float timeout = FireballConfig.DEFAULT_TIMEOUT, 
             int attempts = 1)
             where TRequest : BaseRequest where TResponse : BaseResponse =>
             StartCoroutine(SendRequestCoroutine(data, onSuccess, onError, timeout, attempts));
@@ -231,7 +230,7 @@ namespace KAU.FireballSDK
             TRequest data,
             Action<TResponse> onSuccess, 
             Action<ErrorResponse> onError = null, 
-            float timeout = 0, 
+            float timeout = FireballConfig.DEFAULT_TIMEOUT,
             int attemptsCount = 1)
             where TRequest : BaseRequest where TResponse : BaseResponse
         {
