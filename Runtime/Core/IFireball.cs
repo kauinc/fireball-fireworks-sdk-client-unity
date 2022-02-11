@@ -12,6 +12,7 @@ namespace KAU.FireballSDK
         bool IsDemo { get; }
 
         void Init(Action<FireballSession> onInit = null, Action<string> onError = null);
+        void Init(string customUrl, Action<FireballSession> onInit = null, Action<string> onError = null, MessengerType messengerType = MessengerType.NativeWebSocket);
 
         void SendGET(
             string url, 

@@ -69,7 +69,12 @@ namespace KAU.FireballSDK
             Init(URLData.ParseSessionFromURL(), onInit, onError);
         }
 
-        private void Init(FireballSession customSession, Action<FireballSession> onInit = null, Action<string> onError = null)
+        public void Init(string customUrl, Action<FireballSession> onInit = null, Action<string> onError = null, MessengerType messengerType = MessengerType.NativeWebSocket)
+        {
+            Init(URLData.ParseSessionFromURL(customUrl), onInit, onError, messengerType);
+        }
+
+        private void Init(FireballSession customSession, Action<FireballSession> onInit = null, Action<string> onError = null, MessengerType messengerType = MessengerType.NativeWebSocket)
         {
             _fireballLogger = new FireballLogger();
             _networkChecker = new NetworkChecker(this, 2.0f);
@@ -79,7 +84,14 @@ namespace KAU.FireballSDK
             _customRouterUrl = CurrentSession.Router;
 
             // Websocket module init
-            _messenger = new SignalRMessenger(CurrentSession);//new WebSocketMessaging(CurrentSession);
+            if(messengerType == MessengerType.SignalR)
+            {
+                _messenger = new SignalRMessenger(CurrentSession);
+            }
+            else
+            {
+                _messenger = new WebSocketMessaging(CurrentSession);
+            }
             _messenger.OnMessageReceived += OnMessageReceived;
 
             // Send ping to warm up Fireball system

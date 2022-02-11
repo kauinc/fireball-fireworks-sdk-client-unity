@@ -27,23 +27,30 @@ namespace KAU.FireballSDK.Tools
         private const string PARAM_NAME_HOME_URL = "home";
         private const string PARAM_NAME_EXTRA = "extra";
 
-        public static FireballSession ParseSessionFromURL()
+        public static FireballSession ParseSessionFromURL(string customUrl = null)
         {
-
             Debug.Log($"Get parameters from URL");
             FireballSession session = new FireballSession();
             Dictionary<string, string> extraDict = new Dictionary<string, string>();
             Dictionary<string, string> paramsDict = new Dictionary<string, string>();
 
-/*#if UNITY_EDITOR
-            paramsDict = WebLocation.ParseURLParams(GetTestURLParams());
-            Debug.Log(GetTestURLParams());
-#else
-            paramsDict = WebLocation.GetSearchParameters();
-#endif*/
 
-            paramsDict = WebLocation.ParseURLParams(GetCleoTestURLParams());
-            Debug.Log(GetCleoTestURLParams());
+            if (string.IsNullOrEmpty(customUrl))
+            {
+                paramsDict = WebLocation.GetSearchParameters();
+            }
+            else
+            {
+                paramsDict = WebLocation.ParseURLParams(customUrl);
+            }
+
+
+//#if UNITY_EDITOR
+//            paramsDict = WebLocation.ParseURLParams(GetTestURLParams());
+//            Debug.Log(GetTestURLParams());
+//#else
+//            paramsDict = WebLocation.GetSearchParameters();
+//#endif
 
             foreach (string param in paramsDict.Keys)
             {
@@ -170,72 +177,5 @@ namespace KAU.FireballSDK.Tools
 
             return session;
         }
-
-//#if UNITY_EDITOR
-        private  static string GetTestURLParams()
-        {
-            GameMode mode = GameMode.money;
-            Environments environment = Environments.development;
-            string operatorId = "72c43a89-585e-4cf9-8fab-dcc1740eec40";
-            string gameId = "b5b6562c-f4a6-4838-86d7-a7bede90ed6c";
-            string playerId = "3696f882-7a05-40c7-be2c-49bcf6168fcc";
-            string token = "be258078-0d2d-4b49-9b5d-97a087a4c8fd";
-            string wsToken = "3112000f-5283-41fa-a692-b8a17784c62c";
-            
-            return $"?gameId={gameId}" +
-                $"&operatorId={operatorId}" +
-                $"&playerId={playerId}" +
-                $"&environment={environment.ToString()}" +
-                $"&token={token}" +
-                $"&mode={mode.ToString().ToLower()}" +
-                "&router=https%3A%2F%2Fcloud.fireballserver.com%2Frouter" +
-                "&messages=wss%3A%2F%2Fcloud.fireballserver.com%2Fmessages" + 
-                $"&wsToken={wsToken}" +
-                "&platform=web" +
-                "&age=36" +
-                "&gender=male" +
-                "&currency=DKK" +
-                "&language=en" +
-                "&country=DK" +
-                "&siteId=1" +
-                "&home=&router=https%3A%2F%2Fcloud.fireballserver.com%2Frouter" +
-                "";
-        }
-        //#endif
-
-        private static string GetCleoTestURLParams()
-        {
-            // "https://messages-net-dot-fireball-231121.ey.r.appspot.com/messages"
-
-            GameMode mode = GameMode.money;
-            Environments environment = Environments.development;
-            string operatorId = "72c43a89-585e-4cf9-8fab-dcc1740eec40";
-            string gameId = "c61b4556-5816-44bc-845b-39083f19956b";
-            string playerId = "566dd8dd-836c-40c1-afeb-dc930ddfac4f";
-            string token = "aa2108de-9cfc-484d-a58f-a77e6b4989d6";
-            string wsToken = "c55a072f-b941-4ce5-8866-824f147e307e";
-
-            return $"?gameId={gameId}" +
-                $"&operatorId={operatorId}" +
-                $"&playerId={playerId}" +
-                $"&environment={environment.ToString()}" +
-                $"&token={token}" +
-                $"&mode={mode.ToString().ToLower()}" +
-                "&router=https%3A%2F%2Fcloud.fireballserver.com%2Frouter" +
-                //"&messages=wss%3A%2F%2Fcloud.fireballserver.com%2Fmessages" +
-                //"&messages=https%3A%2F%2Fmessages-net-dot-fireball-231121.ey.r.appspot.com%2Fmessages" +
-                "&messages=https%3A%2F%2Fcloud.fireballserver.com%2Fmessages-net%2Fmessages" +
-                $"&wsToken={wsToken}" +
-                "&platform=web" +
-                "&age=36" +
-                "&gender=male" +
-                "&currency=DKK" +
-                "&language=en" +
-                "&country=DK" +
-                "&siteId=1" +
-                "&home=&router=https%3A%2F%2Fcloud.fireballserver.com%2Frouter" +
-                "";
-        }
-
     }
 }                            

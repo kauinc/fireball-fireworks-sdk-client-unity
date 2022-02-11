@@ -8,5 +8,12 @@
     "Game server"
   ],
   "description": "Fireball\u2122 is the world's most high performance and feature rich Remote Games Server built upon almost two decades of hard earned battle experience. It's open architecture allows for game studios to easily deploy and maintain games logic and for operators to simply integrate into the action.",
-  "type": "tool"
+  "type": "library",
+  "samples":[
+    {
+      "displayName": "Demo Authorize",
+      "description": "Fireball authorize example with test parametes as urls",
+      "path": "Samples/Demo"
+    }
+  ]
 }
