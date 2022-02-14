@@ -15,8 +15,7 @@ namespace KAU.FireballSDK.Models
         public string playerId;
         public string gameSession;
         public string wsToken;
-        //public Dictionary<string, string> extra;
-        public string extra;
+        public Dictionary<string, string> extra;
         public long messageTimestamp;
 
         protected BaseRequest(string name, FireballSession session, string customActionID = null)
@@ -31,7 +30,7 @@ namespace KAU.FireballSDK.Models
                 playerId = session.PlayerId;
                 gameSession = session.GameSession;
                 wsToken = session.WsToken;
-                extra = JsonConvert.SerializeObject(session.Extra);
+                extra = session.Extra;
             }
             
             messageTimestamp = Tools.FireballTools.GetNowTimestampMilliSeconds();
