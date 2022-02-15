@@ -11,7 +11,7 @@ namespace KAU.FireballSDK.Modules
         Action<bool> OnConnectionChange { get; set; }
         Action<string> OnMessageReceived { get; set; }
 
-        void Connect(string server, string wsToken, Action OnConnect = null, Action<string> OnError = null);
+        void Connect(string server, string wsToken, Action onConnect = null, Action<string> onError = null);
         void Reconnect();
         void Disconnect();
     }

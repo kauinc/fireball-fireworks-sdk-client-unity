@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System;
-using UnityEngine.Networking;
+﻿using System;
+using System.Collections.Generic;
 using KAU.FireballSDK.Modules;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace KAU.FireballSDK.Tools
 {
@@ -34,7 +31,6 @@ namespace KAU.FireballSDK.Tools
             Dictionary<string, string> extraDict = new Dictionary<string, string>();
             Dictionary<string, string> paramsDict = new Dictionary<string, string>();
 
-
             if (string.IsNullOrEmpty(customUrl))
             {
                 paramsDict = WebLocation.GetSearchParameters();
@@ -43,14 +39,6 @@ namespace KAU.FireballSDK.Tools
             {
                 paramsDict = WebLocation.ParseURLParams(customUrl);
             }
-
-
-//#if UNITY_EDITOR
-//            paramsDict = WebLocation.ParseURLParams(GetTestURLParams());
-//            Debug.Log(GetTestURLParams());
-//#else
-//            paramsDict = WebLocation.GetSearchParameters();
-//#endif
 
             foreach (string param in paramsDict.Keys)
             {
@@ -89,70 +77,70 @@ namespace KAU.FireballSDK.Tools
 
         private static FireballSession ValidateData(FireballSession session)
         {
-            IFireballLogger _logger = new FireballLogger();
+            IFireballLogger logger = new FireballLogger();
             
             // Check URL params
             if (string.IsNullOrEmpty(session.OperatorId))
             {
-                _logger.LogWarning("Url params don't contain - operatorId!");
+                logger.LogWarning("Url params don't contain - operatorId!");
             }
             
             if (string.IsNullOrEmpty(session.GameId))
             {
-                _logger.LogWarning("Url params don't contain - gameId!");
+                logger.LogWarning("Url params don't contain - gameId!");
             }
             
             if (string.IsNullOrEmpty(session.PlayerId))
             {
-                _logger.LogWarning("Url params don't contain - playerId!");
+                logger.LogWarning("Url params don't contain - playerId!");
             }
             
             if (string.IsNullOrEmpty(session.Token))
             {
-                _logger.LogWarning("Url params don't contain - token!");
+                logger.LogWarning("Url params don't contain - token!");
             }
             
             if (string.IsNullOrEmpty(session.WsServer))
             {
-                _logger.LogWarning("Url params don't contain - messages!");
+                logger.LogWarning("Url params don't contain - messages!");
             }
             
             if (string.IsNullOrEmpty(session.WsToken))
             {
-                _logger.LogWarning("Url params don't contain - wsToken!");
+                logger.LogWarning("Url params don't contain - wsToken!");
             }
             
             if (string.IsNullOrEmpty(session.Language))
             {
-                _logger.LogWarning("Url params don't contain - language!");
+                logger.LogWarning("Url params don't contain - language!");
                 session.Language = FireballConfig.DEFAULT_LANGUAGE_CODE;
             }
 
             if (string.IsNullOrEmpty(session.Currency))
             {
-                _logger.LogWarning("Url params don't contain - currency!");
+                logger.LogWarning("Url params don't contain - currency!");
                 session.Currency = FireballConfig.DEFAULT_CURRENCY;
             }
 
             if (string.IsNullOrEmpty(session.Country))
             {
-                _logger.LogWarning("Url params don't contain - country!");
+                logger.LogWarning("Url params don't contain - country!");
             }
             
             if (string.IsNullOrEmpty(session.Gender))
             {
-                _logger.LogWarning("Url params don't contain - gender!");
+                logger.LogWarning("Url params don't contain - gender!");
             }
             
             if (string.IsNullOrEmpty(session.Environment))
             {
-                _logger.LogWarning("Url params don't contain - Environments!");
+                logger.LogWarning("Url params don't contain - Environments!");
                 session.Environment = FireballConfig.DEFAULT_ENVIRONMENT.ToString();
             }
 
             if (string.IsNullOrEmpty(session.Mode))
             {
-                _logger.LogWarning("Url params don't contain - mode!");
+                logger.LogWarning("Url params don't contain - mode!");
                 session.Mode = FireballConfig.DEFAULT_GAME_MODE.ToString();
             }
             else if (Enum.TryParse(session.Mode, true, out GameMode mode))
@@ -161,7 +149,7 @@ namespace KAU.FireballSDK.Tools
             }
             else
             {
-                _logger.LogWarning($"Can't parse - mode! Mode String = {session.Mode}");
+                logger.LogWarning($"Can't parse - mode! Mode String = {session.Mode}");
                 session.Mode = FireballConfig.DEFAULT_GAME_MODE.ToString();
             }
 
@@ -171,7 +159,7 @@ namespace KAU.FireballSDK.Tools
             }
             else
             {
-                _logger.LogWarning($"Can't parse - Environments! Environments String = {session.Environment}");
+                logger.LogWarning($"Can't parse - Environments! Environments String = {session.Environment}");
                 session.Environment = FireballConfig.DEFAULT_ENVIRONMENT.ToString();
             }
 

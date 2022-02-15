@@ -51,8 +51,8 @@ namespace KAU.FireballSDK.Modules.SignalRPlugin
             try
             {
                 connection = new HubConnectionBuilder()
-                .WithUrl(url)
-                .Build();
+                    .WithUrl(url)
+                    .Build();
             }
             catch (Exception ex)
             {
