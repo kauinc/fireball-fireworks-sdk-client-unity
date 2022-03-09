@@ -1,27 +1,18 @@
-﻿using System.Collections.Generic;
-using KAU.FireballSDK.Modules;
-using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
 
 namespace KAU.FireballSDK.Models
 {
-    [System.Serializable]
-    public abstract class BaseRequest : Jsonable
+    [Serializable]
+    public abstract class BaseRequest : BaseModel
     {
-        public string actionId;
-        public string name;
-        public string environment;
-        public string operatorId;
-        public string gameId;
-        public string playerId;
-        public string gameSession;
-        public string wsToken;
         public Dictionary<string, string> extra;
-        public long messageTimestamp;
 
         protected BaseRequest(string name, FireballSession session, string customActionID = null)
         {
             actionId = string.IsNullOrEmpty(customActionID) ? Tools.FireballTools.GenerateActionID() : customActionID;
             this.name = name;
+            
             if (session != null)
             {
                 environment = session.Environment;

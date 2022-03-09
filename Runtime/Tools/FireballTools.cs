@@ -8,7 +8,7 @@ namespace KAU.FireballSDK.Tools
 {
     public static class FireballTools
     {
-        private static long _requestNum = 0;
+        private static long _requestNum;
 
         public static long GetNowTimestampMilliSeconds()
         {
@@ -21,17 +21,25 @@ namespace KAU.FireballSDK.Tools
 
             try
             {
-                actionId = System.Guid.NewGuid().ToString();
+                actionId = Guid.NewGuid().ToString();
             }
             catch (Exception e)
             {
                 Debug.Log(e.Message);
-                long _timestamp = GetNowTimestampMilliSeconds();
-                if (_requestNum >= _timestamp) _requestNum++;
-                else _requestNum = _timestamp;
+                long timestamp = GetNowTimestampMilliSeconds();
+                
+                if (_requestNum >= timestamp)
+                {
+                    _requestNum++;
+                }
+                else
+                {
+                    _requestNum = timestamp;
+                }
 
                 actionId = _requestNum.ToString();
             }
+            
             return actionId;
         }
 

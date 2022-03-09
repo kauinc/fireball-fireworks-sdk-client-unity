@@ -4,9 +4,9 @@ namespace KAU.FireballSDK.Modules
 {
     public class WebSocketMono : MonoBehaviour
     {
-        private WebSocketMessaging _webSocket;
+        private WebSocketMessenger _webSocket;
 
-        public void Init(WebSocketMessaging socket)
+        public void Init(WebSocketMessenger socket)
         {
             _webSocket = socket;
         }

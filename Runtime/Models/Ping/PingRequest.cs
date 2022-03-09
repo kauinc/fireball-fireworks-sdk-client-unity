@@ -1,21 +1,13 @@
 using System;
-using KAU.FireballSDK.Modules;
 
 namespace KAU.FireballSDK.Models
 {
     [Serializable]
-    public class PingRequest : Jsonable
+    public class PingRequest : BaseRequest
     {
-        public string name = "ping";
-        public string environment;
-        public string operatorId;
-        public string gameId;
+        private const string REQUEST_NAME = "ping";
 
-        public PingRequest(string environment, string operatorId, string gameId)
-        {
-            this.environment = environment;
-            this.operatorId = operatorId;
-            this.gameId = gameId;
-        }
+        public PingRequest(FireballSession session, string customActionID = null) 
+            : base(REQUEST_NAME, session, customActionID) { }
     }
 }

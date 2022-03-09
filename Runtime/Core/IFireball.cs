@@ -13,23 +13,28 @@ namespace KAU.FireballSDK
         bool IsAuth { get; }
         bool IsDemo { get; }
 
-        void Init(Action<FireballSession> onInit = null, Action<string> onError = null);
-        void Init(string customUrl, Action<FireballSession> onInit = null, Action<string> onError = null, MessengerType messengerType = MessengerType.NativeWebSocket);
+        void Init(Action<FireballSession> onSuccess = null, Action<string> onError = null);
+
+        void Init(
+            string customUrl, 
+            Action<FireballSession> onSuccess = null, 
+            Action<string> onError = null,
+            MessengerType messengerType = MessengerType.NativeWebSocket);
 
         void SendGET(
             string url, 
             Dictionary<string, string> data = null, 
-            Action<string> onComplete = null,
+            Action<string> onSuccess = null,
             Action<string> onError = null);
 
         void SendPOST(
             string url,
-            IJsonable data,
-            Action<string> onComplete = null,
+            BaseModel request,
+            Action<string> onSuccess = null,
             Action<string> onError = null);
 
         void SendRequest<TRequest, TResponse>(
-            TRequest data,
+            TRequest request,
             Action<TResponse> onSuccess,
             Action<ErrorResponse> onError = null,
             float timeout = 0,
