@@ -20,6 +20,7 @@ namespace KAU.FireballSDK.Models
                 gameId = session.GameId;
                 playerId = session.PlayerId;
                 gameSession = session.GameSession;
+                connectionId = session.ConnectionId;
                 wsToken = session.WsToken;
                 extra = session.Extra;
             }

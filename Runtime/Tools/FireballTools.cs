@@ -43,6 +43,11 @@ namespace KAU.FireballSDK.Tools
             return actionId;
         }
 
+        public static string GenerateConnectionToken()
+        {
+            return Guid.NewGuid().ToString();
+        }
+
         public static string EncodeURL(string url)
         {
             return UnityWebRequest.EscapeURL(url);

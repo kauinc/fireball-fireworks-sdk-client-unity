@@ -13,6 +13,9 @@ namespace KAU.FireballSDK
         public string PlayerId = string.Empty;
         public string GameSession = string.Empty;
         public string Token = string.Empty;
+        public string ConnectionId = string.Empty;
+        /* DEPRECATED */
+        public string ConnectionToken = string.Empty;
         public string WsToken = string.Empty;
 
         // Personal info

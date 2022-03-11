@@ -90,6 +90,8 @@ namespace KAU.FireballSDK
 
             _fireballLogger.Log("Init...");
             CurrentSession = customSession;
+            CurrentSession.ConnectionToken = FireballTools.GenerateConnectionToken();
+
             _customRouterUrl = CurrentSession.Router;
 
             // Websocket module init
@@ -112,10 +114,11 @@ namespace KAU.FireballSDK
             _networkChecker.OnNetworkConnectionChanged += OnInternetConnection;
 
             // Connect to App Messages WebSocket server
-            _messenger.Connect(CurrentSession.WsServer, CurrentSession.WsToken,
-                () =>
+            _messenger.Connect(CurrentSession.WsServer, CurrentSession.ConnectionToken,
+                (connectionId) =>
                 {
                     _fireballLogger.Log("OnInit: Success!");
+                    CurrentSession.ConnectionId = connectionId;
                     onSuccess?.Invoke(CurrentSession);
                 },
                 (error) =>

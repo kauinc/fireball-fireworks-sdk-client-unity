@@ -48,7 +48,7 @@ namespace KAU.FireballSDK.Modules
             _currentSession = fireballSession;
         }
 
-        public void Connect(string server, string wsToken, Action onConnect = null, Action<string> onError = null)
+        public void Connect(string server, string wsToken, Action<string> onConnect = null, Action<string> onError = null)
         {
             ConnectAsync(server, wsToken, onConnect, onError);
         }
@@ -65,7 +65,7 @@ namespace KAU.FireballSDK.Modules
             DisconnectAsync();
         }
 
-        private async void ConnectAsync(string server, string wsToken, Action onConnect = null, Action<string> onError = null)
+        private async void ConnectAsync(string server, string connectionToken, Action<string> onConnect = null, Action<string> onError = null)
         {
             if (string.IsNullOrEmpty(server))
             {
@@ -74,7 +74,7 @@ namespace KAU.FireballSDK.Modules
                 return;
             }
             
-            if (string.IsNullOrEmpty(wsToken))
+            if (string.IsNullOrEmpty(connectionToken))
             {
                 _fireballLogger.LogError("Can't connect! wsToken = null");
                 onError?.Invoke("Can't connect! wsToken = null");
@@ -99,7 +99,7 @@ namespace KAU.FireballSDK.Modules
                 {
                     { "EIO", "4" },
                     { "transport", "websocket" },
-                    { "wsToken", wsToken },
+                    { "connectionToken", connectionToken },
                     { "environment", _currentSession.Environment },
                     { "operatorId", _currentSession.OperatorId },
                     { "gameId", _currentSession.GameId },
@@ -116,7 +116,7 @@ namespace KAU.FireballSDK.Modules
 #endif
 
                 _serverURL = server;
-                _closeMessageJSON = new WebSocketClose(wsToken).ToJson();
+                _closeMessageJSON = new WebSocketClose(connectionToken).ToJson();
                 _websocket = new WebSocket(serverUrlFull);
                 _websocket.OnOpen +=
                     () =>
@@ -127,7 +127,7 @@ namespace KAU.FireballSDK.Modules
                         }
 
                         OnOpen();
-                        onConnect?.Invoke();
+                        onConnect?.Invoke(connectionToken);
                     };
                 _websocket.OnError +=
                     (e) =>

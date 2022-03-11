@@ -13,8 +13,10 @@ namespace KAU.FireballSDK.Models
         public string gameId;
         public string playerId;
         public string gameSession;
-        public string wsToken;
+        public string connectionId;
         public long messageTimestamp;
+        /* DEPRECATED */
+        public string wsToken;
 
         public string ToJson() =>
             JsonConvert.SerializeObject(this);

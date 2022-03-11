@@ -7,8 +7,9 @@ namespace KAU.FireballSDK.Demo
     public class DemoScene : MonoBehaviour
     {
         private IFireball fireball;
+        private FireballSession fireballSession;
 
-        public void Start()
+        public void Init()
         {
             string url = GetCleosDiaryURLParams();
 
@@ -16,7 +17,18 @@ namespace KAU.FireballSDK.Demo
             fireball.Init(url,
                 session =>
                 {
-                    fireball.SendRequest<AuthRequest, AuthResponse>(new AuthRequest(session.Token, session.Mode, session),
+                    fireballSession = session;
+                },
+                errorString =>
+                {
+                    Debug.LogError(errorString);
+                },
+                Modules.MessengerType.SignalR);
+        }
+
+        public void Auth()
+        {
+            fireball.SendRequest<AuthRequest, AuthResponse>(new AuthRequest(fireballSession.Token, fireballSession.Mode, fireballSession),
                         response =>
                         {
                             if (response != null)
@@ -29,12 +41,6 @@ namespace KAU.FireballSDK.Demo
                         {
                             Debug.LogError(error.errorMessage.Message);
                         });
-                },
-                errorString =>
-                {
-                    Debug.LogError(errorString);
-                },
-                Modules.MessengerType.SignalR);
         }
 
         private string GetWilliamsQuestURLParams()

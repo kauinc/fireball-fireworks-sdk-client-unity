@@ -66,7 +66,7 @@ namespace KAU.FireballSDK.Modules
             _fireballLogger = new FireballLogger();
         }
 
-        public void Connect(string server, string wsToken, Action onConnect = null, Action<string> onError = null)
+        public void Connect(string server, string connectionToken, Action<string> onConnect = null, Action<string> onError = null)
         {
             if (string.IsNullOrEmpty(server))
             {
@@ -75,7 +75,7 @@ namespace KAU.FireballSDK.Modules
                 return;
             }
 
-            if (string.IsNullOrEmpty(wsToken))
+            if (string.IsNullOrEmpty(connectionToken))
             {
                 _fireballLogger.LogError("Can't connect! wsToken = null");
                 onError?.Invoke("Can't connect! wsToken = null");
@@ -90,7 +90,7 @@ namespace KAU.FireballSDK.Modules
                 {
                     {"EIO", "4"},
                     {"transport", "websocket"},
-                    {"wsToken", wsToken},
+                    {"connectionToken", connectionToken},
                     {"environment", _currentSession.Environment},
                     {"operatorId", _currentSession.OperatorId},
                     {"gameId", _currentSession.GameId},
@@ -106,7 +106,7 @@ namespace KAU.FireballSDK.Modules
                 {
                     _fireballLogger.Log($"SignalR: Connected - {e.ConnectionId}");
                     OnOpen();
-                    onConnect?.Invoke();
+                    onConnect?.Invoke(e.ConnectionId);
                 };
 
                 _signalR.ConnectionClosed += OnClose;
