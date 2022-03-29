@@ -4,28 +4,27 @@ using System.Collections.Generic;
 namespace KAU.FireballSDK.Models
 {
     [Serializable]
-    public abstract class BaseRequest : BaseModel
+    public class BaseRequest : BaseMessage
     {
-        public Dictionary<string, string> extra;
+        public Dictionary<string, string> Extra;
 
-        protected BaseRequest(string name, FireballSession session, string customActionID = null)
+        public BaseRequest(string name, FireballSession session, string customActionID = null)
         {
-            actionId = string.IsNullOrEmpty(customActionID) ? Tools.FireballTools.GenerateActionID() : customActionID;
-            this.name = name;
+            ActionId = string.IsNullOrEmpty(customActionID) ? Tools.FireballTools.GenerateActionID() : customActionID;
+            this.Name = name;
             
             if (session != null)
             {
-                environment = session.Environment;
-                operatorId = session.OperatorId;
-                gameId = session.GameId;
-                playerId = session.PlayerId;
-                gameSession = session.GameSession;
-                connectionId = session.ConnectionId;
-                wsToken = session.WsToken;
-                extra = session.Extra;
+                Environment = session.Environment;
+                OperatorId = session.OperatorId;
+                GameId = session.GameId;
+                PlayerId = session.PlayerId;
+                GameSession = session.GameSession;
+                ConnectionId = session.ConnectionId;
+                Extra = session.Extra;
             }
             
-            messageTimestamp = Tools.FireballTools.GetNowTimestampMilliSeconds();
+            MessageTimestamp = Tools.FireballTools.GetNowTimestampMilliSeconds();
         }
     }
 }

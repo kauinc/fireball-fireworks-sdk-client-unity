@@ -10,21 +10,10 @@ namespace KAU.FireballSDK.Modules
     public class WebSocketMessenger : IMessenger
     {
         public bool IsInit => _websocket != null && _websocket.State == WebSocketState.Open;
-        public bool IsConnected
-        {
-            get => _isConnected;
-            private set
-            {
-                if (_isConnected != value)
-                {
-                    _isConnected = value;
-                    OnConnectionChange?.Invoke(_isConnected);
-                }
-            }
-        }
+        public bool IsConnected => _isConnected;
         public bool IsClosed => _websocket == null || _websocket.State == WebSocketState.Closed;
 
-        public Action<bool> OnConnectionChange { get; set; }
+        public Action<bool, string> OnConnectionChange { get; set; }
         public Action<string> OnMessageReceived { get; set; }
         public Action<string> OnError;
         
@@ -33,6 +22,7 @@ namespace KAU.FireballSDK.Modules
         private WebSocketMono _webSocketMono = null;
         
         private string _serverURL;
+        private string _connectionToken;
         private bool _isDisconnecting;
         private bool _isConnected;
         
@@ -57,7 +47,10 @@ namespace KAU.FireballSDK.Modules
         {
             _fireballLogger.Log("WebSocket: Reconnecting...");
             _reconnectAttempt++;
-            Connect(_serverURL, _currentSession.WsToken);
+            Connect(_serverURL, _currentSession.WsToken, (id)=>
+            {
+
+            });
         }
 
         public void Disconnect()
@@ -126,7 +119,7 @@ namespace KAU.FireballSDK.Modules
                             return;
                         }
 
-                        OnOpen();
+                        OnOpen(connectionToken);
                         onConnect?.Invoke(connectionToken);
                     };
                 _websocket.OnError +=
@@ -157,20 +150,30 @@ namespace KAU.FireballSDK.Modules
             }
         }
 
-        private void OnOpen()
+        private void OnOpen(string connectionToken)
         {
             _fireballLogger.Log("WebSocket: Connection open!");
             
             _reconnectAttempt = 0;
-            IsConnected = true;
+            _connectionToken = connectionToken;
+            OnUpdateConnection(true, connectionToken);
         }
-        
+
+        private void OnUpdateConnection(bool isConnected, string connectionToken)
+        {
+            if (_isConnected != isConnected)
+            {
+                _isConnected = isConnected;
+                OnConnectionChange?.Invoke(_isConnected, connectionToken);
+            }
+        }
+
         private void OnClose(WebSocketCloseCode code)
         {
             _fireballLogger.Log($"WebSocket: Connection closed! code {code}");
             if (_isDisconnecting) return;
 
-            IsConnected = false;
+            OnUpdateConnection(false, _connectionToken);
 
             if (code != WebSocketCloseCode.Normal)
             {

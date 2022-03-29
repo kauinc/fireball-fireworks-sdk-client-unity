@@ -29,7 +29,7 @@ namespace KAU.FireballSDK
 
         void SendPOST(
             string url,
-            BaseModel request,
+            BaseMessage request,
             Action<string> onSuccess = null,
             Action<string> onError = null);
 

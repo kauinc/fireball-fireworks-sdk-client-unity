@@ -105,6 +105,7 @@ namespace KAU.FireballSDK
             }
 
             _messenger.OnMessageReceived += OnMessageReceived;
+            _messenger.OnConnectionChange += OnConnectionChange;
 
             // Send ping to warm up Fireball system
             SendPing();
@@ -128,7 +129,7 @@ namespace KAU.FireballSDK
                 });
         }
 
-        private void SendPing() =>
+        public void SendPing() =>
             SendPOST(URLRouter, new PingRequest(CurrentSession));
 
         private void OnInternetConnection(bool connected)
@@ -194,14 +195,14 @@ namespace KAU.FireballSDK
 
         public void SendPOST(
             string url,
-            BaseModel request,
+            BaseMessage request,
             Action<string> onSuccess = null,
             Action<string> onError = null) =>
             StartCoroutine(SendPOSTCoroutine(url, request, onSuccess, onError));
 
         private IEnumerator SendPOSTCoroutine(
             string url,
-            BaseModel request,
+            BaseMessage request,
             Action<string> onSuccess,
             Action<string> onError)
         {
@@ -248,16 +249,16 @@ namespace KAU.FireballSDK
         {
             CheckAndClearPendingResponses();
 
-            _lastActionID = request.actionId;
+            _lastActionID = request.ActionId;
 
             float timePassed = 0;
             int attemptsLeft = attemptsCount - 1;
-            _pendingRequests.Add(request.actionId, request.name);
+            _pendingRequests.Add(request.ActionId, request.Name);
 
             SendPOST(URLRouter, request, null,
                 errorReason => { onError?.Invoke(new ErrorResponse() {reason = errorReason}); });
 
-            while (!IsPendingResponse(request.actionId))
+            while (!IsPendingResponse(request.ActionId))
             {
                 if (timeout > 0 && timePassed >= timeout)
                 {
@@ -270,18 +271,18 @@ namespace KAU.FireballSDK
                     }
                     else
                     {
-                        _fireballLogger.LogError($"Timeout for message {request.name} {request.actionId}! " +
+                        _fireballLogger.LogError($"Timeout for message {request.Name} {request.ActionId}! " +
                                                  $"Time passed: {timePassed} sec! " +
                                                  $"Attempts = {attemptsCount - attemptsLeft}");
 
                         ErrorResponse error = new ErrorResponse()
                         {
-                            actionId = request.actionId,
-                            name = ErrorResponse.TYPE_TIMEOUT,
+                            ActionId = request.ActionId,
+                            Name = ErrorResponse.TYPE_TIMEOUT,
                             type = ErrorResponse.TYPE_TIMEOUT,
                             reason = ErrorResponse.MakeReason(string.Format(ErrorResponse.MESSAGE_TIMEOUT, timeout))
                         };
-                        AddPendingResponse(request.actionId, error.ToJson());
+                        AddPendingResponse(request.ActionId, error.ToJson());
                     }
                 }
                 else
@@ -291,30 +292,30 @@ namespace KAU.FireballSDK
                 }
             }
 
-            _fireballLogger.Log($"Message received {request.name} {request.actionId}! " +
+            _fireballLogger.Log($"Message received {request.Name} {request.ActionId}! " +
                                 $"Time passed: {timePassed:F1} sec! " +
                                 $"Attempts = {attemptsCount}");
 
-            string responseString = GetPendingResponse(request.actionId);
-            TResponse response = JsonConvert.DeserializeObject<TResponse>(responseString);
+            string responseString = GetPendingResponse(request.ActionId);
+            ResponseMessageWrapper<TResponse> response = JsonConvert.DeserializeObject<ResponseMessageWrapper<TResponse>>(responseString);
 
             if (response != null)
             {
-                onSuccess?.Invoke(response);
+                onSuccess?.Invoke(response.Message);
             }
             else
             {
                 onError?.Invoke(ErrorResponse.ParseError(responseString));
             }
 
-            if (_pendingRequests.ContainsKey(request.actionId))
+            if (_pendingRequests.ContainsKey(request.ActionId))
             {
-                _pendingRequests.Remove(request.actionId);
+                _pendingRequests.Remove(request.ActionId);
             }
 
-            if (_pendingResponses.ContainsKey(request.actionId))
+            if (_pendingResponses.ContainsKey(request.ActionId))
             {
-                _pendingResponses.Remove(request.actionId);
+                _pendingResponses.Remove(request.ActionId);
             }
 
             CheckAndClearPendingResponses();
@@ -380,23 +381,31 @@ namespace KAU.FireballSDK
 
         private void OnMessageReceived(string json)
         {
-            Debug.Log($"On Message Received: data = {json}");
+            _fireballLogger.Log($"On Message Received: data = {json}");
 
-            BaseResponse data = JsonConvert.DeserializeObject<BaseResponse>(json);
+            ResponseMessageWrapper<BaseResponse> data = JsonConvert.DeserializeObject<ResponseMessageWrapper<BaseResponse>>(json);
             if (data == null)
             {
                 _fireballLogger.LogError("On Message error: can't parse json!");
                 return;
             }
 
-            if (string.IsNullOrEmpty(data.actionId))
+            if (string.IsNullOrEmpty(data.ActionId))
             {
                 _fireballLogger.LogError("On Message error: actionID == null!");
                 AddPendingResponse(_lastActionID, json);
             }
             else
             {
-                AddPendingResponse(data.actionId, json);
+                AddPendingResponse(data.ActionId, json);
+            }
+        }
+
+        private void OnConnectionChange(bool isConnected, string connectionId)
+        {
+            if (isConnected)
+            {
+                CurrentSession.ConnectionId = connectionId;
             }
         }
     }

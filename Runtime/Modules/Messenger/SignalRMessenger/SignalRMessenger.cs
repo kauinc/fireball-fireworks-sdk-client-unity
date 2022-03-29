@@ -18,30 +18,18 @@ namespace KAU.FireballSDK.Modules
     [Serializable]
     public class SignalRMessageData
     {
-        public string name;
-        public string wsMessageId;
+        public string Name;
+        public string ActionId;
+        public string WsMessageId;
     }
 
     public class SignalRMessenger : IMessenger
     {
         public bool IsInit => _signalR != null && _state == SignalRState.Open;
-
-        public bool IsConnected
-        {
-            get => _isConnected.Value;
-            private set
-            {
-                if (_isConnected != value)
-                {
-                    _isConnected = value;
-                    OnConnectionChange?.Invoke(_isConnected.Value);
-                }
-            }
-        }
-
+        public bool IsConnected => _isConnected != null && _isConnected.Value;
         public bool IsClosed => _signalR == null || _state == SignalRState.Closed;
 
-        public Action<bool> OnConnectionChange { get; set; }
+        public Action<bool, string> OnConnectionChange { get; set; }
         public Action<string> OnMessageReceived { get; set; }
         public Action<string> OnError;
 
@@ -105,7 +93,7 @@ namespace KAU.FireballSDK.Modules
                 _signalR.ConnectionStarted += (sender, e) =>
                 {
                     _fireballLogger.Log($"SignalR: Connected - {e.ConnectionId}");
-                    OnOpen();
+                    OnOpen(e.ConnectionId);
                     onConnect?.Invoke(e.ConnectionId);
                 };
 
@@ -127,7 +115,7 @@ namespace KAU.FireballSDK.Modules
             _fireballLogger.Log("SignalR: Reconnecting...");
             _signalR = null;
             _reconnectAttempt++;
-            Connect(_serverURL, _currentSession.WsToken);
+            Connect(_serverURL, _currentSession.ConnectionToken);
         }
 
         public void Disconnect()
@@ -140,18 +128,18 @@ namespace KAU.FireballSDK.Modules
             }
         }
 
-        private void OnOpen()
+        private void OnOpen(string connectionId)
         {
             _state = SignalRState.Open;
             _reconnectAttempt = 0;
-            IsConnected = true;
+            OnUpdateConnection(true, connectionId);
         }
 
         private void OnClose(object sender, ConnectionEventArgs e)
         {
             _fireballLogger.Log(
                 $"SignalR: Disconnected - {e.ConnectionId} {(_state == SignalRState.Closing ? "(Normal)" : "(Abnormal)")}");
-            IsConnected = false;
+            OnUpdateConnection(false, e.ConnectionId);
             if (_state == SignalRState.Closing)
             {
                 _state = SignalRState.Closed;
@@ -172,6 +160,15 @@ namespace KAU.FireballSDK.Modules
             }
         }
 
+        private void OnUpdateConnection(bool isConnected, string connectionId)
+        {
+            if (_isConnected != isConnected)
+            {
+                _isConnected = isConnected;
+                OnConnectionChange?.Invoke(_isConnected.Value, connectionId);
+            }
+        }
+
         private void OnMessage(string message)
         {
             _fireballLogger.Log($"SignalR: {MESSAGE_RECEIVE} - {message}");
@@ -182,7 +179,7 @@ namespace KAU.FireballSDK.Modules
                 return;
             }
 
-            SendMessage(MESSAGE_ACKNOWLEDGE, data.wsMessageId);
+            SendMessage(MESSAGE_ACKNOWLEDGE, data.WsMessageId);
             OnMessageReceived?.Invoke(message);
         }
 
