@@ -187,7 +187,7 @@ namespace KAU.FireballSDK.Modules
         {
             if (IsConnected)
             {
-                _fireballLogger.Log($"SignalR: Sending message = {message} to channel = {channel}");
+                _fireballLogger.Log($"SignalR: Sending {channel} message = {message}");
                 _signalR.Invoke(channel, message);
             }
         }

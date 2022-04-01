@@ -6,6 +6,7 @@ using KAU.FireballSDK.Models;
 using KAU.FireballSDK.Modules;
 using KAU.FireballSDK.Tools;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -59,7 +60,7 @@ namespace KAU.FireballSDK
         private INetworkChecker _networkChecker;
 
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
-        private readonly Dictionary<string, string> _pendingResponses = new Dictionary<string, string>();
+        private readonly Dictionary<string, JToken> _pendingResponses = new Dictionary<string, JToken>();
 
 
         private string URLRouter =>
@@ -139,7 +140,7 @@ namespace KAU.FireballSDK
                 return;
             }
 
-            _fireballLogger.Log($"On Connection change: connected = {connected}");
+            //_fireballLogger.Log($"On Connection change: connected = {connected}");
 
             if (_messenger is { IsClosed: true })
             {
@@ -176,19 +177,19 @@ namespace KAU.FireballSDK
         {
             url = FireballTools.FormatUrlAndParams(url, data);
 
-            _fireballLogger.Log($"SEND GET: url = {url}");
+            _fireballLogger.Log($"Sending GET Request to URL = {url}");
             using UnityWebRequest www = UnityWebRequest.Get(url);
             yield return www.SendWebRequest();
 
             if (www.result == UnityWebRequest.Result.ConnectionError ||
                 www.result == UnityWebRequest.Result.ProtocolError)
             {
-                _fireballLogger.LogError($"Error: {www.error}");
+                _fireballLogger.LogError($"GET Request Error: {www.error}");
                 onError?.Invoke(www.error);
             }
             else
             {
-                _fireballLogger.Log($"Complete: {www.downloadHandler.text} ({www.responseCode})");
+                _fireballLogger.Log($"GET Response: {www.downloadHandler.text} ({www.responseCode})");
                 onSuccess?.Invoke(www.downloadHandler.text);
             }
         }
@@ -208,8 +209,8 @@ namespace KAU.FireballSDK
         {
             byte[] bytes = Encoding.UTF8.GetBytes(request.ToJson());
 
-            _fireballLogger.Log($"SEND POST: url = {url}");
-            _fireballLogger.Log($"SEND POST: data = {request.ToJson()}");
+            _fireballLogger.Log($"Message - {request.Name} - Sending... (ActionId: {request.ActionId})" +
+                $"\nMesaage: {request.ToJson()}");
 
             using UnityWebRequest www = UnityWebRequest.Post(url, request.ToJson());
             www.uploadHandler = new UploadHandlerRaw(bytes);
@@ -220,12 +221,13 @@ namespace KAU.FireballSDK
             if (www.result == UnityWebRequest.Result.ConnectionError ||
                 www.result == UnityWebRequest.Result.ProtocolError)
             {
-                _fireballLogger.LogError($"Error: {www.error}");
+                //_fireballLogger.LogError($"Error: {www.error}");
+                _fireballLogger.LogError($"Message - {request.Name} - Error: {www.error} (ActionId: {request.ActionId})");
                 onError?.Invoke(www.error);
             }
             else
             {
-                _fireballLogger.Log($"Complete: {www.downloadHandler.text} ({www.responseCode})");
+                _fireballLogger.Log($"Message - {request.Name} - Sent (ActionId: {request.ActionId})");
                 onSuccess?.Invoke(www.downloadHandler.text);
             }
         }
@@ -256,7 +258,10 @@ namespace KAU.FireballSDK
             _pendingRequests.Add(request.ActionId, request.Name);
 
             SendPOST(URLRouter, request, null,
-                errorReason => { onError?.Invoke(new ErrorResponse() {reason = errorReason}); });
+                errorReason =>
+                {
+                    onError?.Invoke(ErrorResponse.CustomError(request.ActionId, errorReason));
+                });
 
             while (!IsPendingResponse(request.ActionId))
             {
@@ -272,17 +277,8 @@ namespace KAU.FireballSDK
                     else
                     {
                         _fireballLogger.LogError($"Timeout for message {request.Name} {request.ActionId}! " +
-                                                 $"Time passed: {timePassed} sec! " +
-                                                 $"Attempts = {attemptsCount - attemptsLeft}");
-
-                        ErrorResponse error = new ErrorResponse()
-                        {
-                            ActionId = request.ActionId,
-                            Name = ErrorResponse.TYPE_TIMEOUT,
-                            type = ErrorResponse.TYPE_TIMEOUT,
-                            reason = ErrorResponse.MakeReason(string.Format(ErrorResponse.MESSAGE_TIMEOUT, timeout))
-                        };
-                        AddPendingResponse(request.ActionId, error.ToJson());
+                                                 $"Time passed: {timePassed} sec, Attempts = {attemptsCount - attemptsLeft}");
+                        AddPendingResponse(request.ActionId, ErrorResponse.TimeoutResponse(request.ActionId, timeout).ToJson());
                     }
                 }
                 else
@@ -292,21 +288,35 @@ namespace KAU.FireballSDK
                 }
             }
 
-            _fireballLogger.Log($"Message received {request.Name} {request.ActionId}! " +
-                                $"Time passed: {timePassed:F1} sec! " +
-                                $"Attempts = {attemptsCount}");
-
-            string responseString = GetPendingResponse(request.ActionId);
-            ResponseMessageWrapper<TResponse> response = JsonConvert.DeserializeObject<ResponseMessageWrapper<TResponse>>(responseString);
-
-            if (response != null)
+            var responseObject = GetPendingResponse(request.ActionId);
+            try
             {
-                onSuccess?.Invoke(response.Message);
+                string errorReason = responseObject[nameof(ErrorResponse.Reason)]?.ToString();
+                if (string.IsNullOrEmpty(errorReason))
+                {
+                    var response = responseObject.ToObject<TResponse>();
+                    _fireballLogger.Log($"Message - {response.Name} - Received (ActionId: {response.ActionId})" +
+                        $"\nMessage: {response.ToJson()}" +
+                        $"\nTime passed: {timePassed:F1} sec, Attempts: {attemptsCount}");
+
+                    onSuccess?.Invoke(response);
+                }
+                else
+                {
+                    var error = responseObject.ToObject<ErrorResponse>();
+                    _fireballLogger.LogError($"Message - {error.Name} - Error (ActionId: {error.ActionId})" +
+                        $"\nError: {error.ToJson()}" +
+                        $"\nTime passed: {timePassed:F1} sec, Attempts: {attemptsCount}");
+
+                    onError?.Invoke(error);
+                }
             }
-            else
+            catch(Exception e)
             {
-                onError?.Invoke(ErrorResponse.ParseError(responseString));
+                _fireballLogger.LogError(e.Message);
+                onError?.Invoke(ErrorResponse.CustomError(request.ActionId, e.Message));
             }
+            
 
             if (_pendingRequests.ContainsKey(request.ActionId))
             {
@@ -325,7 +335,7 @@ namespace KAU.FireballSDK
             _pendingResponses.ContainsKey(actionID) ||
             string.Join(",", _pendingResponses.Keys).Contains(actionID);
 
-        private string GetPendingResponse(string actionID)
+        private JToken GetPendingResponse(string actionID)
         {
             if (_pendingResponses.ContainsKey(actionID))
             {
@@ -343,10 +353,9 @@ namespace KAU.FireballSDK
             return null;
         }
 
-        private void AddPendingResponse(string actionID, string response)
+        private void AddPendingResponse(string actionID, JToken response) //string response)
         {
-            _fireballLogger.Log($"Set Pending response actionID = {actionID}");
-
+            //_fireballLogger.Log($"Set Pending response actionID = {actionID}");
             if (_pendingResponses.ContainsKey(actionID))
             {
                 _pendingResponses[actionID] = response;
@@ -381,23 +390,33 @@ namespace KAU.FireballSDK
 
         private void OnMessageReceived(string json)
         {
-            _fireballLogger.Log($"On Message Received: data = {json}");
+            //_fireballLogger.Log($"On Message Received: {json}");
+            try
+            {
+                var data = JObject.Parse(json);
+                if (data == null)
+                {
+                    _fireballLogger.LogError("On Message error: can't parse json!");
+                    return;
+                }
 
-            ResponseMessageWrapper<BaseResponse> data = JsonConvert.DeserializeObject<ResponseMessageWrapper<BaseResponse>>(json);
-            if (data == null)
-            {
-                _fireballLogger.LogError("On Message error: can't parse json!");
-                return;
-            }
+                var actionId = data[nameof(ResponseMessageWrapper<BaseResponse>.ActionId)]?.ToString();
+                var messageObject = data[nameof(ResponseMessageWrapper<BaseResponse>.Message)];
 
-            if (string.IsNullOrEmpty(data.ActionId))
-            {
-                _fireballLogger.LogError("On Message error: actionID == null!");
-                AddPendingResponse(_lastActionID, json);
+                if (string.IsNullOrEmpty(actionId))
+                {
+                    _fireballLogger.LogError("On Message error: actionID == null!");
+                    AddPendingResponse(_lastActionID, messageObject);
+                }
+                else
+                {
+                    AddPendingResponse(actionId, messageObject);
+                }
+
             }
-            else
+            catch(Exception e)
             {
-                AddPendingResponse(data.ActionId, json);
+                _fireballLogger.LogError($"On Message error: can't parse json! Exception: {e.Message}");
             }
         }
 

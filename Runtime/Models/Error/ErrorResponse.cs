@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace KAU.FireballSDK.Models
@@ -5,31 +6,39 @@ namespace KAU.FireballSDK.Models
     [System.Serializable]
     public class ErrorResponse : BaseResponse
     {
-        public const string TYPE_ERROR = "error";
-        public const string TYPE_TIMEOUT = "timeout";
+        public const string TIMEOUT_REASON = "Message aborted due time out {0} sec";
+        public const string NAME_ERROR = "error";
+        public const string NAME_TIMEOUT = "timeout";
 
-        public const string MESSAGE_TIMEOUT = "Message aborted due time out {0} sec";
+        public int Code;
+        public string Reason;
 
-        public string reason;
-        public string type;
-        public ErrorMessage errorMessage = new ErrorMessage();
+        public bool HasMessage => !string.IsNullOrEmpty(Reason);
+        public string Message => HasMessage ? Reason : string.Empty;
 
-        public bool HasMessage => !string.IsNullOrEmpty(reason) || (errorMessage != null && errorMessage.HasMessage);
-        public string Message => HasMessage ? (errorMessage != null && errorMessage.HasMessage ? errorMessage.Message : reason) : string.Empty;
+        public bool IsCustomError => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_ERROR);
+        public bool IsTimeout => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_TIMEOUT);
 
-        public bool IsCustomError => !string.IsNullOrEmpty(Name) && Name.Equals(TYPE_ERROR);
-        public bool IsTimeout => !string.IsNullOrEmpty(Name) && Name.Equals(TYPE_TIMEOUT) || !string.IsNullOrEmpty(type) && type.Equals(TYPE_TIMEOUT);
-
-        public static string MakeReason(string message)
+        public static ErrorResponse CustomError(string actionId, string reason, int code = 0)
         {
-            return message;
+            return new ErrorResponse()
+            {
+                ActionId = actionId,
+                Name = NAME_ERROR,
+                Reason = reason,
+                Code = code,
+            };
         }
 
-        public static ErrorResponse ParseError(string json)
+        public static ErrorResponse TimeoutResponse(string actionId, float timeout, int code = 0)
         {
-            ErrorResponse error = JsonUtility.FromJson<ErrorResponse>(json);
-            error.errorMessage = JsonUtility.FromJson<ErrorMessage>(json);
-            return error;
+            return new ErrorResponse()
+            {
+                ActionId = actionId,
+                Name = NAME_TIMEOUT,
+                Reason = string.Format(TIMEOUT_REASON, timeout),
+                Code = code,
+            };
         }
     }
 }
