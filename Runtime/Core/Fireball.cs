@@ -62,6 +62,8 @@ namespace KAU.FireballSDK
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
         private readonly Dictionary<string, JToken> _pendingResponses = new Dictionary<string, JToken>();
 
+        private Action<FireballSession> _onInitSuccess = null;
+        private Action<string> _onInitError = null;
 
         private string URLRouter =>
             !string.IsNullOrEmpty(_customRouterUrl) ? _customRouterUrl : FireballConfig.URL_ROUTER_DEFAULT;
@@ -88,6 +90,9 @@ namespace KAU.FireballSDK
         {
             _fireballLogger = new FireballLogger();
             _networkChecker = new NetworkChecker(this, 2.0f);
+
+            _onInitSuccess = onSuccess;
+            _onInitError = onError;
 
             _fireballLogger.Log("Init...");
             CurrentSession = customSession;
@@ -121,12 +126,14 @@ namespace KAU.FireballSDK
                 {
                     _fireballLogger.Log("OnInit: Success!");
                     CurrentSession.ConnectionId = connectionId;
-                    onSuccess?.Invoke(CurrentSession);
+                    _onInitSuccess?.Invoke(CurrentSession);
+                    _onInitSuccess = null;
                 },
                 (error) =>
                 {
                     _fireballLogger.LogError($"OnInit: Error! {error}");
-                    onError?.Invoke(error);
+                    _onInitError?.Invoke(error);
+                    _onInitError = null;
                 });
         }
 
@@ -412,7 +419,6 @@ namespace KAU.FireballSDK
                 {
                     AddPendingResponse(actionId, messageObject);
                 }
-
             }
             catch(Exception e)
             {
@@ -425,6 +431,9 @@ namespace KAU.FireballSDK
             if (isConnected)
             {
                 CurrentSession.ConnectionId = connectionId;
+
+                _onInitSuccess?.Invoke(CurrentSession);
+                _onInitSuccess = null;
             }
         }
     }

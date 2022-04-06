@@ -176,6 +176,9 @@ namespace KAU.FireballSDK.Modules.SignalRPlugin
 
         public void Init(string url)
         {
+            types.Clear();
+            handlers.Clear();
+
             InitJs(url);
         }
         #endregion
