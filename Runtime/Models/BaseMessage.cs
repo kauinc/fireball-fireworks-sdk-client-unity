@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace KAU.FireballSDK.Models
 {
     [Serializable]
-    public class BaseMessage
+    public abstract class BaseMessage
     {
         public string Name;
         public string ActionId;
@@ -15,6 +16,7 @@ namespace KAU.FireballSDK.Models
         public string GameSession;
         public string ConnectionId;
         public long MessageTimestamp;
+        public Dictionary<string, string> Extra;
 
         public string ToJson() =>
             JsonConvert.SerializeObject(this);

@@ -13,9 +13,6 @@ namespace KAU.FireballSDK.Models
         public int Code;
         public string Reason;
 
-        public bool HasMessage => !string.IsNullOrEmpty(Reason);
-        public string Message => HasMessage ? Reason : string.Empty;
-
         public bool IsCustomError => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_ERROR);
         public bool IsTimeout => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_TIMEOUT);
 

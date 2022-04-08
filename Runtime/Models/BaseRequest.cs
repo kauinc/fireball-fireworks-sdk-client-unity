@@ -6,8 +6,6 @@ namespace KAU.FireballSDK.Models
     [Serializable]
     public class BaseRequest : BaseMessage
     {
-        public Dictionary<string, string> Extra;
-
         public BaseRequest(string name, FireballSession session, string customActionID = null)
         {
             ActionId = string.IsNullOrEmpty(customActionID) ? Tools.FireballTools.GenerateActionID() : customActionID;
