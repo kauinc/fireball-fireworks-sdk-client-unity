@@ -9,38 +9,60 @@ namespace KAU.FireballSDK.Demo
         private IFireball fireball;
         private FireballSession fireballSession;
 
+        public void Start()
+        {
+            fireball = Fireball.Instance;
+        }
+
         public void Init()
         {
-            string url = GetCleosDiaryURLParams();
-
-            fireball = Fireball.Instance;
-            fireball.Init(url,
+            fireball.Init(GetCleosDiaryURLParams(),
                 session =>
                 {
+                    Debug.Log($"[DEMO] OnInit Success: {JsonUtility.ToJson(session)}");
                     fireballSession = session;
                 },
                 errorString =>
                 {
-                    Debug.LogError(errorString);
+                    Debug.LogError($"[DEMO] OnInit Error: {errorString}");
                 },
                 Modules.MessengerType.SignalR);
         }
 
+        public void Ping()
+        {
+            (fireball as Fireball).SendPing();
+        }
+
         public void Auth()
         {
-            fireball.SendRequest<AuthRequest, AuthResponse>(new AuthRequest(fireballSession.Token, fireballSession.Mode, fireballSession),
-                        response =>
-                        {
-                            if (response != null)
-                            {
-                                fireball.CurrentSession.GameSession = response.gameSession;
-                                fireball.CurrentSession.PlayerId = response.playerId;
-                            }
-                        },
-                        error =>
-                        {
-                            Debug.LogError(error.errorMessage.Message);
-                        });
+            fireball.SendRequest<AuthRequest, AuthResponse>(new AuthRequest(fireballSession),
+                response =>
+                {
+                    if (response != null)
+                    {
+                        Debug.Log($"[DEMO] OnAuth: {response.ToJson()}");
+                        fireball.CurrentSession.GameSession = response.GameSession;
+                        fireball.CurrentSession.PlayerId = response.PlayerId;
+                    }
+                },
+                error =>
+                {
+                    Debug.LogError($"[DEMO] OnAuth Error: {error.ToJson()}");
+                });
+        }
+
+        public void CustomMessage()
+        {
+            fireball.SendRequest<CustomRequest, CustomResponse>(new CustomRequest("Hello world!", fireballSession),
+                response =>
+                {
+                    Debug.Log($"[DEMO] OnAuth: {response.ToJson()}");
+                },
+                error =>
+                {
+                    Debug.LogError($"[DEMO] OnAuth Error: {error.ToJson()}");
+                });
         }
 
         private string GetWilliamsQuestURLParams()

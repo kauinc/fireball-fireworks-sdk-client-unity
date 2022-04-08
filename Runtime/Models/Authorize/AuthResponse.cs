@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using KAU.FireballSDK.Models;
 
-namespace KAU.FireballSDK.Demo.Requests
+namespace KAU.FireballSDK.Models
 {
     public class AuthResponse : BaseResponse
     {

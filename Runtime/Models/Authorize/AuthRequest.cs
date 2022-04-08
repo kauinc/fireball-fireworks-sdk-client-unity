@@ -1,7 +1,7 @@
 ﻿using KAU.FireballSDK;
 using KAU.FireballSDK.Models;
 
-namespace KAU.FireballSDK.Demo.Requests
+namespace KAU.FireballSDK.Models
 {
     public class AuthRequest : BaseRequest
     {
