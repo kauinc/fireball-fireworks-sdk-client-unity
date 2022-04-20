@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using KAU.FireballSDK.Models;
 
 namespace KAU.FireballSDK.Models
 {
@@ -7,13 +6,13 @@ namespace KAU.FireballSDK.Models
     {
         public const string RESPONSE_NAME = "session";
 
-        public string Currency;
-        public int Balance;
-        public int Coins;
-        public string LastActionId;
-        public Dictionary<string, object> GameState;
-        public Dictionary<string, object> server_side;
-        public Dictionary<string, object> client_side;
+        public string Currency { get; set; }
+        public int Balance { get; set; }
+        public int Coins { get; set; }
+        public string LastActionId { get; set; }
+        public Dictionary<string, object> GameState { get; set; }
+        public Dictionary<string, object> server_side { get; set; }
+        public Dictionary<string, object> client_side { get; set; }
 
         public AuthResponse()
         {

@@ -13,6 +13,8 @@ namespace KAU.FireballSDK
         bool IsAuth { get; }
         bool IsDemo { get; }
 
+        Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
+
         void Init(Action<FireballSession> onSuccess = null, Action<string> onError = null);
 
         void Init(

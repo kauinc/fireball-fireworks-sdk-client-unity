@@ -47,6 +47,8 @@ namespace KAU.FireballSDK
 
         public bool IsDemo => CurrentSession.GameSession.Equals(FireballConfig.DEMO_SESSION);
 
+        public Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
+
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
 
@@ -409,15 +411,25 @@ namespace KAU.FireballSDK
 
                 var actionId = data[nameof(ResponseMessageWrapper<BaseResponse>.ActionId)]?.ToString();
                 var messageObject = data[nameof(ResponseMessageWrapper<BaseResponse>.Message)];
+                var name = messageObject?[nameof(JackpotUpdateMessage.name)]?.ToString();
 
-                if (string.IsNullOrEmpty(actionId))
+                if (name == JackpotUpdateMessage.MESSAGE_NAME)
                 {
-                    _fireballLogger.LogError("On Message error: actionID == null!");
-                    AddPendingResponse(_lastActionID, messageObject);
+                    var jackpotMessage = messageObject.ToObject<JackpotUpdateMessage>();
+                    _fireballLogger.Log($"On Jackpot Message Received: {jackpotMessage?.ToJson()}");
+                    OnJackpotUpdate?.Invoke(jackpotMessage);
                 }
                 else
                 {
-                    AddPendingResponse(actionId, messageObject);
+                    if (string.IsNullOrEmpty(actionId))
+                    {
+                        _fireballLogger.LogError("On Message error: actionID == null!");
+                        AddPendingResponse(_lastActionID, messageObject);
+                    }
+                    else
+                    {
+                        AddPendingResponse(actionId, messageObject);
+                    }
                 }
             }
             catch(Exception e)

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace KAU.FireballSDK.Models
+﻿namespace KAU.FireballSDK.Models
 {
-    [Serializable]
     public class BaseRequest : BaseMessage
     {
         public BaseRequest(string name, FireballSession session, string customActionID = null)

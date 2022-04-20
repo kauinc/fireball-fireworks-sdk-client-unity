@@ -1,17 +1,13 @@
-using Newtonsoft.Json;
-using UnityEngine;
-
 namespace KAU.FireballSDK.Models
 {
-    [System.Serializable]
     public class ErrorResponse : BaseResponse
     {
         public const string TIMEOUT_REASON = "Message aborted due time out {0} sec";
         public const string NAME_ERROR = "error";
         public const string NAME_TIMEOUT = "timeout";
 
-        public int Code;
-        public string Reason;
+        public int Code { get; set; }
+        public string Reason { get; set; }
 
         public bool IsCustomError => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_ERROR);
         public bool IsTimeout => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_TIMEOUT);
