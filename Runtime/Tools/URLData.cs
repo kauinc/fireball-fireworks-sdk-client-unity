@@ -54,7 +54,7 @@ namespace KAU.FireballSDK.Tools
                 else if (param.Equals(PARAM_NAME_WS_SERVER))
                     session.WsServer = UnityWebRequest.UnEscapeURL(paramsDict[param]);
                 else if (param.Equals(PARAM_NAME_WS_TOKEN)) session.WsToken = paramsDict[param];
-                else if (param.Equals(PARAM_NAME_MODE)) session.Mode = paramsDict[param];
+                else if (param.Equals(PARAM_NAME_MODE)) session.GameMode = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_ROUTER_URL))
                     session.Router = UnityWebRequest.UnEscapeURL(paramsDict[param]);
                 else if (param.Equals(PARAM_NAME_HOME_URL))
@@ -138,19 +138,19 @@ namespace KAU.FireballSDK.Tools
                 session.Environment = FireballConfig.DEFAULT_ENVIRONMENT.ToString();
             }
 
-            if (string.IsNullOrEmpty(session.Mode))
+            if (string.IsNullOrEmpty(session.GameMode))
             {
                 logger.LogWarning("Url params don't contain - mode!");
-                session.Mode = FireballConfig.DEFAULT_GAME_MODE.ToString();
+                session.GameMode = FireballConfig.DEFAULT_GAME_MODE.ToString();
             }
-            else if (Enum.TryParse(session.Mode, true, out GameMode mode))
+            else if (Enum.TryParse(session.GameMode, true, out GameMode mode))
             {
-                session.Mode = mode.ToString();
+                session.GameMode = mode.ToString();
             }
             else
             {
-                logger.LogWarning($"Can't parse - mode! Mode String = {session.Mode}");
-                session.Mode = FireballConfig.DEFAULT_GAME_MODE.ToString();
+                logger.LogWarning($"Can't parse - mode! Mode String = {session.GameMode}");
+                session.GameMode = FireballConfig.DEFAULT_GAME_MODE.ToString();
             }
 
             if (Enum.TryParse(session.Environment, true, out Environments environments))

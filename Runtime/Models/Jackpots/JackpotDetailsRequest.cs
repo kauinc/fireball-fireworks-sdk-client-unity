@@ -9,12 +9,10 @@ namespace KAU.FireballSDK.Models
         public const string REQUEST_NAME = "jackpot-details";
 
         public List<string> JackpotTemplateIds { get; set; }
-        public string Currency { get; set; }
 
         public JackpotDetailsRequest(List<string> jackpotTemplateIds, FireballSession session) : base(REQUEST_NAME, session)
         {
             JackpotTemplateIds = jackpotTemplateIds;
-            Currency = session.Currency;
         }
     }
 }

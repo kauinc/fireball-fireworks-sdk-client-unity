@@ -6,9 +6,11 @@ namespace KAU.FireballSDK
     public class FireballSession
     {
         // Fireball data
-        public string Mode = string.Empty;
+        public string GameMode = string.Empty;
         public string Environment = string.Empty;
         public string OperatorId = string.Empty;
+        public string OperatorPlayerSession = string.Empty;
+        public string OperatorPlayerId = string.Empty;
         public string GameId = string.Empty;
         public string PlayerId = string.Empty;
         public string GameSession = string.Empty;

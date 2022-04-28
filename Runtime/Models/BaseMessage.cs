@@ -9,9 +9,13 @@ namespace KAU.FireballSDK.Models
         public string ActionId { get; set; }
         public string Environment { get; set; }
         public string OperatorId { get; set; }
+        public string OperatorPlayerSession { get; set; }
+        public string OperatorPlayerId { get; set; }
         public string GameId { get; set; }
         public string PlayerId { get; set; }
         public string GameSession { get; set; }
+        public string GameMode { get; set; }
+        public string Currency { get; set; }
         public string ConnectionId { get; set; }
         public long MessageTimestamp { get; set; }
         public Dictionary<string, string> Extra { get; set; }

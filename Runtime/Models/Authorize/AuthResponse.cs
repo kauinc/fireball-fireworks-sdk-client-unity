@@ -6,7 +6,6 @@ namespace KAU.FireballSDK.Models
     {
         public const string RESPONSE_NAME = "session";
 
-        public string Currency { get; set; }
         public int Balance { get; set; }
         public int Coins { get; set; }
         public string LastActionId { get; set; }
