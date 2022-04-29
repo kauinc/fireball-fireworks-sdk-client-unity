@@ -10,7 +10,7 @@ namespace KAU.FireballSDK.Tools
     {
         private const string PARAM_NAME_OPERATOR_ID = "operatorId";
         private const string PARAM_NAME_GAME_ID = "gameId";
-        private const string PARAM_NAME_PLAYER_ID = "playerId";
+        //private const string PARAM_NAME_PLAYER_ID = "playerId";
         private const string PARAM_NAME_ENVIRONMENT = "environment";
         private const string PARAM_NAME_LANGUAGE = "language";
         private const string PARAM_NAME_CURRENCY = "currency";
@@ -44,7 +44,7 @@ namespace KAU.FireballSDK.Tools
             {
                 if (param.Equals(PARAM_NAME_OPERATOR_ID)) session.OperatorId = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_GAME_ID)) session.GameId = paramsDict[param];
-                else if (param.Equals(PARAM_NAME_PLAYER_ID)) session.PlayerId = paramsDict[param];
+                //else if (param.Equals(PARAM_NAME_PLAYER_ID)) session.PlayerId = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_ENVIRONMENT)) session.Environment = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_LANGUAGE)) session.Language = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_CURRENCY)) session.Currency = paramsDict[param];
@@ -90,10 +90,10 @@ namespace KAU.FireballSDK.Tools
                 logger.LogWarning("Url params don't contain - gameId!");
             }
             
-            if (string.IsNullOrEmpty(session.PlayerId))
-            {
-                logger.LogWarning("Url params don't contain - playerId!");
-            }
+            //if (string.IsNullOrEmpty(session.PlayerId))
+            //{
+            //    logger.LogWarning("Url params don't contain - playerId!");
+            //}
             
             if (string.IsNullOrEmpty(session.Token))
             {
