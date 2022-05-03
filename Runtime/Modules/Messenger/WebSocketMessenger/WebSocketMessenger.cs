@@ -2,10 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using KAU.FireballSDK.Tools;
+using Fireball.Game.Client.Tools;
 using UnityEngine;
 
-namespace KAU.FireballSDK.Modules
+namespace Fireball.Game.Client.Modules
 {
     public class WebSocketMessenger : IMessenger
     {

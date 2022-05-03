@@ -1,21 +1,17 @@
 ﻿using System.Collections.Generic;
 
-namespace KAU.FireballSDK.Models
+namespace Fireball.Game.Client.Models
 {
     public class AuthResponse : BaseResponse
     {
         public const string RESPONSE_NAME = "session";
 
-        public int Balance { get; set; }
-        public int Coins { get; set; }
-        public string LastActionId { get; set; }
-        public Dictionary<string, object> GameState { get; set; }
-        public Dictionary<string, object> server_side { get; set; }
-        public Dictionary<string, object> client_side { get; set; }
+        public long Balance;
+        public long Coins;
+        public string LastActionId;
+        public Dictionary<string, object> GameState;
+        public Dictionary<string, object> server_side;
+        public Dictionary<string, object> client_side;
 
-        public AuthResponse()
-        {
-            Name = RESPONSE_NAME;
-        }
     }
 }

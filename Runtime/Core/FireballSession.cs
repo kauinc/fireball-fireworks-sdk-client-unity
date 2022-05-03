@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace KAU.FireballSDK
+namespace Fireball.Game.Client
 {
     [System.Serializable]
     public class FireballSession

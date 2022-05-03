@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using KAU.FireballSDK.Models;
-using KAU.FireballSDK.Modules;
+using Fireball.Game.Client.Models;
+using Fireball.Game.Client.Modules;
 
-namespace KAU.FireballSDK
+namespace Fireball.Game.Client
 {
     public interface IFireball
     {

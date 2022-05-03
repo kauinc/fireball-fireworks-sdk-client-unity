@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KAU.FireballSDK.Modules
+namespace Fireball.Game.Client.Modules
 {
     public interface INetworkChecker
     {

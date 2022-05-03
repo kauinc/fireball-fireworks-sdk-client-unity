@@ -1,10 +1,10 @@
-﻿namespace KAU.FireballSDK.Models
+﻿namespace Fireball.Game.Client.Models
 {
     public class AuthRequest : BaseRequest
     {
         public const string REQUEST_NAME = "authenticate";
 
-        public string Token { get; set; }
+        public string Token;
 
         public AuthRequest(FireballSession session) : base(REQUEST_NAME, session)
         {

@@ -1,4 +1,4 @@
-﻿namespace KAU.FireballSDK
+﻿namespace Fireball.Game.Client
 {
     public enum HttpMethod
     {

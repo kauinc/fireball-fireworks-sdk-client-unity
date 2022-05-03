@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 #endif
 
-namespace KAU.FireballSDK.Modules
+namespace Fireball.Game.Client.Modules
 {
     public class WebLocation
     {

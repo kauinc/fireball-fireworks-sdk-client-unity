@@ -1,4 +1,4 @@
-﻿namespace KAU.FireballSDK.Models
+﻿namespace Fireball.Game.Client.Models
 {
     public class BaseRequest : BaseMessage
     {

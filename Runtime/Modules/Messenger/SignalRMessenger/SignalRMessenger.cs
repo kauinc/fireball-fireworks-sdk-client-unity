@@ -2,10 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using KAU.FireballSDK.Tools;
-using KAU.FireballSDK.Modules.SignalRPlugin;
+using Fireball.Game.Client.Tools;
+using Fireball.Game.Client.Modules.SignalRPlugin;
 
-namespace KAU.FireballSDK.Modules
+namespace Fireball.Game.Client.Modules
 {
     public enum SignalRState
     {

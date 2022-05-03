@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace KAU.FireballSDK.Models
+namespace Fireball.Game.Client.Models
 {
     public class JackpotDetailsRequest : BaseRequest
     {
         public const string REQUEST_NAME = "jackpot-details";
 
-        public List<string> JackpotTemplateIds { get; set; }
+        public List<string> JackpotTemplateIds;
 
         public JackpotDetailsRequest(List<string> jackpotTemplateIds, FireballSession session) : base(REQUEST_NAME, session)
         {

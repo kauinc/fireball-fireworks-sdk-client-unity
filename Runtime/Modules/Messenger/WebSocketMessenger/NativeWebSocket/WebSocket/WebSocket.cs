@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using AOT;
 using UnityEngine;
 
-namespace KAU.FireballSDK.Modules
+namespace Fireball.Game.Client.Modules
 {
     public class MainThreadUtil : MonoBehaviour
     {

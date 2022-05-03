@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using KAU.FireballSDK.Modules;
+using Fireball.Game.Client.Modules;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace KAU.FireballSDK.Tools
+namespace Fireball.Game.Client.Tools
 {
     public static class URLData
     {

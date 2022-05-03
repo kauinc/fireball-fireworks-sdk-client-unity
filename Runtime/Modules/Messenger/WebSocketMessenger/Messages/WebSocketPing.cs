@@ -1,4 +1,4 @@
-namespace KAU.FireballSDK.Modules
+namespace Fireball.Game.Client.Modules
 {
     [System.Serializable]
     public class WebSocketPing : Jsonable

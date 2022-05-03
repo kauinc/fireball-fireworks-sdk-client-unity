@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace KAU.FireballSDK.Modules
+namespace Fireball.Game.Client.Modules
 {
     public class Jsonable : IJsonable
     {

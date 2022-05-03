@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace KAU.FireballSDK.Modules
+namespace Fireball.Game.Client.Modules
 {
     public class FireballLogger : IFireballLogger
     {

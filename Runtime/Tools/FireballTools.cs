@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace KAU.FireballSDK.Tools
+namespace Fireball.Game.Client.Tools
 {
     public static class FireballTools
     {

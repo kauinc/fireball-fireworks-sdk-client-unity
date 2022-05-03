@@ -1,4 +1,4 @@
-namespace KAU.FireballSDK.Models
+namespace Fireball.Game.Client.Models
 {
     public class BaseResponse : BaseMessage
     {
@@ -7,8 +7,8 @@ namespace KAU.FireballSDK.Models
 
     public class ResponseMessageWrapper<T> where T : BaseResponse
     {
-        public string ActionId { get; set; }
-        public string WsMessageId { get; set; }
-        public T Message { get; set; }
+        public string ActionId;
+        public string WsMessageId;
+        public T Message;
     }
 }

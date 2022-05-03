@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace KAU.FireballSDK.Models
+namespace Fireball.Game.Client.Models
 {
     public class JackpotDetailsResponse : BaseResponse
     {
         public const string RESPONSE_NAME = "jackpot-details-result";
 
-        public List<JackpotDetail> Jackpots { get; set; }
+        public List<JackpotDetail> Jackpots;
 
         public JackpotDetailsResponse()
         {
@@ -18,7 +18,7 @@ namespace KAU.FireballSDK.Models
 
     public class JackpotDetail
     {
-        public string TemplateId { get; set; }
-        public string Value { get; set; }
+        public string TemplateId;
+        public string Value;
     }
 }

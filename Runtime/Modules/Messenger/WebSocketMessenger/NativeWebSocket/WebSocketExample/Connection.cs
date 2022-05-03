@@ -1,7 +1,7 @@
 using UnityEngine;
-using KAU.FireballSDK;
+using Fireball.Game.Client;
 
-namespace KAU.FireballSDK.Modules
+namespace Fireball.Game.Client.Modules
 {
     public class Connection : MonoBehaviour
     {

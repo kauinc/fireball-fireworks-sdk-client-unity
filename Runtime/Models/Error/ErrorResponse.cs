@@ -1,4 +1,4 @@
-namespace KAU.FireballSDK.Models
+namespace Fireball.Game.Client.Models
 {
     public class ErrorResponse : BaseResponse
     {
@@ -6,8 +6,8 @@ namespace KAU.FireballSDK.Models
         public const string NAME_ERROR = "error";
         public const string NAME_TIMEOUT = "timeout";
 
-        public int Code { get; set; }
-        public string Reason { get; set; }
+        public int Code;
+        public string Reason;
 
         public bool IsCustomError => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_ERROR);
         public bool IsTimeout => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_TIMEOUT);

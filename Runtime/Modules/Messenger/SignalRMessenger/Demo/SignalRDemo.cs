@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace KAU.FireballSDK.Modules.SignalRPlugin.Demo
+namespace Fireball.Game.Client.Modules.SignalRPlugin.Demo
 {
     public class SignalRDemo : MonoBehaviour
     {

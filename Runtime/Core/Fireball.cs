@@ -2,15 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using KAU.FireballSDK.Models;
-using KAU.FireballSDK.Modules;
-using KAU.FireballSDK.Tools;
+using Fireball.Game.Client.Models;
+using Fireball.Game.Client.Modules;
+using Fireball.Game.Client.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace KAU.FireballSDK
+namespace Fireball.Game.Client
 {
     public class Fireball : MonoBehaviour, IFireball
     {
@@ -116,7 +116,7 @@ namespace KAU.FireballSDK
             _messenger.OnConnectionChange += OnConnectionChange;
 
             // Send ping to warm up Fireball system
-            SendPing();
+            // SendPing();
 
             // Start check network connection
             _networkChecker.StartNetworkCheck();

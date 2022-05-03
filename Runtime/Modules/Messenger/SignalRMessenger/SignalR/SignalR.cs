@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace KAU.FireballSDK.Modules.SignalRPlugin
+namespace Fireball.Game.Client.Modules.SignalRPlugin
 {
     public class ConnectionEventArgs : EventArgs
     {
