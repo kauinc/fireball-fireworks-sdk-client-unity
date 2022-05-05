@@ -287,7 +287,7 @@ namespace Fireball.Game.Client
                     {
                         _fireballLogger.LogError($"Timeout for message {request.Name} {request.ActionId}! " +
                                                  $"Time passed: {timePassed} sec, Attempts = {attemptsCount - attemptsLeft}");
-                        var timeoutError = ErrorResponse.TimeoutResponse(request.ActionId, timeout).ToJson();
+                        var timeoutError = ErrorResponse.TimeoutResponse(request.ActionId, timeout);
                         AddPendingResponse(request.ActionId, JToken.FromObject(timeoutError));
                     }
                 }
