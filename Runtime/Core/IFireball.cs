@@ -21,7 +21,7 @@ namespace Fireball.Game.Client
             string customUrl, 
             Action<FireballSession> onSuccess = null, 
             Action<string> onError = null,
-            MessengerType messengerType = MessengerType.NativeWebSocket);
+            MessengerType messengerType = MessengerType.SignalR);
 
         void SendGET(
             string url, 

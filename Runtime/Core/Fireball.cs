@@ -52,7 +52,6 @@ namespace Fireball.Game.Client
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
 
-        private const float UPDATE_TIME = 0.1f;
         private string _customRouterUrl;
 
         private string _lastActionID;
@@ -79,7 +78,7 @@ namespace Fireball.Game.Client
             string customUrl, 
             Action<FireballSession> onSuccess = null, 
             Action<string> onError = null,
-            MessengerType messengerType = MessengerType.NativeWebSocket)
+            MessengerType messengerType = MessengerType.SignalR)
         {
             Init(URLData.ParseSessionFromURL(customUrl), onSuccess, onError, messengerType);
         }
@@ -88,7 +87,7 @@ namespace Fireball.Game.Client
             FireballSession customSession, 
             Action<FireballSession> onSuccess = null,
             Action<string> onError = null, 
-            MessengerType messengerType = MessengerType.NativeWebSocket)
+            MessengerType messengerType = MessengerType.SignalR)
         {
             _fireballLogger = new FireballLogger();
             _networkChecker = new NetworkChecker(this, 2.0f);
@@ -293,8 +292,8 @@ namespace Fireball.Game.Client
                 }
                 else
                 {
-                    yield return new WaitForSeconds(UPDATE_TIME);
-                    timePassed += UPDATE_TIME;
+                    yield return null;
+                    timePassed += Time.deltaTime;
                 }
             }
 
