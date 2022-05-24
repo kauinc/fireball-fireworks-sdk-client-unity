@@ -257,44 +257,50 @@ namespace Fireball.Game.Client
             int attemptsCount)
             where TRequest : BaseRequest where TResponse : BaseResponse
         {
-            CheckAndClearPendingResponses();
-
+            //CheckAndClearPendingResponses();
             _lastActionID = request.ActionId;
 
             float timePassed = 0;
             int attemptsLeft = attemptsCount - 1;
             _pendingRequests.Add(request.ActionId, request.Name);
 
-            SendPOST(URLRouter, request, null,
-                errorReason =>
-                {
-                    onError?.Invoke(ErrorResponse.CustomError(request.ActionId, errorReason));
-                });
-
-            while (!IsPendingResponse(request.ActionId))
+            if (!IsPendingResponse(request.ActionId))
             {
-                if (timeout > 0 && timePassed >= timeout)
-                {
-                    if (attemptsLeft > 0)
+                SendPOST(URLRouter, request, null,
+                    errorReason =>
                     {
-                        attemptsLeft--;
-                        timePassed = 0;
-                        _fireballLogger.Log($"Timeout! Try next attempt... ({attemptsCount - attemptsLeft})");
-                        SendPOST(URLRouter, request);
+                        onError?.Invoke(ErrorResponse.CustomError(request.ActionId, errorReason));
+                    });
+
+                while (!IsPendingResponse(request.ActionId))
+                {
+                    if (timeout > 0 && timePassed >= timeout)
+                    {
+                        if (attemptsLeft > 0)
+                        {
+                            attemptsLeft--;
+                            timePassed = 0;
+                            _fireballLogger.Log($"Timeout! Try next attempt... ({attemptsCount - attemptsLeft})");
+                            SendPOST(URLRouter, request);
+                        }
+                        else
+                        {
+                            _fireballLogger.LogError($"Timeout for message {request.Name} {request.ActionId}! " +
+                                                     $"Time passed: {timePassed} sec, Attempts = {attemptsCount - attemptsLeft}");
+                            var timeoutError = ErrorResponse.TimeoutResponse(request.ActionId, timeout);
+                            AddPendingResponse(request.ActionId, JToken.FromObject(timeoutError));
+                        }
                     }
                     else
                     {
-                        _fireballLogger.LogError($"Timeout for message {request.Name} {request.ActionId}! " +
-                                                 $"Time passed: {timePassed} sec, Attempts = {attemptsCount - attemptsLeft}");
-                        var timeoutError = ErrorResponse.TimeoutResponse(request.ActionId, timeout);
-                        AddPendingResponse(request.ActionId, JToken.FromObject(timeoutError));
+                        yield return null;
+                        timePassed += Time.deltaTime;
                     }
                 }
-                else
-                {
-                    yield return null;
-                    timePassed += Time.deltaTime;
-                }
+            }
+            else
+            {
+                _fireballLogger.Log($" Found Pending Response!");
             }
 
             var responseObject = GetPendingResponse(request.ActionId);
