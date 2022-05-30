@@ -12,6 +12,6 @@ namespace Fireball.Game.Client.Models
         public Dictionary<string, object> GameState;
         public Dictionary<string, object> server_side;
         public Dictionary<string, object> client_side;
-
+        public List<JackpotDetail> Jackpots;
     }
 }

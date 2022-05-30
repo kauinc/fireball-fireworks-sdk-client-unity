@@ -20,5 +20,6 @@ namespace Fireball.Game.Client.Models
     {
         public string TemplateId;
         public string Value;
+        public bool OperatorControlled;
     }
 }
