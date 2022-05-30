@@ -19,7 +19,7 @@ namespace Fireball.Game.Client.Models
     public class JackpotDetail
     {
         public string TemplateId;
-        public string Value;
+        public long Value;
         public bool OperatorControlled;
     }
 }
