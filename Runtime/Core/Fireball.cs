@@ -51,6 +51,7 @@ namespace Fireball.Game.Client
 
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
+        private ThreadDispatcher _dispatcher;
 
         private string _customRouterUrl;
 
@@ -91,6 +92,7 @@ namespace Fireball.Game.Client
         {
             _fireballLogger = new FireballLogger();
             _networkChecker = new NetworkChecker(this, 2.0f);
+            _dispatcher = new ThreadDispatcher(this);
 
             _onInitSuccess = onSuccess;
             _onInitError = onError;
@@ -423,7 +425,10 @@ namespace Fireball.Game.Client
                 {
                     var jackpotMessage = messageObject.ToObject<JackpotUpdateMessage>();
                     _fireballLogger.Log($"On Jackpot Message Received: {jackpotMessage?.ToJson()}");
-                    OnJackpotUpdate?.Invoke(jackpotMessage);
+                    _dispatcher.InvokeInMainThread(() =>
+                    {
+                        OnJackpotUpdate?.Invoke(jackpotMessage);
+                    });
                 }
                 else
                 {
