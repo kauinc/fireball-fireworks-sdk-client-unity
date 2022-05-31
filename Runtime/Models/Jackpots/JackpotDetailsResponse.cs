@@ -15,6 +15,13 @@ namespace Fireball.Game.Client.Models
         {
             Name = RESPONSE_NAME;
         }
+
+        [UnityEngine.Scripting.Preserve]
+        public JackpotDetail DefaultDetails() => new JackpotDetail()
+        {
+            TemplateId = "",
+            Value = 0,
+        };
     }
 
     public class JackpotDetail
