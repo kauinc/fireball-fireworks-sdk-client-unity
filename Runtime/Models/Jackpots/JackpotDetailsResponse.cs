@@ -10,6 +10,7 @@ namespace Fireball.Game.Client.Models
 
         public List<JackpotDetail> Jackpots;
 
+        [UnityEngine.Scripting.Preserve]
         public JackpotDetailsResponse()
         {
             Name = RESPONSE_NAME;
@@ -21,5 +22,8 @@ namespace Fireball.Game.Client.Models
         public string TemplateId;
         public long Value;
         public bool OperatorControlled;
+
+        [UnityEngine.Scripting.Preserve]
+        public JackpotDetail() { }
     }
 }

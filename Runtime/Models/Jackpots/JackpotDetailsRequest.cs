@@ -10,6 +10,7 @@ namespace Fireball.Game.Client.Models
 
         public List<string> JackpotTemplateIds;
 
+        [UnityEngine.Scripting.Preserve]
         public JackpotDetailsRequest(List<string> jackpotTemplateIds, FireballSession session) : base(REQUEST_NAME, session)
         {
             JackpotTemplateIds = jackpotTemplateIds;
