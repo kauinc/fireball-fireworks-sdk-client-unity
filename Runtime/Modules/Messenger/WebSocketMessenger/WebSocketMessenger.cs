@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fireball.Game.Client.Tools;
+using Fireball.Game.Client.Modules.NativeWebSocket;
 using UnityEngine;
 
 namespace Fireball.Game.Client.Modules

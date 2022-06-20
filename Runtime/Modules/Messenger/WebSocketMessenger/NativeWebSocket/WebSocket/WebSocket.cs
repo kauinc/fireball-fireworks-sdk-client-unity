@@ -1,17 +1,18 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AOT;
-using UnityEngine;
 
-namespace Fireball.Game.Client.Modules
+using AOT;
+using System.Runtime.InteropServices;
+using UnityEngine;
+using System.Collections;
+
+namespace Fireball.Game.Client.Modules.NativeWebSocket
 {
     public class MainThreadUtil : MonoBehaviour
     {
@@ -29,7 +30,7 @@ namespace Fireball.Game.Client.Modules
         public static void Run(IEnumerator waitForUpdate)
         {
             synchronizationContext.Post(_ => Instance.StartCoroutine(
-                waitForUpdate), null);
+                        waitForUpdate), null);
         }
 
         void Awake()
@@ -200,10 +201,10 @@ namespace Fireball.Game.Client.Modules
 
 #if UNITY_WEBGL && !UNITY_EDITOR
 
-  /// <summary>
-  /// WebSocket class bound to JSLIB.
-  /// </summary>
-  public class WebSocket : IWebSocket {
+    /// <summary>
+    /// WebSocket class bound to JSLIB.
+    /// </summary>
+    public class WebSocket : IWebSocket {
 
     /* WebSocket JSLIB functions */
     [DllImport ("__Internal")]
@@ -229,59 +230,59 @@ namespace Fireball.Game.Client.Modules
     public event WebSocketCloseEventHandler OnClose;
 
     public WebSocket (string url, Dictionary<string, string> headers = null) {
-      if (!WebSocketFactory.isInitialized) {
+        if (!WebSocketFactory.isInitialized) {
         WebSocketFactory.Initialize ();
-      }
+        }
 
-      int instanceId = WebSocketFactory.WebSocketAllocate (url);
-      WebSocketFactory.instances.Add (instanceId, this);
+        int instanceId = WebSocketFactory.WebSocketAllocate (url);
+        WebSocketFactory.instances.Add (instanceId, this);
 
-      this.instanceId = instanceId;
+        this.instanceId = instanceId;
     }
 
     public WebSocket (string url, string subprotocol, Dictionary<string, string> headers = null) {
-      if (!WebSocketFactory.isInitialized) {
+        if (!WebSocketFactory.isInitialized) {
         WebSocketFactory.Initialize ();
-      }
+        }
 
-      int instanceId = WebSocketFactory.WebSocketAllocate (url);
-      WebSocketFactory.instances.Add (instanceId, this);
+        int instanceId = WebSocketFactory.WebSocketAllocate (url);
+        WebSocketFactory.instances.Add (instanceId, this);
 
-      WebSocketFactory.WebSocketAddSubProtocol(instanceId, subprotocol);
+        WebSocketFactory.WebSocketAddSubProtocol(instanceId, subprotocol);
 
-      this.instanceId = instanceId;
+        this.instanceId = instanceId;
     }
 
     public WebSocket (string url, List<string> subprotocols, Dictionary<string, string> headers = null) {
-      if (!WebSocketFactory.isInitialized) {
+        if (!WebSocketFactory.isInitialized) {
         WebSocketFactory.Initialize ();
-      }
+        }
 
-      int instanceId = WebSocketFactory.WebSocketAllocate (url);
-      WebSocketFactory.instances.Add (instanceId, this);
+        int instanceId = WebSocketFactory.WebSocketAllocate (url);
+        WebSocketFactory.instances.Add (instanceId, this);
 
-      foreach (string subprotocol in subprotocols) {
+        foreach (string subprotocol in subprotocols) {
         WebSocketFactory.WebSocketAddSubProtocol(instanceId, subprotocol);
-      }
+        }
 
-      this.instanceId = instanceId;
+        this.instanceId = instanceId;
     }
 
     ~WebSocket () {
-      WebSocketFactory.HandleInstanceDestroy (this.instanceId);
+        WebSocketFactory.HandleInstanceDestroy (this.instanceId);
     }
 
     public int GetInstanceId () {
-      return this.instanceId;
+        return this.instanceId;
     }
 
     public Task Connect () {
-      int ret = WebSocketConnect (this.instanceId);
+        int ret = WebSocketConnect (this.instanceId);
 
-      if (ret < 0)
+        if (ret < 0)
         throw WebSocketHelpers.GetErrorMessageFromCode (ret, null);
 
-      return Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
 	public void CancelConnection () {
@@ -290,75 +291,75 @@ namespace Fireball.Game.Client.Modules
 	}
 
     public Task Close (WebSocketCloseCode code = WebSocketCloseCode.Normal, string reason = null) {
-      int ret = WebSocketClose (this.instanceId, (int) code, reason);
+        int ret = WebSocketClose (this.instanceId, (int) code, reason);
 
-      if (ret < 0)
+        if (ret < 0)
         throw WebSocketHelpers.GetErrorMessageFromCode (ret, null);
 
-      return Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
     public Task Send (byte[] data) {
-      int ret = WebSocketSend (this.instanceId, data, data.Length);
+        int ret = WebSocketSend (this.instanceId, data, data.Length);
 
-      if (ret < 0)
+        if (ret < 0)
         throw WebSocketHelpers.GetErrorMessageFromCode (ret, null);
 
-      return Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
     public Task SendText (string message) {
-      int ret = WebSocketSendText (this.instanceId, message);
+        int ret = WebSocketSendText (this.instanceId, message);
 
-      if (ret < 0)
+        if (ret < 0)
         throw WebSocketHelpers.GetErrorMessageFromCode (ret, null);
 
-      return Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
     public WebSocketState State {
-      get {
+        get {
         int state = WebSocketGetState (this.instanceId);
 
         if (state < 0)
-          throw WebSocketHelpers.GetErrorMessageFromCode (state, null);
+            throw WebSocketHelpers.GetErrorMessageFromCode (state, null);
 
         switch (state) {
-          case 0:
+            case 0:
             return WebSocketState.Connecting;
 
-          case 1:
+            case 1:
             return WebSocketState.Open;
 
-          case 2:
+            case 2:
             return WebSocketState.Closing;
 
-          case 3:
+            case 3:
             return WebSocketState.Closed;
 
-          default:
+            default:
             return WebSocketState.Closed;
         }
-      }
+        }
     }
 
     public void DelegateOnOpenEvent () {
-      this.OnOpen?.Invoke ();
+        this.OnOpen?.Invoke ();
     }
 
     public void DelegateOnMessageEvent (byte[] data) {
-      this.OnMessage?.Invoke (data);
+        this.OnMessage?.Invoke (data);
     }
 
     public void DelegateOnErrorEvent (string errorMsg) {
-      this.OnError?.Invoke (errorMsg);
+        this.OnError?.Invoke (errorMsg);
     }
 
     public void DelegateOnCloseEvent (int closeCode) {
-      this.OnClose?.Invoke (WebSocketHelpers.ParseCloseCodeEnum (closeCode));
+        this.OnClose?.Invoke (WebSocketHelpers.ParseCloseCodeEnum (closeCode));
     }
 
-  }
+    }
 
 #else
 
@@ -377,7 +378,8 @@ namespace Fireball.Game.Client.Modules
         private CancellationTokenSource m_TokenSource;
         private CancellationToken m_CancellationToken;
 
-        private readonly object Lock = new object();
+        private readonly object OutgoingMessageLock = new object();
+        private readonly object IncomingMessageLock = new object();
 
         private bool isSending = false;
         private List<ArraySegment<byte>> sendBytesQueue = new List<ArraySegment<byte>>();
@@ -539,7 +541,7 @@ namespace Fireball.Game.Client.Modules
             // The state of the connection is contained in the context Items dictionary.
             bool sending;
 
-            lock (Lock)
+            lock (OutgoingMessageLock)
             {
                 sending = isSending;
 
@@ -572,7 +574,7 @@ namespace Fireball.Game.Client.Modules
                 }
 
                 // Note that we've finished sending.
-                lock (Lock)
+                lock (OutgoingMessageLock)
                 {
                     isSending = false;
                 }
@@ -583,7 +585,7 @@ namespace Fireball.Game.Client.Modules
             else
             {
                 // Add the message to the queue.
-                lock (Lock)
+                lock (OutgoingMessageLock)
                 {
                     queue.Add(buffer);
                 }
@@ -593,7 +595,7 @@ namespace Fireball.Game.Client.Modules
         private async Task HandleQueue(List<ArraySegment<byte>> queue, WebSocketMessageType messageType)
         {
             var buffer = new ArraySegment<byte>();
-            lock (Lock)
+            lock (OutgoingMessageLock)
             {
                 // Check for an item in the queue.
                 if (queue.Count > 0)
@@ -611,23 +613,28 @@ namespace Fireball.Game.Client.Modules
             }
         }
 
-        private Mutex m_MessageListMutex = new Mutex();
         private List<byte[]> m_MessageList = new List<byte[]>();
 
         // simple dispatcher for queued messages.
         public void DispatchMessageQueue()
         {
-            // lock mutex, copy queue content and clear the queue.
-            m_MessageListMutex.WaitOne();
-            List<byte[]> messageListCopy = new List<byte[]>();
-            messageListCopy.AddRange(m_MessageList);
-            m_MessageList.Clear();
-            // release mutex to allow the websocket to add new messages
-            m_MessageListMutex.ReleaseMutex();
-
-            foreach (byte[] bytes in messageListCopy)
+            if (m_MessageList.Count == 0)
             {
-                OnMessage?.Invoke(bytes);
+                return;
+            }
+
+            List<byte[]> messageListCopy;
+
+            lock (IncomingMessageLock)
+            {
+                messageListCopy = new List<byte[]>(m_MessageList);
+                m_MessageList.Clear();
+            }
+
+            var len = messageListCopy.Count;
+            for (int i = 0; i < len; i++)
+            {
+                OnMessage?.Invoke(messageListCopy[i]);
             }
         }
 
@@ -656,9 +663,10 @@ namespace Fireball.Game.Client.Modules
 
                         if (result.MessageType == WebSocketMessageType.Text)
                         {
-                            m_MessageListMutex.WaitOne();
-                            m_MessageList.Add(ms.ToArray());
-                            m_MessageListMutex.ReleaseMutex();
+                            lock (IncomingMessageLock)
+                            {
+                                m_MessageList.Add(ms.ToArray());
+                            }
 
                             //using (var reader = new StreamReader(ms, Encoding.UTF8))
                             //{
@@ -668,9 +676,10 @@ namespace Fireball.Game.Client.Modules
                         }
                         else if (result.MessageType == WebSocketMessageType.Binary)
                         {
-                            m_MessageListMutex.WaitOne();
-                            m_MessageList.Add(ms.ToArray());
-                            m_MessageListMutex.ReleaseMutex();
+                            lock (IncomingMessageLock)
+                            {
+                                m_MessageList.Add(ms.ToArray());
+                            }
                         }
                         else if (result.MessageType == WebSocketMessageType.Close)
                         {
@@ -696,7 +705,7 @@ namespace Fireball.Game.Client.Modules
         {
             if (State == WebSocketState.Open)
             {
-                await m_Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, reason, m_CancellationToken);
+                await m_Socket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, m_CancellationToken);
             }
         }
     }
@@ -748,16 +757,16 @@ namespace Fireball.Game.Client.Modules
     public static bool isInitialized = false;
 
     /*
-     * Initialize WebSocket callbacks to JSLIB
-     */
+        * Initialize WebSocket callbacks to JSLIB
+        */
     public static void Initialize () {
 
-      WebSocketSetOnOpen (DelegateOnOpenEvent);
-      WebSocketSetOnMessage (DelegateOnMessageEvent);
-      WebSocketSetOnError (DelegateOnErrorEvent);
-      WebSocketSetOnClose (DelegateOnCloseEvent);
+        WebSocketSetOnOpen (DelegateOnOpenEvent);
+        WebSocketSetOnMessage (DelegateOnMessageEvent);
+        WebSocketSetOnError (DelegateOnErrorEvent);
+        WebSocketSetOnClose (DelegateOnCloseEvent);
 
-      isInitialized = true;
+        isInitialized = true;
 
     }
 
@@ -768,58 +777,58 @@ namespace Fireball.Game.Client.Modules
     /// <param name="instanceId">Instance identifier.</param>
     public static void HandleInstanceDestroy (int instanceId) {
 
-      instances.Remove (instanceId);
-      WebSocketFree (instanceId);
+        instances.Remove (instanceId);
+        WebSocketFree (instanceId);
 
     }
 
     [MonoPInvokeCallback (typeof (OnOpenCallback))]
     public static void DelegateOnOpenEvent (int instanceId) {
 
-      WebSocket instanceRef;
+        WebSocket instanceRef;
 
-      if (instances.TryGetValue (instanceId, out instanceRef)) {
+        if (instances.TryGetValue (instanceId, out instanceRef)) {
         instanceRef.DelegateOnOpenEvent ();
-      }
+        }
 
     }
 
     [MonoPInvokeCallback (typeof (OnMessageCallback))]
     public static void DelegateOnMessageEvent (int instanceId, System.IntPtr msgPtr, int msgSize) {
 
-      WebSocket instanceRef;
+        WebSocket instanceRef;
 
-      if (instances.TryGetValue (instanceId, out instanceRef)) {
+        if (instances.TryGetValue (instanceId, out instanceRef)) {
         byte[] msg = new byte[msgSize];
         Marshal.Copy (msgPtr, msg, 0, msgSize);
 
         instanceRef.DelegateOnMessageEvent (msg);
-      }
+        }
 
     }
 
     [MonoPInvokeCallback (typeof (OnErrorCallback))]
     public static void DelegateOnErrorEvent (int instanceId, System.IntPtr errorPtr) {
 
-      WebSocket instanceRef;
+        WebSocket instanceRef;
 
-      if (instances.TryGetValue (instanceId, out instanceRef)) {
+        if (instances.TryGetValue (instanceId, out instanceRef)) {
 
         string errorMsg = Marshal.PtrToStringAuto (errorPtr);
         instanceRef.DelegateOnErrorEvent (errorMsg);
 
-      }
+        }
 
     }
 
     [MonoPInvokeCallback (typeof (OnCloseCallback))]
     public static void DelegateOnCloseEvent (int instanceId, int closeCode) {
 
-      WebSocket instanceRef;
+        WebSocket instanceRef;
 
-      if (instances.TryGetValue (instanceId, out instanceRef)) {
+        if (instances.TryGetValue (instanceId, out instanceRef)) {
         instanceRef.DelegateOnCloseEvent (closeCode);
-      }
+        }
 
     }
 #endif
@@ -835,4 +844,5 @@ namespace Fireball.Game.Client.Modules
         }
 
     }
+
 }
