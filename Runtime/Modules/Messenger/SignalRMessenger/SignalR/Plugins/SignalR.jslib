@@ -14,8 +14,8 @@ var SignalRLib = {
         handlerCallback6: null,
         handlerCallback7: null,
         handlerCallback8: null,
-        UTF8ToString: function (arg) {
-            return (typeof Pointer_stringify === 'undefined') ? UTF8ToString(arg) : Pointer_stringify(arg);
+        ConvertUTF8ToString: function (arg) {
+            return (typeof UTF8ToString === 'undefined') ? Pointer_stringify(arg) : UTF8ToString(arg);
         },
         invokeCallback: function (args, callback) {
             var sig = 'v';
@@ -37,7 +37,7 @@ var SignalRLib = {
     },
 
     InitJs: function (url) {
-        url = vars.UTF8ToString(url);
+        url = vars.ConvertUTF8ToString(url);
         console.log('[SignalR JS] InitJs: ' + url);
         vars.connection = new signalR.HubConnectionBuilder()
             .withUrl(url)
@@ -92,108 +92,108 @@ var SignalRLib = {
     },
 
     InvokeJs: function (methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
-        methodName = vars.UTF8ToString(methodName);
+        methodName = vars.ConvertUTF8ToString(methodName);
         if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6 && arg7 && arg8 && arg9 && arg10) {
-            arg1 = vars.UTF8ToString(arg1);
-            arg2 = vars.UTF8ToString(arg2);
-            arg3 = vars.UTF8ToString(arg3);
-            arg4 = vars.UTF8ToString(arg4);
-            arg5 = vars.UTF8ToString(arg5);
-            arg6 = vars.UTF8ToString(arg6);
-            arg7 = vars.UTF8ToString(arg7);
-            arg8 = vars.UTF8ToString(arg8);
-            arg9 = vars.UTF8ToString(arg9);
-            arg10 = vars.UTF8ToString(arg10);
+            arg1 = vars.ConvertUTF8ToString(arg1);
+            arg2 = vars.ConvertUTF8ToString(arg2);
+            arg3 = vars.ConvertUTF8ToString(arg3);
+            arg4 = vars.ConvertUTF8ToString(arg4);
+            arg5 = vars.ConvertUTF8ToString(arg5);
+            arg6 = vars.ConvertUTF8ToString(arg6);
+            arg7 = vars.ConvertUTF8ToString(arg7);
+            arg8 = vars.ConvertUTF8ToString(arg8);
+            arg9 = vars.ConvertUTF8ToString(arg9);
+            arg10 = vars.ConvertUTF8ToString(arg10);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6 && arg7 && arg8 && arg9) {
-            arg1 = vars.UTF8ToString(arg1);
-            arg2 = vars.UTF8ToString(arg2);
-            arg3 = vars.UTF8ToString(arg3);
-            arg4 = vars.UTF8ToString(arg4);
-            arg5 = vars.UTF8ToString(arg5);
-            arg6 = vars.UTF8ToString(arg6);
-            arg7 = vars.UTF8ToString(arg7);
-            arg8 = vars.UTF8ToString(arg8);
-            arg9 = vars.UTF8ToString(arg9);
+            arg1 = vars.ConvertUTF8ToString(arg1);
+            arg2 = vars.ConvertUTF8ToString(arg2);
+            arg3 = vars.ConvertUTF8ToString(arg3);
+            arg4 = vars.ConvertUTF8ToString(arg4);
+            arg5 = vars.ConvertUTF8ToString(arg5);
+            arg6 = vars.ConvertUTF8ToString(arg6);
+            arg7 = vars.ConvertUTF8ToString(arg7);
+            arg8 = vars.ConvertUTF8ToString(arg8);
+            arg9 = vars.ConvertUTF8ToString(arg9);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6 && arg7 && arg8) {
-            arg1 = vars.UTF8ToString(arg1);
-            arg2 = vars.UTF8ToString(arg2);
-            arg3 = vars.UTF8ToString(arg3);
-            arg4 = vars.UTF8ToString(arg4);
-            arg5 = vars.UTF8ToString(arg5);
-            arg6 = vars.UTF8ToString(arg6);
-            arg7 = vars.UTF8ToString(arg7);
-            arg8 = vars.UTF8ToString(arg8);
+            arg1 = vars.ConvertUTF8ToString(arg1);
+            arg2 = vars.ConvertUTF8ToString(arg2);
+            arg3 = vars.ConvertUTF8ToString(arg3);
+            arg4 = vars.ConvertUTF8ToString(arg4);
+            arg5 = vars.ConvertUTF8ToString(arg5);
+            arg6 = vars.ConvertUTF8ToString(arg6);
+            arg7 = vars.ConvertUTF8ToString(arg7);
+            arg8 = vars.ConvertUTF8ToString(arg8);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6 && arg7) {
-            arg1 = vars.UTF8ToString(arg1);
-            arg2 = vars.UTF8ToString(arg2);
-            arg3 = vars.UTF8ToString(arg3);
-            arg4 = vars.UTF8ToString(arg4);
-            arg5 = vars.UTF8ToString(arg5);
-            arg6 = vars.UTF8ToString(arg6);
-            arg7 = vars.UTF8ToString(arg7);
+            arg1 = vars.ConvertUTF8ToString(arg1);
+            arg2 = vars.ConvertUTF8ToString(arg2);
+            arg3 = vars.ConvertUTF8ToString(arg3);
+            arg4 = vars.ConvertUTF8ToString(arg4);
+            arg5 = vars.ConvertUTF8ToString(arg5);
+            arg6 = vars.ConvertUTF8ToString(arg6);
+            arg7 = vars.ConvertUTF8ToString(arg7);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6) {
-            arg1 = vars.UTF8ToString(arg1);
-            arg2 = vars.UTF8ToString(arg2);
-            arg3 = vars.UTF8ToString(arg3);
-            arg4 = vars.UTF8ToString(arg4);
-            arg5 = vars.UTF8ToString(arg5);
-            arg6 = vars.UTF8ToString(arg6);
+            arg1 = vars.ConvertUTF8ToString(arg1);
+            arg2 = vars.ConvertUTF8ToString(arg2);
+            arg3 = vars.ConvertUTF8ToString(arg3);
+            arg4 = vars.ConvertUTF8ToString(arg4);
+            arg5 = vars.ConvertUTF8ToString(arg5);
+            arg6 = vars.ConvertUTF8ToString(arg6);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5) {
-            arg1 = vars.UTF8ToString(arg1);
-            arg2 = vars.UTF8ToString(arg2);
-            arg3 = vars.UTF8ToString(arg3);
-            arg4 = vars.UTF8ToString(arg4);
-            arg5 = vars.UTF8ToString(arg5);
+            arg1 = vars.ConvertUTF8ToString(arg1);
+            arg2 = vars.ConvertUTF8ToString(arg2);
+            arg3 = vars.ConvertUTF8ToString(arg3);
+            arg4 = vars.ConvertUTF8ToString(arg4);
+            arg5 = vars.ConvertUTF8ToString(arg5);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4) {
-            arg1 = vars.UTF8ToString(arg1);
-            arg2 = vars.UTF8ToString(arg2);
-            arg3 = vars.UTF8ToString(arg3);
-            arg4 = vars.UTF8ToString(arg4);
+            arg1 = vars.ConvertUTF8ToString(arg1);
+            arg2 = vars.ConvertUTF8ToString(arg2);
+            arg3 = vars.ConvertUTF8ToString(arg3);
+            arg4 = vars.ConvertUTF8ToString(arg4);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3) {
-            arg1 = vars.UTF8ToString(arg1);
-            arg2 = vars.UTF8ToString(arg2);
-            arg3 = vars.UTF8ToString(arg3);
+            arg1 = vars.ConvertUTF8ToString(arg1);
+            arg2 = vars.ConvertUTF8ToString(arg2);
+            arg3 = vars.ConvertUTF8ToString(arg3);
             vars.connection.invoke(methodName, arg1, arg2, arg3)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2) {
-            arg1 = vars.UTF8ToString(arg1);
-            arg2 = vars.UTF8ToString(arg2);
+            arg1 = vars.ConvertUTF8ToString(arg1);
+            arg2 = vars.ConvertUTF8ToString(arg2);
             vars.connection.invoke(methodName, arg1, arg2)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1) {
-            arg1 = vars.UTF8ToString(arg1);
+            arg1 = vars.ConvertUTF8ToString(arg1);
             vars.connection.invoke(methodName, arg1)
                 .catch(function (err) {
                     return console.error(err.toString());
@@ -202,8 +202,8 @@ var SignalRLib = {
     },
 
     OnJs: function (methodName, argCount, callback) {
-        methodName = vars.UTF8ToString(methodName);
-        argCount = Number.parseInt(vars.UTF8ToString(argCount));
+        methodName = vars.ConvertUTF8ToString(methodName);
+        argCount = Number.parseInt(vars.ConvertUTF8ToString(argCount));
         if (argCount === 1) {
             vars.handlerCallback1 = callback;
             vars.connection.on(methodName, function (arg1) {
