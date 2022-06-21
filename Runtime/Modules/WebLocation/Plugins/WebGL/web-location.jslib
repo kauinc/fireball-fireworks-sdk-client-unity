@@ -73,11 +73,11 @@ var webLocation = {
     },
     location_set_search: function(str)
     {
-        window.location.search = Pointer_stringify(str);
+        window.location.search = UTF8ToString(str);
     },
     location_set_hash: function(str)
     {
-        window.location.hash = Pointer_stringify(str);
+        window.location.hash = UTF8ToString(str);
     },
 };
 mergeInto(LibraryManager.library, webLocation);

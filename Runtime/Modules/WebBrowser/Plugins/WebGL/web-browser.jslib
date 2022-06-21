@@ -84,8 +84,8 @@ var unityWebBrowser = {
   },
 
   sendBeacon: function(url, json){
-    url = Pointer_stringify(url);
-    json = Pointer_stringify(json);
+    url = UTF8ToString(url);
+    json = UTF8ToString(json);
 
     console.log('[WEB] Send Beacon: url = ',url);
     console.log('[WEB] Send Beacon: body = ',json);
@@ -93,13 +93,13 @@ var unityWebBrowser = {
   },
 
   postMessage: function(message){
-    var msg = Pointer_stringify(message);
+    var msg = UTF8ToString(message);
     console.log('[WEB] Post Message: ', msg);
     window.parent.postMessage(msg, '*');
   },
   
   setLocation: function(new_url){
-    var url = Pointer_stringify(new_url);
+    var url = UTF8ToString(new_url);
     var iframe = false;
     try {
       iframe = (window.self !== window.top);
