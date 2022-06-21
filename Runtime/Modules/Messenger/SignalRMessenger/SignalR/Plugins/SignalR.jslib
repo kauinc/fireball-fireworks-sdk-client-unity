@@ -14,6 +14,9 @@ var SignalRLib = {
         handlerCallback6: null,
         handlerCallback7: null,
         handlerCallback8: null,
+        UTF8ToString: function (arg) {
+            return (typeof Pointer_stringify === 'undefined') ? UTF8ToString(arg) : Pointer_stringify(arg);
+        },
         invokeCallback: function (args, callback) {
             var sig = 'v';
             var messages = [];
@@ -25,13 +28,17 @@ var SignalRLib = {
                 messages.push(buffer);
                 sig += 'i';
             }
-            Runtime.dynCall(sig, callback, messages);
+            if (typeof Runtime === 'undefined') {
+                dynCall(sig, callback, messages);
+            } else {
+                Runtime.dynCall(sig, callback, messages);
+            }
         }
     },
 
     InitJs: function (url) {
-        url = UTF8ToString(url);
-        console.log('[SignalR JS] InitJs: '+url);
+        url = vars.UTF8ToString(url);
+        console.log('[SignalR JS] InitJs: ' + url);
         vars.connection = new signalR.HubConnectionBuilder()
             .withUrl(url)
             .configureLogging(signalR.LogLevel.Information)
@@ -43,33 +50,33 @@ var SignalRLib = {
         vars.connectedCallback = connectedCallback;
         vars.disconnectedCallback = disconnectedCallback;
 
-        try{
+        try {
             vars.connection.start()
-            .then(function () {
-                console.log('[SignalR JS] Connected!!!!');
-                vars.lastConnectionId = vars.connection.connectionId;
-                vars.connection.onclose(function (err) {
-                    if (err) {
-                        console.error('[SignalR JS] Connection closed due to error: "' + err.toString() + '".');
-                    }
-                    vars.invokeCallback([vars.lastConnectionId], vars.disconnectedCallback);
-                });
-                vars.connection.onreconnecting(function (err) {
-                    console.log('[SignalR JS] Connection lost due to error: "' + err.toString() + '". Reconnecting...');
-                });
-                vars.connection.onreconnected(function (connectionId) {
-                    console.log('[SignalR JS] Connection reestablished. Connected with connectionId: "' + connectionId + '".');
-                    vars.lastConnectionId = connectionId;
+                .then(function () {
+                    console.log('[SignalR JS] Connected!!!!');
+                    vars.lastConnectionId = vars.connection.connectionId;
+                    vars.connection.onclose(function (err) {
+                        if (err) {
+                            console.error('[SignalR JS] Connection closed due to error: "' + err.toString() + '".');
+                        }
+                        vars.invokeCallback([vars.lastConnectionId], vars.disconnectedCallback);
+                    });
+                    vars.connection.onreconnecting(function (err) {
+                        console.log('[SignalR JS] Connection lost due to error: "' + err.toString() + '". Reconnecting...');
+                    });
+                    vars.connection.onreconnected(function (connectionId) {
+                        console.log('[SignalR JS] Connection reestablished. Connected with connectionId: "' + connectionId + '".');
+                        vars.lastConnectionId = connectionId;
+                        vars.invokeCallback([vars.lastConnectionId], vars.connectedCallback);
+                    });
                     vars.invokeCallback([vars.lastConnectionId], vars.connectedCallback);
+                }).catch(function (err) {
+                    console.error('[SignalR JS] Start Error: ' + err.toString());
+                    vars.invokeCallback([err.toString()], vars.disconnectedCallback);
                 });
-                vars.invokeCallback([vars.lastConnectionId], vars.connectedCallback);
-            }).catch(function (err) {
-                console.error('[SignalR JS] Start Error: '+err.toString());
-                vars.invokeCallback([err.toString()], vars.disconnectedCallback);
-            });
         }
-        catch(err){
-            console.error('[SignalR JS] Try Error: '+err.toString());
+        catch (err) {
+            console.error('[SignalR JS] Try Error: ' + err.toString());
             vars.invokeCallback([err.toString()], vars.disconnectedCallback);
         }
     },
@@ -85,108 +92,108 @@ var SignalRLib = {
     },
 
     InvokeJs: function (methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
-        methodName = UTF8ToString(methodName);
+        methodName = vars.UTF8ToString(methodName);
         if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6 && arg7 && arg8 && arg9 && arg10) {
-            arg1 = UTF8ToString(arg1);
-            arg2 = UTF8ToString(arg2);
-            arg3 = UTF8ToString(arg3);
-            arg4 = UTF8ToString(arg4);
-            arg5 = UTF8ToString(arg5);
-            arg6 = UTF8ToString(arg6);
-            arg7 = UTF8ToString(arg7);
-            arg8 = UTF8ToString(arg8);
-            arg9 = UTF8ToString(arg9);
-            arg10 = UTF8ToString(arg10);
+            arg1 = vars.UTF8ToString(arg1);
+            arg2 = vars.UTF8ToString(arg2);
+            arg3 = vars.UTF8ToString(arg3);
+            arg4 = vars.UTF8ToString(arg4);
+            arg5 = vars.UTF8ToString(arg5);
+            arg6 = vars.UTF8ToString(arg6);
+            arg7 = vars.UTF8ToString(arg7);
+            arg8 = vars.UTF8ToString(arg8);
+            arg9 = vars.UTF8ToString(arg9);
+            arg10 = vars.UTF8ToString(arg10);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6 && arg7 && arg8 && arg9) {
-            arg1 = UTF8ToString(arg1);
-            arg2 = UTF8ToString(arg2);
-            arg3 = UTF8ToString(arg3);
-            arg4 = UTF8ToString(arg4);
-            arg5 = UTF8ToString(arg5);
-            arg6 = UTF8ToString(arg6);
-            arg7 = UTF8ToString(arg7);
-            arg8 = UTF8ToString(arg8);
-            arg9 = UTF8ToString(arg9);
+            arg1 = vars.UTF8ToString(arg1);
+            arg2 = vars.UTF8ToString(arg2);
+            arg3 = vars.UTF8ToString(arg3);
+            arg4 = vars.UTF8ToString(arg4);
+            arg5 = vars.UTF8ToString(arg5);
+            arg6 = vars.UTF8ToString(arg6);
+            arg7 = vars.UTF8ToString(arg7);
+            arg8 = vars.UTF8ToString(arg8);
+            arg9 = vars.UTF8ToString(arg9);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6 && arg7 && arg8) {
-            arg1 = UTF8ToString(arg1);
-            arg2 = UTF8ToString(arg2);
-            arg3 = UTF8ToString(arg3);
-            arg4 = UTF8ToString(arg4);
-            arg5 = UTF8ToString(arg5);
-            arg6 = UTF8ToString(arg6);
-            arg7 = UTF8ToString(arg7);
-            arg8 = UTF8ToString(arg8);
+            arg1 = vars.UTF8ToString(arg1);
+            arg2 = vars.UTF8ToString(arg2);
+            arg3 = vars.UTF8ToString(arg3);
+            arg4 = vars.UTF8ToString(arg4);
+            arg5 = vars.UTF8ToString(arg5);
+            arg6 = vars.UTF8ToString(arg6);
+            arg7 = vars.UTF8ToString(arg7);
+            arg8 = vars.UTF8ToString(arg8);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6 && arg7) {
-            arg1 = UTF8ToString(arg1);
-            arg2 = UTF8ToString(arg2);
-            arg3 = UTF8ToString(arg3);
-            arg4 = UTF8ToString(arg4);
-            arg5 = UTF8ToString(arg5);
-            arg6 = UTF8ToString(arg6);
-            arg7 = UTF8ToString(arg7);
+            arg1 = vars.UTF8ToString(arg1);
+            arg2 = vars.UTF8ToString(arg2);
+            arg3 = vars.UTF8ToString(arg3);
+            arg4 = vars.UTF8ToString(arg4);
+            arg5 = vars.UTF8ToString(arg5);
+            arg6 = vars.UTF8ToString(arg6);
+            arg7 = vars.UTF8ToString(arg7);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5 && arg6) {
-            arg1 = UTF8ToString(arg1);
-            arg2 = UTF8ToString(arg2);
-            arg3 = UTF8ToString(arg3);
-            arg4 = UTF8ToString(arg4);
-            arg5 = UTF8ToString(arg5);
-            arg6 = UTF8ToString(arg6);
+            arg1 = vars.UTF8ToString(arg1);
+            arg2 = vars.UTF8ToString(arg2);
+            arg3 = vars.UTF8ToString(arg3);
+            arg4 = vars.UTF8ToString(arg4);
+            arg5 = vars.UTF8ToString(arg5);
+            arg6 = vars.UTF8ToString(arg6);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5, arg6)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4 && arg5) {
-            arg1 = UTF8ToString(arg1);
-            arg2 = UTF8ToString(arg2);
-            arg3 = UTF8ToString(arg3);
-            arg4 = UTF8ToString(arg4);
-            arg5 = UTF8ToString(arg5);
+            arg1 = vars.UTF8ToString(arg1);
+            arg2 = vars.UTF8ToString(arg2);
+            arg3 = vars.UTF8ToString(arg3);
+            arg4 = vars.UTF8ToString(arg4);
+            arg5 = vars.UTF8ToString(arg5);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4, arg5)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3 && arg4) {
-            arg1 = UTF8ToString(arg1);
-            arg2 = UTF8ToString(arg2);
-            arg3 = UTF8ToString(arg3);
-            arg4 = UTF8ToString(arg4);
+            arg1 = vars.UTF8ToString(arg1);
+            arg2 = vars.UTF8ToString(arg2);
+            arg3 = vars.UTF8ToString(arg3);
+            arg4 = vars.UTF8ToString(arg4);
             vars.connection.invoke(methodName, arg1, arg2, arg3, arg4)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2 && arg3) {
-            arg1 = UTF8ToString(arg1);
-            arg2 = UTF8ToString(arg2);
-            arg3 = UTF8ToString(arg3);
+            arg1 = vars.UTF8ToString(arg1);
+            arg2 = vars.UTF8ToString(arg2);
+            arg3 = vars.UTF8ToString(arg3);
             vars.connection.invoke(methodName, arg1, arg2, arg3)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1 && arg2) {
-            arg1 = UTF8ToString(arg1);
-            arg2 = UTF8ToString(arg2);
+            arg1 = vars.UTF8ToString(arg1);
+            arg2 = vars.UTF8ToString(arg2);
             vars.connection.invoke(methodName, arg1, arg2)
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
         } else if (arg1) {
-            arg1 = UTF8ToString(arg1);
+            arg1 = vars.UTF8ToString(arg1);
             vars.connection.invoke(methodName, arg1)
                 .catch(function (err) {
                     return console.error(err.toString());
@@ -195,8 +202,8 @@ var SignalRLib = {
     },
 
     OnJs: function (methodName, argCount, callback) {
-        methodName = UTF8ToString(methodName);
-        argCount = Number.parseInt(UTF8ToString(argCount));
+        methodName = vars.UTF8ToString(methodName);
+        argCount = Number.parseInt(vars.UTF8ToString(argCount));
         if (argCount === 1) {
             vars.handlerCallback1 = callback;
             vars.connection.on(methodName, function (arg1) {
