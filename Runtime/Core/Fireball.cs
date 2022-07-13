@@ -188,19 +188,21 @@ namespace Fireball.Game.Client
             url = FireballTools.FormatUrlAndParams(url, data);
 
             _fireballLogger.Log($"Sending GET Request to URL = {url}");
-            using UnityWebRequest www = UnityWebRequest.Get(url);
-            yield return www.SendWebRequest();
+            using (UnityWebRequest www = UnityWebRequest.Get(url))
+            {
+                yield return www.SendWebRequest();
 
-            if (www.result == UnityWebRequest.Result.ConnectionError ||
-                www.result == UnityWebRequest.Result.ProtocolError)
-            {
-                _fireballLogger.LogError($"GET Request Error: {www.error}");
-                onError?.Invoke(www.error);
-            }
-            else
-            {
-                _fireballLogger.Log($"GET Response: {www.downloadHandler.text} ({www.responseCode})");
-                onSuccess?.Invoke(www.downloadHandler.text);
+                if (www.result == UnityWebRequest.Result.ConnectionError ||
+                    www.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    _fireballLogger.LogError($"GET Request Error: {www.error}");
+                    onError?.Invoke(www.error);
+                }
+                else
+                {
+                    _fireballLogger.Log($"GET Response: {www.downloadHandler.text} ({www.responseCode})");
+                    onSuccess?.Invoke(www.downloadHandler.text);
+                }
             }
         }
 
@@ -222,23 +224,25 @@ namespace Fireball.Game.Client
             _fireballLogger.Log($"Message - {request.Name} - Sending... (ActionId: {request.ActionId})" +
                 $"\nMesaage: {request.ToJson()}");
 
-            using UnityWebRequest www = UnityWebRequest.Post(url, request.ToJson());
-            www.uploadHandler = new UploadHandlerRaw(bytes);
-            www.downloadHandler = new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type", "application/json");
-            yield return www.SendWebRequest();
+            using (UnityWebRequest unityRequest = UnityWebRequest.Post(url, request.ToJson()))
+            {
+                unityRequest.uploadHandler = new UploadHandlerRaw(bytes);
+                unityRequest.downloadHandler = new DownloadHandlerBuffer();
+                unityRequest.SetRequestHeader("Content-Type", "application/json");
+                yield return unityRequest.SendWebRequest();
 
-            if (www.result == UnityWebRequest.Result.ConnectionError ||
-                www.result == UnityWebRequest.Result.ProtocolError)
-            {
-                //_fireballLogger.LogError($"Error: {www.error}");
-                _fireballLogger.LogError($"Message - {request.Name} - Error: {www.error} (ActionId: {request.ActionId})");
-                onError?.Invoke(www.error);
-            }
-            else
-            {
-                _fireballLogger.Log($"Message - {request.Name} - Sent (ActionId: {request.ActionId})");
-                onSuccess?.Invoke(www.downloadHandler.text);
+                if (unityRequest.result == UnityWebRequest.Result.ConnectionError ||
+                    unityRequest.result == UnityWebRequest.Result.ProtocolError)
+                {
+                    //_fireballLogger.LogError($"Error: {www.error}");
+                    _fireballLogger.LogError($"Message - {request.Name} - Error: {unityRequest.error} (ActionId: {request.ActionId})");
+                    onError?.Invoke(unityRequest.error);
+                }
+                else
+                {
+                    _fireballLogger.Log($"Message - {request.Name} - Sent (ActionId: {request.ActionId})");
+                    onSuccess?.Invoke(unityRequest.downloadHandler.text);
+                }
             }
         }
 
