@@ -185,23 +185,29 @@ namespace Fireball.Game.Client
             Action<string> onSuccess,
             Action<string> onError)
         {
+            long responceCode = 0;
+            string responceText = string.Empty;
             url = FireballTools.FormatUrlAndParams(url, data);
 
             _fireballLogger.Log($"Sending GET Request to URL = {url}");
-            using (UnityWebRequest www = UnityWebRequest.Get(url))
+            using (UnityWebRequest client = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET))
             {
-                yield return www.SendWebRequest();
+                yield return client.SendWebRequest();
 
-                if (www.result == UnityWebRequest.Result.ConnectionError ||
-                    www.result == UnityWebRequest.Result.ProtocolError)
+                if (client.result == UnityWebRequest.Result.ConnectionError ||
+                    client.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    _fireballLogger.LogError($"GET Request Error: {www.error}");
-                    onError?.Invoke(www.error);
+                    responceText = client.error;
+                    responceCode = client.responseCode;
+                    _fireballLogger.LogError($"GET Request Error: {responceText} ({responceCode})");
+                    onError?.Invoke(client.error);
                 }
                 else
                 {
-                    _fireballLogger.Log($"GET Response: {www.downloadHandler.text} ({www.responseCode})");
-                    onSuccess?.Invoke(www.downloadHandler.text);
+                    responceText = client.downloadHandler.text;
+                    responceCode = client.responseCode;
+                    _fireballLogger.Log($"GET Response: {responceText} ({responceCode})");
+                    onSuccess?.Invoke(client.downloadHandler.text);
                 }
             }
         }
@@ -219,29 +225,38 @@ namespace Fireball.Game.Client
             Action<string> onSuccess,
             Action<string> onError)
         {
+            long responceCode = 0;
+            string responceText = string.Empty;
             byte[] bytes = Encoding.UTF8.GetBytes(request.ToJson());
 
             _fireballLogger.Log($"Message - {request.Name} - Sending... (ActionId: {request.ActionId})" +
                 $"\nMesaage: {request.ToJson()}");
 
-            using (UnityWebRequest unityRequest = UnityWebRequest.Post(url, request.ToJson()))
-            {
-                unityRequest.uploadHandler = new UploadHandlerRaw(bytes);
-                unityRequest.downloadHandler = new DownloadHandlerBuffer();
-                unityRequest.SetRequestHeader("Content-Type", "application/json");
-                yield return unityRequest.SendWebRequest();
+            UploadHandler uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(request.ToJson()));
+            DownloadHandler downloadHandler = new DownloadHandlerBuffer();
 
-                if (unityRequest.result == UnityWebRequest.Result.ConnectionError ||
-                    unityRequest.result == UnityWebRequest.Result.ProtocolError)
+            using (UnityWebRequest client = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST, downloadHandler, uploadHandler))
+            {
+                client.SetRequestHeader("Content-Type", "application/json");
+                client.SetRequestHeader("Accept", "application/json");
+                client.uploadHandler.contentType = "application/json";
+
+                yield return client.SendWebRequest();
+
+                if (client.result == UnityWebRequest.Result.ConnectionError ||
+                    client.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    //_fireballLogger.LogError($"Error: {www.error}");
-                    _fireballLogger.LogError($"Message - {request.Name} - Error: {unityRequest.error} (ActionId: {request.ActionId})");
-                    onError?.Invoke(unityRequest.error);
+                    responceText = client.error;
+                    responceCode = client.responseCode;
+                    _fireballLogger.LogError($"Message - {request.Name} - Error: {responceText} (ActionId: {request.ActionId})");
+                    onError?.Invoke(responceText);
                 }
                 else
                 {
+                    responceText = client.downloadHandler.text;
+                    responceCode = client.responseCode;
                     _fireballLogger.Log($"Message - {request.Name} - Sent (ActionId: {request.ActionId})");
-                    onSuccess?.Invoke(unityRequest.downloadHandler.text);
+                    onSuccess?.Invoke(responceText);
                 }
             }
         }
