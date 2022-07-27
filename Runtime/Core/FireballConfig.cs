@@ -2,8 +2,10 @@
 {
     public static class FireballConfig
     {
-        public const string URL_FIREBALL_API_DEFAULT = "https://api.fireballserver.com/api/v1.0";
-        public const string URL_ROUTER_DEFAULT = "https://cloud.fireballserver.com/router";
+        //public const string URL_FIREBALL_API_DEFAULT = "https://api.fireballserver.com/api/v1.0";
+        public const string URL_ROUTER_DEFAULT = "https://cloud.fireballserver.com/router-net";
+        public const string URL_MESENGER_DEFAULT = "https://cloud.fireballserver.com/messages-net/messages";
+
         public const string DEFAULT_LANGUAGE_CODE = "en";
         public const string DEFAULT_CURRENCY = "USD";
         public const float DEFAULT_TIMEOUT = 12.0f;

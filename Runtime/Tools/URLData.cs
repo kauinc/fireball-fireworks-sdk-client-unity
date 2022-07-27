@@ -19,7 +19,7 @@ namespace Fireball.Game.Client.Tools
         private const string PARAM_NAME_TOKEN = "token";
         private const string PARAM_NAME_MODE = "mode";
         private const string PARAM_NAME_WS_SERVER = "messages";
-        private const string PARAM_NAME_WS_TOKEN = "wsToken";
+        //private const string PARAM_NAME_WS_TOKEN = "wsToken";
         private const string PARAM_NAME_ROUTER_URL = "router";
         private const string PARAM_NAME_HOME_URL = "home";
         private const string PARAM_NAME_EXTRA = "extra";
@@ -53,7 +53,7 @@ namespace Fireball.Game.Client.Tools
                 else if (param.Equals(PARAM_NAME_TOKEN)) session.Token = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_WS_SERVER))
                     session.WsServer = UnityWebRequest.UnEscapeURL(paramsDict[param]);
-                else if (param.Equals(PARAM_NAME_WS_TOKEN)) session.WsToken = paramsDict[param];
+                //else if (param.Equals(PARAM_NAME_WS_TOKEN)) session.WsToken = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_MODE)) session.GameMode = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_ROUTER_URL))
                     session.Router = UnityWebRequest.UnEscapeURL(paramsDict[param]);
@@ -89,26 +89,26 @@ namespace Fireball.Game.Client.Tools
             {
                 logger.LogWarning("Url params don't contain - gameId!");
             }
-            
+
             //if (string.IsNullOrEmpty(session.PlayerId))
             //{
             //    logger.LogWarning("Url params don't contain - playerId!");
             //}
-            
+
             if (string.IsNullOrEmpty(session.Token))
             {
                 logger.LogWarning("Url params don't contain - token!");
             }
-            
+
             if (string.IsNullOrEmpty(session.WsServer))
             {
                 logger.LogWarning("Url params don't contain - messages!");
             }
             
-            if (string.IsNullOrEmpty(session.WsToken))
-            {
-                logger.LogWarning("Url params don't contain - wsToken!");
-            }
+            //if (string.IsNullOrEmpty(session.WsToken))
+            //{
+            //    logger.LogWarning("Url params don't contain - wsToken!");
+            //}
             
             if (string.IsNullOrEmpty(session.Language))
             {

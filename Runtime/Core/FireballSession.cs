@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Fireball.Game.Client
 {
@@ -15,11 +16,12 @@ namespace Fireball.Game.Client
         public string PlayerId = string.Empty;
         public string GameSession = string.Empty;
         public string Token = string.Empty;
-        public string ConnectionId = string.Empty;
 
-        /* DEPRECATED */
+        // Connection data
+        public string Router = string.Empty;
+        public string WsServer = string.Empty;
         public string ConnectionToken = string.Empty;
-        public string WsToken = string.Empty;
+        public string ConnectionId = string.Empty;
 
         // Personal info
         public string Language = string.Empty;
@@ -28,9 +30,10 @@ namespace Fireball.Game.Client
         public string Gender = string.Empty;
 
         // Additional custom data
-        public string WsServer = string.Empty;
-        public string Router = string.Empty;
         public string HomeUrl = string.Empty;
         public Dictionary<string, string> Extra = new Dictionary<string, string>();
+
+        public string ToJson() =>
+            JsonConvert.SerializeObject(this);
     }
 }

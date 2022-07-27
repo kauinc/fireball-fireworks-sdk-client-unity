@@ -34,29 +34,28 @@ namespace Fireball.Game.Client
             }
         }
 
-        public FireballSession CurrentSession { get; set; }
+        public FireballSession CurrentSession => _currentSession;
         public string LastActionID => _lastActionID;
 
-        public bool IsInit => CurrentSession != null
-                              && !string.IsNullOrEmpty(CurrentSession.WsToken)
+        public bool IsInit => _currentSession != null
+                              && !string.IsNullOrEmpty(_currentSession.ConnectionId)
                               && _messenger.IsInit;
 
-        public bool IsAuth => CurrentSession != null
-                              && !string.IsNullOrEmpty(CurrentSession.GameSession)
-                              && !string.IsNullOrEmpty(CurrentSession.PlayerId);
+        public bool IsAuth => _currentSession != null
+                              && !string.IsNullOrEmpty(_currentSession.GameSession)
+                              && !string.IsNullOrEmpty(_currentSession.PlayerId);
 
-        public bool IsDemo => CurrentSession.GameSession.Equals(FireballConfig.DEMO_SESSION);
+        public bool IsDemo => _currentSession.GameSession.Equals(FireballConfig.DEMO_SESSION);
 
         public Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
 
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
+
         private ThreadDispatcher _dispatcher;
-
+        private FireballSession _currentSession;
         private string _customRouterUrl;
-
         private string _lastActionID;
-
         private IMessenger _messenger;
         private IFireballLogger _fireballLogger;
         private INetworkChecker _networkChecker;
@@ -67,28 +66,24 @@ namespace Fireball.Game.Client
         private Action<FireballSession> _onInitSuccess = null;
         private Action<string> _onInitError = null;
 
-        private string URLRouter =>
-            !string.IsNullOrEmpty(_customRouterUrl) ? _customRouterUrl : FireballConfig.URL_ROUTER_DEFAULT;
+        private string URLRouter => !string.IsNullOrEmpty(_customRouterUrl) ? _customRouterUrl : FireballConfig.URL_ROUTER_DEFAULT;
 
         public void Init(Action<FireballSession> onSuccess = null, Action<string> onError = null)
         {
-            Init(URLData.ParseSessionFromURL(), onSuccess, onError);
+            Initialize(URLData.ParseSessionFromURL(), onSuccess, onError);
         }
 
-        public void Init(
-            string customUrl, 
-            Action<FireballSession> onSuccess = null, 
-            Action<string> onError = null,
-            MessengerType messengerType = MessengerType.SignalR)
+        public void Init(string customUrl, Action<FireballSession> onSuccess = null, Action<string> onError = null)
         {
-            Init(URLData.ParseSessionFromURL(customUrl), onSuccess, onError, messengerType);
+            Initialize(URLData.ParseSessionFromURL(customUrl), onSuccess, onError);
         }
 
-        private void Init(
-            FireballSession customSession, 
-            Action<FireballSession> onSuccess = null,
-            Action<string> onError = null, 
-            MessengerType messengerType = MessengerType.SignalR)
+        public void Init(FireballSettings playerData, Action<FireballSession> onSuccess = null, Action<string> onError = null)
+        {
+            Initialize(playerData.GetSession(), onSuccess, onError);
+        }
+
+        private void Initialize(FireballSession customSession, Action<FireballSession> onSuccess = null, Action<string> onError = null, MessengerType messengerType = MessengerType.SignalR)
         {
             _fireballLogger = new FireballLogger();
             _networkChecker = new NetworkChecker(this, 2.0f);
@@ -98,19 +93,19 @@ namespace Fireball.Game.Client
             _onInitError = onError;
 
             _fireballLogger.Log("Init...");
-            CurrentSession = customSession;
-            CurrentSession.ConnectionToken = FireballTools.GenerateConnectionToken();
+            _currentSession = customSession;
+            _currentSession.ConnectionToken = FireballTools.GenerateConnectionToken();
 
-            _customRouterUrl = CurrentSession.Router;
+            _customRouterUrl = _currentSession.Router;
 
             // Websocket module init
             if (messengerType == MessengerType.SignalR)
             {
-                _messenger = new SignalRMessenger(CurrentSession);
+                _messenger = new SignalRMessenger(_currentSession);
             }
             else
             {
-                _messenger = new WebSocketMessenger(CurrentSession);
+                _messenger = new WebSocketMessenger(_currentSession);
             }
 
             _messenger.OnMessageReceived += OnMessageReceived;
@@ -124,12 +119,12 @@ namespace Fireball.Game.Client
             _networkChecker.OnNetworkConnectionChanged += OnInternetConnection;
 
             // Connect to App Messages WebSocket server
-            _messenger.Connect(CurrentSession.WsServer, CurrentSession.ConnectionToken,
+            _messenger.Connect(_currentSession.WsServer, _currentSession.ConnectionToken,
                 (connectionId) =>
                 {
                     _fireballLogger.Log("OnInit: Success!");
-                    CurrentSession.ConnectionId = connectionId;
-                    _onInitSuccess?.Invoke(CurrentSession);
+                    _currentSession.ConnectionId = connectionId;
+                    _onInitSuccess?.Invoke(_currentSession);
                     _onInitSuccess = null;
                 },
                 (error) =>
@@ -140,8 +135,25 @@ namespace Fireball.Game.Client
                 });
         }
 
+        public void Authorize(AuthRequest authRequest, Action<AuthResponse> onSuccess = null, Action<ErrorResponse> onError = null) =>
+            Authorize<AuthRequest, AuthResponse>(authRequest, onSuccess, onError);
+
+        public void Authorize<TRequest, TResponse>(TRequest authRequest, Action<TResponse> onSuccess = null, Action<ErrorResponse> onError = null) where TRequest : AuthRequest where TResponse : AuthResponse
+        {
+            SendRequest<TRequest, TResponse>(authRequest,
+                response =>
+                {
+                    _currentSession.GameSession = response.GameSession;
+                    _currentSession.PlayerId = response.PlayerId;
+                    _currentSession.OperatorPlayerId = response.OperatorPlayerId;
+                    _currentSession.OperatorPlayerSession = response.OperatorPlayerSession;
+                    onSuccess?.Invoke(response);
+                },
+                onError, 0);
+        }
+
         public void SendPing() =>
-            SendPOST(URLRouter, new PingRequest(CurrentSession));
+            SendPOST(URLRouter, new PingRequest(_currentSession));
 
         private void OnInternetConnection(bool connected)
         {
@@ -172,18 +184,10 @@ namespace Fireball.Game.Client
             }
         }
 
-        public void SendGET(
-            string url,
-            Dictionary<string, string> data = null,
-            Action<string> onSuccess = null,
-            Action<string> onError = null) =>
+        public void SendGET(string url, Dictionary<string, string> data = null, Action<string> onSuccess = null, Action<string> onError = null) =>
             StartCoroutine(SendGETCoroutine(url, data, onSuccess, onError));
 
-        private IEnumerator SendGETCoroutine(
-            string url,
-            Dictionary<string, string> data,
-            Action<string> onSuccess,
-            Action<string> onError)
+        private IEnumerator SendGETCoroutine(string url, Dictionary<string, string> data, Action<string> onSuccess, Action<string> onError)
         {
             long responceCode = 0;
             string responceText = string.Empty;
@@ -212,18 +216,10 @@ namespace Fireball.Game.Client
             }
         }
 
-        public void SendPOST(
-            string url,
-            BaseMessage request,
-            Action<string> onSuccess = null,
-            Action<string> onError = null) =>
+        public void SendPOST(string url, BaseMessage request, Action<string> onSuccess = null, Action<string> onError = null) =>
             StartCoroutine(SendPOSTCoroutine(url, request, onSuccess, onError));
 
-        private IEnumerator SendPOSTCoroutine(
-            string url,
-            BaseMessage request,
-            Action<string> onSuccess,
-            Action<string> onError)
+        private IEnumerator SendPOSTCoroutine(string url, BaseMessage request, Action<string> onSuccess, Action<string> onError)
         {
             long responceCode = 0;
             string responceText = string.Empty;
@@ -261,22 +257,14 @@ namespace Fireball.Game.Client
             }
         }
 
-        public void SendRequest<TRequest, TResponse>(
-            TRequest request,
-            Action<TResponse> onSuccess,
-            Action<ErrorResponse> onError = null,
-            float timeout = FireballConfig.DEFAULT_TIMEOUT,
-            int attempts = 1)
-            where TRequest : BaseRequest where TResponse : BaseResponse =>
+        public void SendRequest<TRequest, TResponse>(TRequest request, Action<TResponse> onSuccess, Action<ErrorResponse> onError = null, float timeout = FireballConfig.DEFAULT_TIMEOUT, int attempts = 1)
+            where TRequest : BaseRequest
+            where TResponse : BaseResponse =>
             StartCoroutine(SendRequestCoroutine(request, onSuccess, onError, timeout, attempts));
 
-        private IEnumerator SendRequestCoroutine<TRequest, TResponse>(
-            TRequest request,
-            Action<TResponse> onSuccess,
-            Action<ErrorResponse> onError,
-            float timeout,
-            int attemptsCount)
-            where TRequest : BaseRequest where TResponse : BaseResponse
+        private IEnumerator SendRequestCoroutine<TRequest, TResponse>(TRequest request, Action<TResponse> onSuccess, Action<ErrorResponse> onError, float timeout, int attemptsCount)
+            where TRequest : BaseRequest
+            where TResponse : BaseResponse
         {
             //CheckAndClearPendingResponses();
             _lastActionID = request.ActionId;
@@ -290,7 +278,8 @@ namespace Fireball.Game.Client
                 SendPOST(URLRouter, request, null,
                     errorReason =>
                     {
-                        onError?.Invoke(ErrorResponse.CustomError(request.ActionId, errorReason));
+                        var error = ErrorResponse.CustomError(request.ActionId, errorReason);
+                        AddPendingResponse(request.ActionId, JToken.FromObject(error));
                     });
 
                 while (!IsPendingResponse(request.ActionId))
@@ -389,7 +378,7 @@ namespace Fireball.Game.Client
             return null;
         }
 
-        private void AddPendingResponse(string actionID, JToken response) //string response)
+        private void AddPendingResponse(string actionID, JToken response)
         {
             //_fireballLogger.Log($"Set Pending response actionID = {actionID}");
             if (_pendingResponses.ContainsKey(actionID))
@@ -472,9 +461,9 @@ namespace Fireball.Game.Client
         {
             if (isConnected)
             {
-                CurrentSession.ConnectionId = connectionId;
+                _currentSession.ConnectionId = connectionId;
 
-                _onInitSuccess?.Invoke(CurrentSession);
+                _onInitSuccess?.Invoke(_currentSession);
                 _onInitSuccess = null;
             }
         }

@@ -1,7 +1,7 @@
 {
   "name": "com.kau.fireball",
   "displayName": "Fireball SDK",
-  "version": "0.6.5",
+  "version": "0.7.0",
   "unity": "2019.2",
   "keywords": [
     "Fireball",
@@ -11,9 +11,9 @@
   "type": "library",
   "samples": [
     {
-      "displayName": "Demo Authorize",
-      "description": "Fireball authorize example with test parametes as urls",
-      "path": "Samples/Demo"
+      "displayName": "Slot Game Sample",
+      "description": "Siplest slog game sample with Fireball authorize and custom request",
+      "path": "Samples/SlotSample"
     }
   ],
   "dependencies": {

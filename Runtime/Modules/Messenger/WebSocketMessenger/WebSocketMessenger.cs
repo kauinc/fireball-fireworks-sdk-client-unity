@@ -39,16 +39,16 @@ namespace Fireball.Game.Client.Modules
             _currentSession = fireballSession;
         }
 
-        public void Connect(string server, string wsToken, Action<string> onConnect = null, Action<string> onError = null)
+        public void Connect(string server, string connectionToken, Action<string> onConnect = null, Action<string> onError = null)
         {
-            ConnectAsync(server, wsToken, onConnect, onError);
+            ConnectAsync(server, connectionToken, onConnect, onError);
         }
 
         public void Reconnect()
         {
             _fireballLogger.Log("WebSocket: Reconnecting...");
             _reconnectAttempt++;
-            Connect(_serverURL, _currentSession.WsToken, (id)=>
+            Connect(_serverURL, _currentSession.ConnectionToken, (id)=>
             {
 
             });
@@ -70,8 +70,8 @@ namespace Fireball.Game.Client.Modules
             
             if (string.IsNullOrEmpty(connectionToken))
             {
-                _fireballLogger.LogError("Can't connect! wsToken = null");
-                onError?.Invoke("Can't connect! wsToken = null");
+                _fireballLogger.LogError("Can't connect! ConnectionToken = null");
+                onError?.Invoke("Can't connect! ConnectionToken = null");
                 return;
             }
 
