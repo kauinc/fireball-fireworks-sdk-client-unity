@@ -57,7 +57,7 @@ namespace Fireball.Game.Client
         private string _customRouterUrl;
         private string _lastActionID;
         private IMessenger _messenger;
-        private IFireballLogger _fireballLogger;
+        private IFireballLogger _logger;
         private INetworkChecker _networkChecker;
 
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
@@ -85,14 +85,14 @@ namespace Fireball.Game.Client
 
         private void Initialize(FireballSession customSession, Action<FireballSession> onSuccess = null, Action<string> onError = null, MessengerType messengerType = MessengerType.SignalR)
         {
-            _fireballLogger = new FireballLogger();
+            _logger = new FireballLogger();
             _networkChecker = new NetworkChecker(this, 2.0f);
             _dispatcher = new ThreadDispatcher(this);
 
             _onInitSuccess = onSuccess;
             _onInitError = onError;
 
-            _fireballLogger.Log("Init...");
+            _logger.Log("Init...");
             _currentSession = customSession;
             _currentSession.ConnectionToken = FireballTools.GenerateConnectionToken();
 
@@ -122,14 +122,14 @@ namespace Fireball.Game.Client
             _messenger.Connect(_currentSession.WsServer, _currentSession.ConnectionToken,
                 (connectionId) =>
                 {
-                    _fireballLogger.Log("OnInit: Success!");
+                    _logger.Info("OnInit: Success!");
                     _currentSession.ConnectionId = connectionId;
                     _onInitSuccess?.Invoke(_currentSession);
                     _onInitSuccess = null;
                 },
                 (error) =>
                 {
-                    _fireballLogger.LogError($"OnInit: Error! {error}");
+                    _logger.Error($"OnInit: Error! {error}");
                     _onInitError?.Invoke(error);
                     _onInitError = null;
                 });
@@ -193,7 +193,7 @@ namespace Fireball.Game.Client
             string responceText = string.Empty;
             url = FireballTools.FormatUrlAndParams(url, data);
 
-            _fireballLogger.Log($"Sending GET Request to URL = {url}");
+            _logger.Info($"Sending GET Request to URL = {url}");
             using (UnityWebRequest client = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET))
             {
                 yield return client.SendWebRequest();
@@ -203,14 +203,14 @@ namespace Fireball.Game.Client
                 {
                     responceText = client.error;
                     responceCode = client.responseCode;
-                    _fireballLogger.LogError($"GET Request Error: {responceText} ({responceCode})");
+                    _logger.Error($"GET Request Error: {responceText} ({responceCode})");
                     onError?.Invoke(client.error);
                 }
                 else
                 {
                     responceText = client.downloadHandler.text;
                     responceCode = client.responseCode;
-                    _fireballLogger.Log($"GET Response: {responceText} ({responceCode})");
+                    _logger.Info($"GET Response: {responceText} ({responceCode})");
                     onSuccess?.Invoke(client.downloadHandler.text);
                 }
             }
@@ -225,7 +225,7 @@ namespace Fireball.Game.Client
             string responceText = string.Empty;
             byte[] bytes = Encoding.UTF8.GetBytes(request.ToJson());
 
-            _fireballLogger.Log($"Message - {request.Name} - Sending... (ActionId: {request.ActionId})" +
+            _logger.Info($"Message - {request.Name} - Sending... (ActionId: {request.ActionId})" +
                 $"\nMesaage: {request.ToJson()}");
 
             UploadHandler uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(request.ToJson()));
@@ -244,14 +244,14 @@ namespace Fireball.Game.Client
                 {
                     responceText = client.error;
                     responceCode = client.responseCode;
-                    _fireballLogger.LogError($"Message - {request.Name} - Error: {responceText} (ActionId: {request.ActionId})");
+                    _logger.Error($"Message - {request.Name} - Error: {responceText} (ActionId: {request.ActionId})");
                     onError?.Invoke(responceText);
                 }
                 else
                 {
                     responceText = client.downloadHandler.text;
                     responceCode = client.responseCode;
-                    _fireballLogger.Log($"Message - {request.Name} - Sent (ActionId: {request.ActionId})");
+                    _logger.Info($"Message - {request.Name} - Sent (ActionId: {request.ActionId})");
                     onSuccess?.Invoke(responceText);
                 }
             }
@@ -290,13 +290,13 @@ namespace Fireball.Game.Client
                         {
                             attemptsLeft--;
                             timePassed = 0;
-                            _fireballLogger.Log($"Timeout! Try next attempt... ({attemptsCount - attemptsLeft})");
+                            _logger.Warning($"Timeout! Try next attempt... ({attemptsCount - attemptsLeft})");
                             SendPOST(URLRouter, request);
                         }
                         else
                         {
-                            _fireballLogger.LogError($"Timeout for message {request.Name} {request.ActionId}! " +
-                                                     $"Time passed: {timePassed} sec, Attempts = {attemptsCount - attemptsLeft}");
+                            _logger.Error($"Timeout for message {request.Name} {request.ActionId}! " +
+                                          $"Time passed: {timePassed} sec, Attempts = {attemptsCount - attemptsLeft}");
                             var timeoutError = ErrorResponse.TimeoutResponse(request.ActionId, timeout);
                             AddPendingResponse(request.ActionId, JToken.FromObject(timeoutError));
                         }
@@ -310,7 +310,7 @@ namespace Fireball.Game.Client
             }
             else
             {
-                _fireballLogger.Log($" Found Pending Response!");
+                _logger.Log($" Found Pending Response!");
             }
 
             var responseObject = GetPendingResponse(request.ActionId);
@@ -320,7 +320,7 @@ namespace Fireball.Game.Client
                 if (string.IsNullOrEmpty(errorReason))
                 {
                     var response = responseObject.ToObject<TResponse>();
-                    _fireballLogger.Log($"Message - {response.Name} - Received (ActionId: {response.ActionId})" +
+                    _logger.Info($"Message - {response.Name} - Received (ActionId: {response.ActionId})" +
                         $"\nMessage: {response.ToJson()}" +
                         $"\nTime passed: {timePassed:F1} sec, Attempts: {attemptsCount}");
 
@@ -329,7 +329,7 @@ namespace Fireball.Game.Client
                 else
                 {
                     var error = responseObject.ToObject<ErrorResponse>();
-                    _fireballLogger.LogError($"Message - {error.Name} - Error (ActionId: {error.ActionId})" +
+                    _logger.Error($"Message - {error.Name} - Error (ActionId: {error.ActionId})" +
                         $"\nError: {error.ToJson()}" +
                         $"\nTime passed: {timePassed:F1} sec, Attempts: {attemptsCount}");
 
@@ -338,7 +338,7 @@ namespace Fireball.Game.Client
             }
             catch(Exception e)
             {
-                _fireballLogger.LogError(e.Message);
+                _logger.Error(e.Message);
                 onError?.Invoke(ErrorResponse.CustomError(request.ActionId, e.Message));
             }
             
@@ -405,7 +405,7 @@ namespace Fireball.Game.Client
 
             if (responses.Count > 0)
             {
-                _fireballLogger.Log($"Clearing Pending response = {string.Join(",", responses)}");
+                _logger.Log($"Clearing Pending response = {string.Join(",", responses)}");
                 foreach (string actionID in responses)
                 {
                     _pendingResponses.Remove(actionID);
@@ -421,7 +421,7 @@ namespace Fireball.Game.Client
                 var data = JObject.Parse(json);
                 if (data == null)
                 {
-                    _fireballLogger.LogError("On Message error: can't parse json!");
+                    _logger.Error("On Message error: can't parse json!");
                     return;
                 }
 
@@ -432,7 +432,7 @@ namespace Fireball.Game.Client
                 if (name == JackpotUpdateMessage.MESSAGE_NAME)
                 {
                     var jackpotMessage = messageObject.ToObject<JackpotUpdateMessage>();
-                    _fireballLogger.Log($"On Jackpot Message Received: {jackpotMessage?.ToJson()}");
+                    _logger.Info($"On Jackpot Message Received: {jackpotMessage?.ToJson()}");
                     _dispatcher.InvokeInMainThread(() =>
                     {
                         OnJackpotUpdate?.Invoke(jackpotMessage);
@@ -442,7 +442,7 @@ namespace Fireball.Game.Client
                 {
                     if (string.IsNullOrEmpty(actionId))
                     {
-                        _fireballLogger.LogError("On Message error: actionID == null!");
+                        _logger.Error("On Message error: actionID == null!");
                         AddPendingResponse(_lastActionID, messageObject);
                     }
                     else
@@ -453,7 +453,7 @@ namespace Fireball.Game.Client
             }
             catch(Exception e)
             {
-                _fireballLogger.LogError($"On Message error: can't parse json! Exception: {e.Message}");
+                _logger.Error($"On Message error: can't parse json! Exception: {e.Message}");
             }
         }
 

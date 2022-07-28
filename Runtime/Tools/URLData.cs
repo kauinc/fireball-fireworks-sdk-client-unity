@@ -26,7 +26,6 @@ namespace Fireball.Game.Client.Tools
 
         public static FireballSession ParseSessionFromURL(string customUrl = null)
         {
-            Debug.Log($"Get parameters from URL");
             FireballSession session = new FireballSession();
             Dictionary<string, string> extraDict = new Dictionary<string, string>();
             Dictionary<string, string> paramsDict = new Dictionary<string, string>();
@@ -82,12 +81,12 @@ namespace Fireball.Game.Client.Tools
             // Check URL params
             if (string.IsNullOrEmpty(session.OperatorId))
             {
-                logger.LogWarning("Url params don't contain - operatorId!");
+                logger.Warning("Url params don't contain - operatorId!");
             }
             
             if (string.IsNullOrEmpty(session.GameId))
             {
-                logger.LogWarning("Url params don't contain - gameId!");
+                logger.Warning("Url params don't contain - gameId!");
             }
 
             //if (string.IsNullOrEmpty(session.PlayerId))
@@ -97,12 +96,12 @@ namespace Fireball.Game.Client.Tools
 
             if (string.IsNullOrEmpty(session.Token))
             {
-                logger.LogWarning("Url params don't contain - token!");
+                logger.Warning("Url params don't contain - token!");
             }
 
             if (string.IsNullOrEmpty(session.WsServer))
             {
-                logger.LogWarning("Url params don't contain - messages!");
+                logger.Warning("Url params don't contain - messages!");
             }
             
             //if (string.IsNullOrEmpty(session.WsToken))
@@ -112,35 +111,35 @@ namespace Fireball.Game.Client.Tools
             
             if (string.IsNullOrEmpty(session.Language))
             {
-                logger.LogWarning("Url params don't contain - language!");
+                logger.Warning("Url params don't contain - language!");
                 session.Language = FireballConfig.DEFAULT_LANGUAGE_CODE;
             }
 
             if (string.IsNullOrEmpty(session.Currency))
             {
-                logger.LogWarning("Url params don't contain - currency!");
+                logger.Warning("Url params don't contain - currency!");
                 session.Currency = FireballConfig.DEFAULT_CURRENCY;
             }
 
             if (string.IsNullOrEmpty(session.Country))
             {
-                logger.LogWarning("Url params don't contain - country!");
+                logger.Warning("Url params don't contain - country!");
             }
             
             if (string.IsNullOrEmpty(session.Gender))
             {
-                logger.LogWarning("Url params don't contain - gender!");
+                logger.Warning("Url params don't contain - gender!");
             }
             
             if (string.IsNullOrEmpty(session.Environment))
             {
-                logger.LogWarning("Url params don't contain - Environments!");
+                logger.Warning("Url params don't contain - Environments!");
                 session.Environment = FireballConfig.DEFAULT_ENVIRONMENT.ToString();
             }
 
             if (string.IsNullOrEmpty(session.GameMode))
             {
-                logger.LogWarning("Url params don't contain - mode!");
+                logger.Warning("Url params don't contain - mode!");
                 session.GameMode = FireballConfig.DEFAULT_GAME_MODE.ToString();
             }
             else if (Enum.TryParse(session.GameMode, true, out GameMode mode))
@@ -149,7 +148,7 @@ namespace Fireball.Game.Client.Tools
             }
             else
             {
-                logger.LogWarning($"Can't parse - mode! Mode String = {session.GameMode}");
+                logger.Warning($"Can't parse - mode! Mode String = {session.GameMode}");
                 session.GameMode = FireballConfig.DEFAULT_GAME_MODE.ToString();
             }
 
@@ -159,7 +158,7 @@ namespace Fireball.Game.Client.Tools
             }
             else
             {
-                logger.LogWarning($"Can't parse - Environments! Environments String = {session.Environment}");
+                logger.Warning($"Can't parse - Environments! Environments String = {session.Environment}");
                 session.Environment = FireballConfig.DEFAULT_ENVIRONMENT.ToString();
             }
 

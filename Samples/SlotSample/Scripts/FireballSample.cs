@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Fireball.Game.Client;
 using Fireball.Game.Client.Models;
+using Fireball.Game.Client.Modules;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,7 +13,10 @@ namespace SlotSample
     {
         public SampleUI ui;
         public IFireball fireball;
+
+        [Header("Configs")]
         public FireballSettings CustomSettings;
+        public LogLevels LogLevel = LogLevels.Information;
 
         private long _betAmount = 100;
         private long _balance = 100000;
@@ -25,6 +29,7 @@ namespace SlotSample
 
         public void Init()
         {
+            FireballConfig.LogLevel = LogLevel;
             ui.Initializing();
             fireball.Init(CustomSettings, (session) =>
             {

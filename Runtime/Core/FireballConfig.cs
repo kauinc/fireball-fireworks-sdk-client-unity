@@ -1,4 +1,6 @@
-﻿namespace Fireball.Game.Client
+﻿using Fireball.Game.Client.Modules;
+
+namespace Fireball.Game.Client
 {
     public static class FireballConfig
     {
@@ -16,5 +18,8 @@
 
         public const Environments DEFAULT_ENVIRONMENT = Environments.development;
         public const GameMode DEFAULT_GAME_MODE = GameMode.fun;
+
+
+        public static LogLevels LogLevel = LogLevels.Information;
     }
 }

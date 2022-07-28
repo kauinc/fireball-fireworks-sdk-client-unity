@@ -40,7 +40,7 @@ namespace Fireball.Game.Client.Modules
         private const int RECONNECT_MAX = 1;
         private int _reconnectAttempt;
 
-        private IFireballLogger _fireballLogger;
+        private IFireballLogger _logger;
         private SignalR _signalR;
         private FireballSession _currentSession;
         private string _serverURL;
@@ -51,21 +51,21 @@ namespace Fireball.Game.Client.Modules
         public SignalRMessenger(FireballSession fireballSession)
         {
             _currentSession = fireballSession;
-            _fireballLogger = new FireballLogger();
+            _logger = new FireballLogger("SignalR");
         }
 
         public void Connect(string server, string connectionToken, Action<string> onConnect = null, Action<string> onError = null)
         {
             if (string.IsNullOrEmpty(server))
             {
-                _fireballLogger.LogError("Can't connect! Server = null");
+                _logger.Error("Can't connect! Server = null");
                 onError?.Invoke("Can't connect! Server = null");
                 return;
             }
 
             if (string.IsNullOrEmpty(connectionToken))
             {
-                _fireballLogger.LogError("Can't connect! wsToken = null");
+                _logger.Error("Can't connect! wsToken = null");
                 onError?.Invoke("Can't connect! wsToken = null");
                 return;
             }
@@ -84,7 +84,7 @@ namespace Fireball.Game.Client.Modules
                     {"gameId", _currentSession.GameId},
                 });
 
-                _fireballLogger.Log($"SignalR: Connecting... server = {serverUrlFull}");
+                _logger.Log($"Connecting... server = {serverUrlFull}");
                 _serverURL = server;
 
                 _signalR = new SignalR();
@@ -92,7 +92,7 @@ namespace Fireball.Game.Client.Modules
 
                 _signalR.ConnectionStarted += (sender, e) =>
                 {
-                    _fireballLogger.Log($"SignalR: Connected - {e.ConnectionId}");
+                    _logger.Log($"Connected - {e.ConnectionId}");
                     OnOpen(e.ConnectionId);
                     onConnect?.Invoke(e.ConnectionId);
                 };
@@ -105,14 +105,14 @@ namespace Fireball.Game.Client.Modules
             }
             catch (Exception e)
             {
-                _fireballLogger.LogError($"Exception! {e.Message}");
+                _logger.Error($"Exception! {e.Message}");
                 onError?.Invoke(e.Message);
             }
         }
 
         public void Reconnect()
         {
-            _fireballLogger.Log("SignalR: Reconnecting...");
+            _logger.Log("Reconnecting...");
             _signalR = null;
             _reconnectAttempt++;
             Connect(_serverURL, _currentSession.ConnectionToken);
@@ -122,7 +122,7 @@ namespace Fireball.Game.Client.Modules
         {
             if (_signalR != null && _state == SignalRState.Open)
             {
-                _fireballLogger.Log("SignalR: Disconnecting...");
+                _logger.Log("Disconnecting...");
                 _state = SignalRState.Closing;
                 _signalR.Stop();
             }
@@ -137,8 +137,7 @@ namespace Fireball.Game.Client.Modules
 
         private void OnClose(object sender, ConnectionEventArgs e)
         {
-            _fireballLogger.Log(
-                $"SignalR: Disconnected - {e.ConnectionId} {(_state == SignalRState.Closing ? "(Normal)" : "(Abnormal)")}");
+            _logger.Log($"Disconnected - {e.ConnectionId} {(_state == SignalRState.Closing ? "(Normal)" : "(Abnormal)")}");
             OnUpdateConnection(false, e.ConnectionId);
             if (_state == SignalRState.Closing)
             {
@@ -153,7 +152,7 @@ namespace Fireball.Game.Client.Modules
                 }
                 else
                 {
-                    _fireballLogger.LogError("SignalR: Can't Reconnect...");
+                    _logger.Error("Can't Reconnect...");
                     _reconnectAttempt = 0;
                     OnError?.Invoke("Reach server error");
                 }
@@ -171,11 +170,11 @@ namespace Fireball.Game.Client.Modules
 
         private void OnMessage(string message)
         {
-            _fireballLogger.Log($"SignalR: {MESSAGE_RECEIVE} - {message}");
+            _logger.Log($"{MESSAGE_RECEIVE} - {message}");
             SignalRMessageData data = JsonUtility.FromJson<SignalRMessageData>(message);
             if (data == null)
             {
-                _fireballLogger.LogError("SignalR: Can't parse message...");
+                _logger.Error("Can't parse message...");
                 return;
             }
 
@@ -187,7 +186,7 @@ namespace Fireball.Game.Client.Modules
         {
             if (IsConnected)
             {
-                _fireballLogger.Log($"SignalR: Sending {channel} message = {message}");
+                _logger.Log($"Sending {channel} message = {message}");
                 _signalR.Invoke(channel, message);
             }
         }

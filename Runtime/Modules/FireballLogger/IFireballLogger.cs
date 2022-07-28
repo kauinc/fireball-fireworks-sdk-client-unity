@@ -3,7 +3,8 @@
     public interface IFireballLogger
     {
         void Log(string message);
-        void LogWarning(string message);
-        void LogError(string message);
+        void Info(string message);
+        void Warning(string message);
+        void Error(string message);
     }
 }

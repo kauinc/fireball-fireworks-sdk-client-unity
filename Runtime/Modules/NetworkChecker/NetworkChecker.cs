@@ -10,6 +10,7 @@ namespace Fireball.Game.Client.Modules
         
         private MonoBehaviour _coroutineHandler;
         private Coroutine _checkConnectionCoroutine;
+        private IFireballLogger _logger;
         
         private bool _isNetworkConnected;
         private float _checkInterval;
@@ -18,6 +19,7 @@ namespace Fireball.Game.Client.Modules
         {
             _coroutineHandler = coroutineHandler;
             _checkInterval = checkInterval;
+            _logger = new FireballLogger("Network");
         }
 
         public void StartNetworkCheck()
@@ -51,6 +53,7 @@ namespace Fireball.Game.Client.Modules
             
             if (_isNetworkConnected != isNetworkConnected)
             {
+                _logger.Log($"is connected = {isNetworkConnected}");
                 _isNetworkConnected = isNetworkConnected;
                 OnNetworkConnectionChanged?.Invoke(_isNetworkConnected);
             }

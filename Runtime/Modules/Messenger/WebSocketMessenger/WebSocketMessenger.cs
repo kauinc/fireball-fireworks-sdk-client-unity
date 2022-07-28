@@ -31,11 +31,11 @@ namespace Fireball.Game.Client.Modules
         private int _reconnectAttempt = 0;
         private string _closeMessageJSON;
 
-        private IFireballLogger _fireballLogger;
+        private IFireballLogger _logger;
         
         public WebSocketMessenger(FireballSession fireballSession)
         {
-            _fireballLogger = new FireballLogger();
+            _logger = new FireballLogger("WebSocket");
             _currentSession = fireballSession;
         }
 
@@ -46,7 +46,7 @@ namespace Fireball.Game.Client.Modules
 
         public void Reconnect()
         {
-            _fireballLogger.Log("WebSocket: Reconnecting...");
+            _logger.Log("Reconnecting...");
             _reconnectAttempt++;
             Connect(_serverURL, _currentSession.ConnectionToken, (id)=>
             {
@@ -63,14 +63,14 @@ namespace Fireball.Game.Client.Modules
         {
             if (string.IsNullOrEmpty(server))
             {
-                _fireballLogger.LogError("Can't connect! Server = null");
+                _logger.Error("Can't connect! Server = null");
                 onError?.Invoke("Can't connect! Server = null");
                 return;
             }
             
             if (string.IsNullOrEmpty(connectionToken))
             {
-                _fireballLogger.LogError("Can't connect! ConnectionToken = null");
+                _logger.Error("Can't connect! ConnectionToken = null");
                 onError?.Invoke("Can't connect! ConnectionToken = null");
                 return;
             }
@@ -84,7 +84,7 @@ namespace Fireball.Game.Client.Modules
             }
             catch (Exception e)
             {
-                _fireballLogger.LogError($"Exception! {e.Message}");
+                _logger.Error($"Exception! {e.Message}");
             }
 
             try
@@ -99,7 +99,7 @@ namespace Fireball.Game.Client.Modules
                     { "gameId", _currentSession.GameId },
                 });
 
-                _fireballLogger.Log($"WebSocket: Connection opening... server = {serverUrlFull}");
+                _logger.Log($"Connection opening... server = {serverUrlFull}");
 
 #if !UNITY_WEBGL || UNITY_EDITOR
                 if (_webSocketMono == null)
@@ -138,7 +138,7 @@ namespace Fireball.Game.Client.Modules
             }
             catch (Exception e)
             {
-                _fireballLogger.LogError($"Exception! {e.Message}");
+                _logger.Error($"Exception! {e.Message}");
             }
         }
 
@@ -153,7 +153,7 @@ namespace Fireball.Game.Client.Modules
 
         private void OnOpen(string connectionToken)
         {
-            _fireballLogger.Log("WebSocket: Connection open!");
+            _logger.Log("Connection open!");
             
             _reconnectAttempt = 0;
             _connectionToken = connectionToken;
@@ -171,7 +171,7 @@ namespace Fireball.Game.Client.Modules
 
         private void OnClose(WebSocketCloseCode code)
         {
-            _fireballLogger.Log($"WebSocket: Connection closed! code {code}");
+            _logger.Log($"Connection closed! code {code}");
             if (_isDisconnecting) return;
 
             OnUpdateConnection(false, _connectionToken);
@@ -184,7 +184,7 @@ namespace Fireball.Game.Client.Modules
                 }
                 else
                 {
-                    _fireballLogger.LogError("WebSocket: Can't Reconnect...");
+                    _logger.Error("Can't Reconnect...");
                     _reconnectAttempt = 0;
                     OnError?.Invoke("Reach server error");
                 }
@@ -201,7 +201,7 @@ namespace Fireball.Game.Client.Modules
 
         private void OnParseError(string error)
         {
-            _fireballLogger.LogError("WebSocket: Error! " + error);
+            _logger.Error("Error! " + error);
             OnError?.Invoke(error);
         }
         
@@ -217,12 +217,12 @@ namespace Fireball.Game.Client.Modules
         private bool ParseMessage(byte[] bytes, out string messageJson)
         {
             messageJson = System.Text.Encoding.UTF8.GetString(bytes);
-            _fireballLogger.Log($"WebSocket: Received OnMessage! message: {messageJson}\n({bytes.Length} bytes)");
+            _logger.Log($"Received OnMessage! message: {messageJson}\n({bytes.Length} bytes)");
 
             WebSocketData data = JsonUtility.FromJson<WebSocketData>(messageJson);
             if (data == null)
             {
-                _fireballLogger.LogError("WebSocket: Can't parse message...");
+                _logger.Error("Can't parse message...");
                 return false;
             }
 
@@ -234,7 +234,7 @@ namespace Fireball.Game.Client.Modules
         {
             if (_websocket.State == WebSocketState.Open)
             {
-                if (log) _fireballLogger.Log($"WebSocket: Sending message = {message}");
+                if (log) _logger.Log($"Sending message = {message}");
                 await _websocket.SendText(message);
             }
         }
