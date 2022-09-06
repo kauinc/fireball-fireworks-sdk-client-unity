@@ -4,9 +4,10 @@ namespace Fireball.Game.Client
 {
     public static class FireballConfig
     {
-        //public const string URL_FIREBALL_API_DEFAULT = "https://api.fireballserver.com/api/v1.0";
-        public const string URL_ROUTER_DEFAULT = "https://cloud.fireballserver.com/router-net";
-        public const string URL_MESENGER_DEFAULT = "https://cloud.fireballserver.com/messages-net/messages";
+        public const string URL_FIREBALL_SERVER = "https://cloud.fireballserver.com";
+        public const string URL_ROUTER_DEFAULT = URL_FIREBALL_SERVER + "/router-net";
+        public const string URL_MESENGER_DEFAULT = URL_FIREBALL_SERVER + "/messages-net/messages";
+        public const string URL_REPLAY_TRANSACTION = URL_FIREBALL_SERVER + "/sessions/replay/transactions";
 
         public const string DEFAULT_LANGUAGE_CODE = "en";
         public const string DEFAULT_CURRENCY = "USD";
@@ -18,7 +19,6 @@ namespace Fireball.Game.Client
 
         public const Environments DEFAULT_ENVIRONMENT = Environments.development;
         public const GameMode DEFAULT_GAME_MODE = GameMode.fun;
-
 
         public static LogLevels LogLevel = LogLevels.Information;
     }

@@ -20,4 +20,9 @@ namespace Fireball.Game.Client.Models
             Name = RESPONSE_NAME;
         }
     }
+
+    public class AuthResponse<T> : AuthResponse where T: class
+    {
+        public new T GameState;
+    }
 }

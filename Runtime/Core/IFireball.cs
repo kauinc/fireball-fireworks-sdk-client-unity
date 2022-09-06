@@ -28,5 +28,7 @@ namespace Fireball.Game.Client
         void SendRequest<TRequest, TResponse>(TRequest request, Action<TResponse> onSuccess, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1)
             where TRequest : BaseRequest
             where TResponse : BaseResponse;
+
+        void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true);
     }
 }

@@ -194,8 +194,11 @@ namespace Fireball.Game.Client
             url = FireballTools.FormatUrlAndParams(url, data);
 
             _logger.Info($"Sending GET Request to URL = {url}");
-            using (UnityWebRequest client = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET))
+            DownloadHandler downloadHandler = new DownloadHandlerBuffer();
+            UploadHandler uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(string.Empty));
+            using (UnityWebRequest client = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET, downloadHandler, uploadHandler))
             {
+                client.SetRequestHeader("Content-Type", "application/json");
                 yield return client.SendWebRequest();
 
                 if (client.result == UnityWebRequest.Result.ConnectionError ||
@@ -204,14 +207,14 @@ namespace Fireball.Game.Client
                     responceText = client.error;
                     responceCode = client.responseCode;
                     _logger.Error($"GET Request Error: {responceText} ({responceCode})");
-                    onError?.Invoke(client.error);
+                    onError?.Invoke(responceText);
                 }
                 else
                 {
-                    responceText = client.downloadHandler.text;
+                    responceText = client.downloadHandler?.text;
                     responceCode = client.responseCode;
                     _logger.Info($"GET Response: {responceText} ({responceCode})");
-                    onSuccess?.Invoke(client.downloadHandler.text);
+                    onSuccess?.Invoke(responceText);
                 }
             }
         }
@@ -466,6 +469,38 @@ namespace Fireball.Game.Client
                 _onInitSuccess?.Invoke(_currentSession);
                 _onInitSuccess = null;
             }
+        }
+
+        public void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true)
+        {
+            if (!IsAuth)
+            {
+                _logger.Error($"Transactions: Error - Fireball is not authorized!");
+                onError?.Invoke("Fireball is not authorized!");
+                return;
+            }
+
+            var url = $"{FireballConfig.URL_REPLAY_TRANSACTION}/{CurrentSession.ConnectionId}/{includeGameStates}/{startIndex}";
+            SendGET(url, null,
+                (json) =>
+                {
+                    try
+                    {
+                        _logger.Log($"On Transactions: success! {json}");
+                        var result = JsonConvert.DeserializeObject<TransactionsList>(json, new JsonSerializerSettings()
+                        {
+                            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+                        });
+
+                        onSuccess?.Invoke(result);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error($"On Transactions: Error - can't parse json! Exception: {e.Message}");
+                        onError?.Invoke(e.Message);
+                    }
+                },
+                onError);
         }
     }
 }
