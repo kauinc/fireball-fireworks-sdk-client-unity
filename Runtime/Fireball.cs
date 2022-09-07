@@ -222,8 +222,7 @@ namespace Fireball.Game.Client
 
             _logger.Info($"Sending GET Request to URL = {url}");
             DownloadHandler downloadHandler = new DownloadHandlerBuffer();
-            UploadHandler uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(string.Empty));
-            using (UnityWebRequest client = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET, downloadHandler, uploadHandler))
+            using (UnityWebRequest client = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET, downloadHandler, null))
             {
                 client.SetRequestHeader("Content-Type", "application/json");
                 yield return client.SendWebRequest();
