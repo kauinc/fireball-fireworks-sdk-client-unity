@@ -69,6 +69,11 @@ namespace Fireball.Game.Client
 
         private string URLRouter => !string.IsNullOrEmpty(_customRouterUrl) ? _customRouterUrl : FireballConfig.URL_ROUTER_DEFAULT;
 
+        public void Awake()
+        {
+            if (_instance == null) _instance = this;
+        }
+
         public void Init(Action<FireballSession> onSuccess = null, Action<string> onError = null)
         {
             Initialize(URLData.ParseSessionFromURL(), onSuccess, onError);
