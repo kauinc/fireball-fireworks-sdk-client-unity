@@ -45,7 +45,8 @@ namespace Fireball.Game.Client
                               && !string.IsNullOrEmpty(_currentSession.GameSession)
                               && !string.IsNullOrEmpty(_currentSession.PlayerId);
 
-        public bool IsDemo => _currentSession.GameSession.Equals(FireballConfig.DEMO_SESSION);
+        public bool IsDemo => _currentSession.GameSession.Equals(FireballConfig.DEMO_SESSION)
+                              || _currentSession.GameMode == GameMode.fun.ToString();
 
         public Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
 
@@ -135,10 +136,10 @@ namespace Fireball.Game.Client
                 });
         }
 
-        public void Authorize(AuthRequest authRequest, Action<AuthResponse> onSuccess = null, Action<ErrorResponse> onError = null) =>
+        public void Authorize(AuthRequest authRequest, Action<AuthResponse> onSuccess = null, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1) =>
             Authorize<AuthRequest, AuthResponse>(authRequest, onSuccess, onError);
 
-        public void Authorize<TRequest, TResponse>(TRequest authRequest, Action<TResponse> onSuccess = null, Action<ErrorResponse> onError = null) where TRequest : AuthRequest where TResponse : AuthResponse
+        public void Authorize<TRequest, TResponse>(TRequest authRequest, Action<TResponse> onSuccess = null, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1) where TRequest : AuthRequest where TResponse : AuthResponse
         {
             SendRequest<TRequest, TResponse>(authRequest,
                 response =>
@@ -149,7 +150,28 @@ namespace Fireball.Game.Client
                     _currentSession.OperatorPlayerSession = response.OperatorPlayerSession;
                     onSuccess?.Invoke(response);
                 },
-                onError, 0);
+                onError, timeout, attempts);
+        }
+
+        public void DemoAuthorize(string currency = FireballConfig.DEFAULT_CURRENCY, long balance = FireballConfig.DEMO_BALANCE, Action<AuthResponse> onSuccess = null, Action<ErrorResponse> onError = null)
+        {
+            try
+            {
+                _currentSession = new FireballSession();
+                _currentSession.GameMode = GameMode.fun.ToString();
+                _currentSession.GameSession = FireballConfig.DEMO_SESSION;
+                _currentSession.PlayerId = FireballConfig.DEMO_USER_ID;
+
+                var response = new AuthResponse();
+                response.Balance = balance;
+                response.Currency = currency;
+
+                onSuccess?.Invoke(response);
+            }
+            catch(Exception e)
+            {
+                onError?.Invoke(ErrorResponse.CustomError(null, e.Message, 0));
+            }
         }
 
         public void SendPing() =>
