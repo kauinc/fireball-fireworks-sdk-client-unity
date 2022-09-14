@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -10,6 +9,9 @@ namespace Fireball.Game.Client.Models
         public string Id;
         public string GameState;
         public DateTime? Timestamp;
+
+        [UnityEngine.Scripting.Preserve]
+        public TransactionGameStates() { }
 
         public T ParseGameState<T>() where T : class
         {
@@ -28,12 +30,19 @@ namespace Fireball.Game.Client.Models
         public List<TransactionGameStates> GameStates;
         public bool Pending;
 
+        [UnityEngine.Scripting.Preserve]
+        public Transaction() { }
+
         public string ToJson() =>
             JsonConvert.SerializeObject(this);
     }
 
+
     public class TransactionsList
     {
         public List<Transaction> Transactions;
+
+        [UnityEngine.Scripting.Preserve]
+        public TransactionsList() { }
     }
 }
