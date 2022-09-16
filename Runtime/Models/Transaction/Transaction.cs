@@ -27,6 +27,7 @@ namespace Fireball.Game.Client.Models
         public string Currency;
         public long Bet;
         public long Win;
+        public long Jackpot;
         public List<TransactionGameStates> GameStates;
         public bool Pending;
 
