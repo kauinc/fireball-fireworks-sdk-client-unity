@@ -150,7 +150,8 @@ namespace Fireball.Game.Client.Modules
                 _state = SignalRState.Closed;
                 if (_reconnectAttempt < RECONNECT_MAX)
                 {
-                    _fireball.Delay(() =>
+                    _logger.Log($"Try Reconnecting... ({_reconnectAttempt}/{RECONNECT_MAX})");
+                    _fireball.InvokeInMainThread(() =>
                     {
                         Reconnect();
                     },

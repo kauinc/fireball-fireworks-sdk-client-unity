@@ -536,23 +536,20 @@ namespace Fireball.Game.Client
                 onError);
         }
 
-        public Coroutine Delay(Action action, float delay)
+        public void InvokeInMainThread(Action action, float delay = 0)
         {
-            return StartCoroutine(DelayCoroutine(action, delay));
-        }
-
-        public void CancelDelay(Coroutine coroutine)
-        {
-            if (coroutine != null)
+            _dispatcher.InvokeInMainThread(() =>
             {
-                StopCoroutine(coroutine);
-            }
+                StartCoroutine(InvokeCoroutine(action, delay));
+            });
         }
 
-        private IEnumerator DelayCoroutine(Action action, float delay)
+        private IEnumerator InvokeCoroutine(Action action, float delay)
         {
-            if (delay > 0) yield return new WaitForSeconds(delay);
-
+            if (delay > 0)
+            {
+                yield return new WaitForSeconds(delay);
+            }
             action?.Invoke();
         }
     }

@@ -34,7 +34,6 @@ namespace Fireball.Game.Client
 
         void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true);
 
-        Coroutine Delay(Action action, float delay);
-        void CancelDelay(Coroutine coroutine);
+        void InvokeInMainThread(Action action, float delay = 0);
     }
 }
