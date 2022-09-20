@@ -2,6 +2,7 @@ namespace Fireball.Game.Client.Models
 {
     public class ErrorResponse : BaseResponse
     {
+        public const string NO_CONNECTION_REASON = "Fail to connect to server";
         public const string TIMEOUT_REASON = "Message aborted due time out {0} sec";
         public const string NAME_ERROR = "error";
         public const string NAME_TIMEOUT = "timeout";

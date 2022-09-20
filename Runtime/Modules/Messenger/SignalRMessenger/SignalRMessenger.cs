@@ -37,10 +37,11 @@ namespace Fireball.Game.Client.Modules
         private const string MESSAGE_SEND = "SendMessage";
         private const string MESSAGE_ACKNOWLEDGE = "AcknowledgeMessage";
 
-        private const int RECONNECT_MAX = 1;
+        private const int RECONNECT_MAX = 5;
         private int _reconnectAttempt;
 
         private IFireballLogger _logger;
+        private IFireball _fireball;
         private SignalR _signalR;
         private FireballSession _currentSession;
         private string _serverURL;
@@ -48,8 +49,9 @@ namespace Fireball.Game.Client.Modules
         private bool? _isConnected;
         private SignalRState _state = SignalRState.Closed;
 
-        public SignalRMessenger(FireballSession fireballSession)
+        public SignalRMessenger(FireballSession fireballSession, IFireball fireball)
         {
+            _fireball = fireball;
             _currentSession = fireballSession;
             _logger = new FireballLogger("SignalR");
         }
@@ -148,7 +150,11 @@ namespace Fireball.Game.Client.Modules
                 _state = SignalRState.Closed;
                 if (_reconnectAttempt < RECONNECT_MAX)
                 {
-                    Reconnect();
+                    _fireball.Delay(() =>
+                    {
+                        Reconnect();
+                    },
+                    _reconnectAttempt * 0.5f);
                 }
                 else
                 {

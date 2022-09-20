@@ -107,7 +107,7 @@ namespace Fireball.Game.Client
             // Websocket module init
             if (messengerType == MessengerType.SignalR)
             {
-                _messenger = new SignalRMessenger(_currentSession);
+                _messenger = new SignalRMessenger(_currentSession, this);
             }
             else
             {
@@ -295,6 +295,13 @@ namespace Fireball.Game.Client
             where TRequest : BaseRequest
             where TResponse : BaseResponse
         {
+            if (_messenger == null || !_messenger.IsConnected)
+            {
+                _logger.Error("Can't send request! Fail to connect to server");
+                onError?.Invoke(ErrorResponse.CustomError(request.ActionId, ErrorResponse.NO_CONNECTION_REASON));
+                yield break;
+            }
+
             //CheckAndClearPendingResponses();
             _lastActionID = request.ActionId;
 
@@ -527,6 +534,26 @@ namespace Fireball.Game.Client
                     }
                 },
                 onError);
+        }
+
+        public Coroutine Delay(Action action, float delay)
+        {
+            return StartCoroutine(DelayCoroutine(action, delay));
+        }
+
+        public void CancelDelay(Coroutine coroutine)
+        {
+            if (coroutine != null)
+            {
+                StopCoroutine(coroutine);
+            }
+        }
+
+        private IEnumerator DelayCoroutine(Action action, float delay)
+        {
+            if (delay > 0) yield return new WaitForSeconds(delay);
+
+            action?.Invoke();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Fireball.Game.Client.Models;
 using Fireball.Game.Client.Modules;
+using UnityEngine;
 
 namespace Fireball.Game.Client
 {
@@ -32,5 +33,8 @@ namespace Fireball.Game.Client
             where TResponse : BaseResponse;
 
         void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true);
+
+        Coroutine Delay(Action action, float delay);
+        void CancelDelay(Coroutine coroutine);
     }
 }
