@@ -5,11 +5,12 @@ namespace Fireball.Game.Client
     public static class FireballConfig
     {
         public const string URL_FIREBALL_SERVER = "https://cloud.fireballserver.com";
-        public const string URL_ROUTER_DEFAULT = URL_FIREBALL_SERVER + "/router-net";
-        public const string URL_MESENGER_DEFAULT = URL_FIREBALL_SERVER + "/messages-net/messages";
+        public const string URL_ROUTER_DEFAULT = URL_FIREBALL_SERVER + "/router";
+        public const string URL_MESENGER_DEFAULT = URL_FIREBALL_SERVER + "/messages";
         public const string URL_REPLAY_TRANSACTION = URL_FIREBALL_SERVER + "/sessions/replay/transactions";
 
         public const string DEFAULT_LANGUAGE_CODE = "en";
+        public const string DEFAULT_COUNTRY_CODE = "US";
         public const string DEFAULT_CURRENCY = "USD";
         public const float DEFAULT_TIMEOUT = 12.0f;
         
