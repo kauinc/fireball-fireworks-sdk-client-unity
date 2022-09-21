@@ -6,7 +6,7 @@ namespace Fireball.Game.Client
     {
         public const string URL_FIREBALL_SERVER = "https://cloud.fireballserver.com";
         public const string URL_ROUTER_DEFAULT = URL_FIREBALL_SERVER + "/router";
-        public const string URL_MESENGER_DEFAULT = URL_FIREBALL_SERVER + "/messages";
+        public const string URL_MESENGER_DEFAULT = URL_FIREBALL_SERVER + "/messages/messages";
         public const string URL_REPLAY_TRANSACTION = URL_FIREBALL_SERVER + "/sessions/replay/transactions";
 
         public const string DEFAULT_LANGUAGE_CODE = "en";
