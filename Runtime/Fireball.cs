@@ -89,7 +89,7 @@ namespace Fireball.Game.Client
             Initialize(playerData.GetSession(), onSuccess, onError);
         }
 
-        private void Initialize(FireballSession customSession, Action<FireballSession> onSuccess = null, Action<string> onError = null, MessengerType messengerType = MessengerType.SignalR)
+        private void Initialize(FireballSession customSession, Action<FireballSession> onSuccess = null, Action<string> onError = null, MessengerType messengerType = MessengerType.BestHTTPv2)
         {
             _logger = new FireballLogger();
             _networkChecker = new NetworkChecker(this, 2.0f);
@@ -108,6 +108,10 @@ namespace Fireball.Game.Client
             if (messengerType == MessengerType.SignalR)
             {
                 _messenger = new SignalRMessenger(_currentSession, this);
+            }
+            else if(messengerType == MessengerType.BestHTTPv2)
+            {
+                _messenger = new BestHTTPMessenger(this);
             }
             else
             {

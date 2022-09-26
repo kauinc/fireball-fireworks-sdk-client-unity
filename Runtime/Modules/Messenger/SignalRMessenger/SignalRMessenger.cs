@@ -67,8 +67,8 @@ namespace Fireball.Game.Client.Modules
 
             if (string.IsNullOrEmpty(connectionToken))
             {
-                _logger.Error("Can't connect! wsToken = null");
-                onError?.Invoke("Can't connect! wsToken = null");
+                _logger.Error("Can't connect! ConnectionToken = null");
+                onError?.Invoke("Can't connect! ConnectionToken = null");
                 return;
             }
 
@@ -114,7 +114,7 @@ namespace Fireball.Game.Client.Modules
 
         public void Reconnect()
         {
-            _logger.Log("Reconnecting...");
+            _logger.Log($"Reconnecting... ({_reconnectAttempt + 1}/{RECONNECT_MAX})");
             _signalR = null;
             _reconnectAttempt++;
             Connect(_serverURL, _currentSession.ConnectionToken);
@@ -150,7 +150,6 @@ namespace Fireball.Game.Client.Modules
                 _state = SignalRState.Closed;
                 if (_reconnectAttempt < RECONNECT_MAX)
                 {
-                    _logger.Log($"Try Reconnecting... ({_reconnectAttempt}/{RECONNECT_MAX})");
                     _fireball.InvokeInMainThread(() =>
                     {
                         Reconnect();

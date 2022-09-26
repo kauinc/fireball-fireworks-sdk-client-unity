@@ -4,5 +4,6 @@ namespace Fireball.Game.Client.Modules
     {
         NativeWebSocket = 0,
         SignalR = 1,
+        BestHTTPv2 = 2,
     }
 }
