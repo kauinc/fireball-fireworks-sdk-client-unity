@@ -1,5 +1,3 @@
-//This asset was uploaded by https://unityassetcollection.com
-
 #if !BESTHTTP_DISABLE_SIGNALR_CORE
 
 using System;

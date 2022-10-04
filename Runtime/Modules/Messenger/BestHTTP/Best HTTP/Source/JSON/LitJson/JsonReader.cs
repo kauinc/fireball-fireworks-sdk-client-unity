@@ -1,5 +1,3 @@
-//This asset was uploaded by https://unityassetcollection.com
-
 #region Header
 /**
  * JsonReader.cs
