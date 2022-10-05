@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Fireball.Game.Client.Tools
 {
-    public class ThreadDispatcher
+    public class ThreadDispatcher : IDisposable
     {
         private static MonoBehaviour _mono = null;
         private static List<Action> _mainThreadActions = new List<Action>();
@@ -37,6 +37,12 @@ namespace Fireball.Game.Client.Tools
                 }
                 yield return null;
             }
+        }
+
+        public void Dispose()
+        {
+            _mono = null;
+            _mainThreadActions = new List<Action>();
         }
     }
 }

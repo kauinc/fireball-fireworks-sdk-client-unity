@@ -213,6 +213,9 @@ namespace Fireball.Game.Client
             {
                 _messenger.Disconnect();
             }
+
+            _dispatcher?.Dispose();
+            _instance = null;
         }
 
         public void SendGET(string url, Dictionary<string, string> data = null, Action<string> onSuccess = null, Action<string> onError = null) =>

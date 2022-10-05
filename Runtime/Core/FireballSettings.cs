@@ -10,13 +10,13 @@ namespace Fireball.Game.Client
     [CreateAssetMenu(fileName ="FireballSettings", menuName = "Fireball/New Settings")]
     public class FireballSettings : ScriptableObject
     {
-        [Header("Game Data (Requaired)")]
+        [Header("Game Data (Required)")]
         public GameMode GameMode = FireballConfig.DEFAULT_GAME_MODE;
         public Environments Environment = FireballConfig.DEFAULT_ENVIRONMENT;
         public string OperatorId = string.Empty;
         public string GameId = string.Empty;
 
-        [Header("Player Data (Requaired)")]
+        [Header("Player Data (Required)")]
         public string OperatorPlayerId = string.Empty;
         public string Token = string.Empty;
 
