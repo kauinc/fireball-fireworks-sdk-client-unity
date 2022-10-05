@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.8.0] - 2022-10-05
+- added new communication plugin Best HTTP/2 as main messanger
+
 ## [0.7.0] - 2022-09-21
 - added transaction list history
 - added log levels to logger
