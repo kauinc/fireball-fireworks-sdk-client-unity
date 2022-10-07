@@ -79,12 +79,12 @@ namespace Fireball.Game.Client.Modules
                 return new Dictionary<string, string>();
 
             // skip "?" / "#" and split parameters at "&"
-            if (urlString.Contains('?'))
+            if (urlString.Contains("?"))
             {
                 urlString = urlString.Split('?')[1];
             }
 
-            if (urlString.Contains('#'))
+            if (urlString.Contains("#"))
             {
                 urlString = urlString.Split('#')[0];
             }
