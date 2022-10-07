@@ -75,21 +75,35 @@ namespace Fireball.Game.Client.Modules
 
         public static Dictionary<string, string> ParseURLParams(string urlString)
         {
-            if (urlString == null || urlString.Length <= 1)
+            if (string.IsNullOrEmpty(urlString))
                 return new Dictionary<string, string>();
 
             // skip "?" / "#" and split parameters at "&"
-            var parameters = urlString.Substring(1).Split(_splitChars);
-            var res = new Dictionary<string, string>(parameters.Length);
+            if (urlString.Contains('?'))
+            {
+                urlString = urlString.Split('?')[1];
+            }
+
+            if (urlString.Contains('#'))
+            {
+                urlString = urlString.Split('#')[0];
+            }
+
+            var parameters = urlString.Split(_splitChars);
+            var result = new Dictionary<string, string>(parameters.Length);
             foreach (var p in parameters)
             {
                 int pos = p.IndexOf('=');
                 if (pos > 0)
-                    res[p.Substring(0, pos)] = p.Substring(pos + 1);
+                {
+                    result[p.Substring(0, pos)] = p.Substring(pos + 1);
+                }
                 else
-                    res[p] = "";
+                {
+                    result[p] = "";
+                }
             }
-            return res;
+            return result;
         }
 
         public static Dictionary<string, string> GetSearchParameters()

@@ -32,7 +32,11 @@ namespace Fireball.Game.Client.Tools
 
             if (string.IsNullOrEmpty(customUrl))
             {
+#if UNITY_WEBGL
                 paramsDict = WebLocation.GetSearchParameters();
+#elif UNITY_IOS || UNITY_ANDROID
+                paramsDict = WebLocation.ParseURLParams(Application.absoluteURL);
+#endif
             }
             else
             {
