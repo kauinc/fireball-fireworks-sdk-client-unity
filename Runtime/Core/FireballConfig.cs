@@ -12,7 +12,7 @@ namespace Fireball.Game.Client
         public const string DEFAULT_LANGUAGE_CODE = "en";
         public const string DEFAULT_COUNTRY_CODE = "US";
         public const string DEFAULT_CURRENCY = "USD";
-        public const float DEFAULT_TIMEOUT = 12.0f;
+        public const float DEFAULT_TIMEOUT = 30.0f;
         
         public const int DEMO_BALANCE = 100000;
         public const string DEMO_USER_ID = "demo-player";
