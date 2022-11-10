@@ -7,7 +7,7 @@
         public string Token;
 
         [UnityEngine.Scripting.Preserve]
-        public AuthRequest(FireballSession session) : base(REQUEST_NAME, session)
+        public AuthRequest(FireballSession session, string customActionID = null) : base(REQUEST_NAME, session, customActionID)
         {
             Token = session.Token;
         }
