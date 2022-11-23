@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1] - 2022-11-23
+- added transaction replays
+- added custom Action Id for Auth Request
+- fix game url parsing
+- fix thread dispatcher dispose
+- fix fireball instance destroy
+
 ## [0.8.0] - 2022-10-05
 - added new communication plugin Best HTTP/2 as main messanger
 
