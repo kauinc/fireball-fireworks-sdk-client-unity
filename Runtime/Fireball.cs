@@ -58,7 +58,7 @@ namespace Fireball.Game.Client
         private string _customRouterUrl;
         private string _lastActionID;
         private IMessenger _messenger;
-        private IFireballLogger _logger;
+        private IFireballLogger _logger = new FireballLogger();
         private INetworkChecker _networkChecker;
 
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
@@ -109,7 +109,7 @@ namespace Fireball.Game.Client
             {
                 _messenger = new SignalRMessenger(_currentSession, this);
             }
-            else if(messengerType == MessengerType.BestHTTPv2)
+            else if (messengerType == MessengerType.BestHTTPv2)
             {
                 _messenger = new BestHTTPMessenger(this);
             }
@@ -520,7 +520,7 @@ namespace Fireball.Game.Client
                 return;
             }
 
-            var url = $"{FireballConfig.URL_REPLAY_TRANSACTION}/{CurrentSession.ConnectionId}/{includeGameStates}/{startIndex}";
+            var url = $"{FireballConfig.URL_TRANSACTIONS_HISTORY}/{CurrentSession.ConnectionId}/{includeGameStates}/{startIndex}";
             SendGET(url, null,
                 (json) =>
                 {
@@ -537,6 +537,31 @@ namespace Fireball.Game.Client
                     catch (Exception e)
                     {
                         _logger.Error($"On Transactions: Error - can't parse json! Exception: {e.Message}");
+                        onError?.Invoke(e.Message);
+                    }
+                },
+                onError);
+        }
+
+        public void GetReplaysList(string shortReplayId, Action<List<Transaction>> onSuccess, Action<string> onError = null)
+        {
+            var url = $"{FireballConfig.URL_TRANSACTIONS_REPLAY}/{shortReplayId}";
+            SendGET(url, null,
+                (json) =>
+                {
+                    try
+                    {
+                        _logger.Log($"On Replays: success! {json}");
+                        var result = JsonConvert.DeserializeObject<ReplayList>(json, new JsonSerializerSettings()
+                        {
+                            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+                        });
+
+                        onSuccess?.Invoke(result?.Replays);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error($"On Replays: Error - can't parse json! Exception: {e.Message}");
                         onError?.Invoke(e.Message);
                     }
                 },

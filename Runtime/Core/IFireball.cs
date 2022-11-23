@@ -33,6 +33,7 @@ namespace Fireball.Game.Client
             where TResponse : BaseResponse;
 
         void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true);
+        void GetReplaysList(string shortReplayId, Action<List<Transaction>> onSuccess, Action<string> onError = null);
 
         void InvokeInMainThread(Action action, float delay = 0);
     }
