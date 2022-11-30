@@ -8,21 +8,21 @@ namespace Fireball.Game.Client.Tools
 {
     public static class URLData
     {
-        private const string PARAM_NAME_OPERATOR_ID = "operatorId";
-        private const string PARAM_NAME_GAME_ID = "gameId";
-        //private const string PARAM_NAME_PLAYER_ID = "playerId";
-        private const string PARAM_NAME_ENVIRONMENT = "environment";
-        private const string PARAM_NAME_LANGUAGE = "language";
-        private const string PARAM_NAME_CURRENCY = "currency";
-        private const string PARAM_NAME_COUNTRY = "country";
-        private const string PARAM_NAME_GENDER = "gender";
-        private const string PARAM_NAME_TOKEN = "token";
-        private const string PARAM_NAME_MODE = "mode";
-        private const string PARAM_NAME_WS_SERVER = "messages";
-        //private const string PARAM_NAME_WS_TOKEN = "wsToken";
-        private const string PARAM_NAME_ROUTER_URL = "router";
-        private const string PARAM_NAME_HOME_URL = "home";
-        private const string PARAM_NAME_EXTRA = "extra";
+        public const string PARAM_NAME_OPERATOR_ID = "operatorId";
+        public const string PARAM_NAME_GAME_ID = "gameId";
+        public const string PARAM_NAME_PLAYER_ID = "playerId";
+        public const string PARAM_NAME_ENVIRONMENT = "environment";
+        public const string PARAM_NAME_LANGUAGE = "language";
+        public const string PARAM_NAME_CURRENCY = "currency";
+        public const string PARAM_NAME_COUNTRY = "country";
+        public const string PARAM_NAME_GENDER = "gender";
+        public const string PARAM_NAME_TOKEN = "token";
+        public const string PARAM_NAME_MODE = "mode";
+        public const string PARAM_NAME_WS_SERVER = "messages";
+        public const string PARAM_NAME_ROUTER_URL = "router";
+        public const string PARAM_NAME_HOME_URL = "home";
+        public const string PARAM_NAME_EXTRA = "extra";
+        public const string PARAM_NAME_REPLAY = "replay";
 
         public static FireballSession ParseSessionFromURL(string customUrl = null)
         {
@@ -56,7 +56,6 @@ namespace Fireball.Game.Client.Tools
                 else if (param.Equals(PARAM_NAME_TOKEN)) session.Token = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_WS_SERVER))
                     session.WsServer = UnityWebRequest.UnEscapeURL(paramsDict[param]);
-                //else if (param.Equals(PARAM_NAME_WS_TOKEN)) session.WsToken = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_MODE)) session.GameMode = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_ROUTER_URL))
                     session.Router = UnityWebRequest.UnEscapeURL(paramsDict[param]);
@@ -72,7 +71,6 @@ namespace Fireball.Game.Client.Tools
 
             // duplicate 'Currency' param into 'Extra'
             extraDict.Add(PARAM_NAME_CURRENCY, session.Currency);
-            //session.Extra = ExtraToString(extraDict);
             session.Extra = extraDict;
 
             return session;
@@ -107,11 +105,6 @@ namespace Fireball.Game.Client.Tools
             {
                 logger.Warning("Url params don't contain - messages!");
             }
-            
-            //if (string.IsNullOrEmpty(session.WsToken))
-            //{
-            //    logger.LogWarning("Url params don't contain - wsToken!");
-            //}
             
             if (string.IsNullOrEmpty(session.Language))
             {
