@@ -36,6 +36,7 @@ namespace Fireball.Game.Client.Modules
 
         public Action<bool, string> OnConnectionChange { get; set; }
         public Action<string> OnMessageReceived { get; set; }
+        public Action<string> OnConnectionError { get; set; }
 
         public BestHTTPMessenger(IFireball fireball)
         {
@@ -82,7 +83,7 @@ namespace Fireball.Game.Client.Modules
                 _signalR = new HubConnection(new Uri(serverUrlFull), new JsonProtocol(new LitJsonEncoder()));
                 _signalR.OnConnected += OnConnected;
                 _signalR.OnClosed += OnClose;
-                _signalR.OnError += OnError;
+                _signalR.OnError += OnErrorReceived;
                 _signalR.On(MESSAGE_RECEIVE, (string message) => { OnMessage(message); });
                 _signalR.StartConnect();
             }
@@ -93,12 +94,28 @@ namespace Fireball.Game.Client.Modules
             }
         }
 
-        public void Reconnect()
+        public void Reconnect(Action<string> onConnect = null, Action<string> onError = null)
         {
-            _logger.Log($"Reconnecting... ({_reconnectAttempt + 1}/{RECONNECT_MAX})");
-            _signalR = null;
-            _reconnectAttempt++;
-            Connect(_serverURL, _connectionToken, _onConnectSuccess, _onConnectFail);
+            if (_reconnectAttempt < RECONNECT_MAX)
+            {
+                _fireball.InvokeInMainThread(() =>
+                {
+                    _logger.Log($"Reconnecting... ({_reconnectAttempt + 1}/{RECONNECT_MAX})");
+                    _signalR = null;
+                    _reconnectAttempt++;
+                    Connect(_serverURL, _connectionToken, _onConnectSuccess, _onConnectFail);
+                },
+                _reconnectAttempt * 0.5f);
+            }
+            else
+            {
+                _logger.Error("Can't Reconnect...");
+                onError?.Invoke($"Server Unavailable after {_reconnectAttempt} reconnects attempts");
+                _reconnectAttempt = 0;
+
+                _onConnectSuccess = null;
+                _onConnectFail = null;
+            }
         }
 
         public void Disconnect()
@@ -117,6 +134,7 @@ namespace Fireball.Game.Client.Modules
             _reconnectAttempt = 0;
             _isDisconnecting = false;
             _connectionId = connection?.NegotiationResult?.ConnectionId;
+
             _logger.Log($"Connected - {_connectionId}");
             _onConnectSuccess?.Invoke(_connectionId);
             OnConnectionChange?.Invoke(true, _connectionId);
@@ -136,29 +154,25 @@ namespace Fireball.Game.Client.Modules
             }
             else
             {
-                if (_reconnectAttempt < RECONNECT_MAX)
-                {
-                    _fireball.InvokeInMainThread(() =>
-                    {
-                        Reconnect();
-                    },
-                    _reconnectAttempt * 0.5f);
-                }
-                else
-                {
-                    _logger.Error("Can't Reconnect...");
-                    _onConnectFail?.Invoke($"Server Unavailable after {_reconnectAttempt} reconnects");
-                    _reconnectAttempt = 0;
-
-                    _onConnectSuccess = null;
-                    _onConnectFail = null;
-                }
+                Reconnect(_onConnectSuccess, _onConnectFail);
             }
         }
 
-        private void OnError(HubConnection connection, string error)
+        private void OnErrorReceived(HubConnection connection, string error)
         {
-            _logger.Error("Error - " + error);
+            _logger.Error($"Error - {error} (state = {_signalR?.State})");
+            if (!IsConnected)
+            {
+                Reconnect((id) =>
+                {
+                    _logger.Log($"Reconnection successfull after error {error}");
+                },
+                (error) =>
+                {
+                    _logger.Error($"Can't reconnect - still: {error}");
+                    OnConnectionError?.Invoke(error);
+                });
+            }
             // _onConnectFail?.Invoke(error);
         }
 

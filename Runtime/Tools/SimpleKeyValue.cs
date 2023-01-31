@@ -18,7 +18,7 @@ namespace Fireball.Game.Client.Tools
         public static Dictionary<string, T> ToDictionary<T>(this List<SimpleKeyValue<T>> simpleKeyValues)
         {
             Dictionary<string, T> dict = new Dictionary<string, T>();
-            if(simpleKeyValues != null)
+            if (simpleKeyValues != null)
             {
                 foreach (var item in simpleKeyValues)
                 {

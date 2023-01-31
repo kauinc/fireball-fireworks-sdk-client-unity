@@ -31,6 +31,7 @@ namespace Fireball.Game.Client.Modules
 
         public Action<bool, string> OnConnectionChange { get; set; }
         public Action<string> OnMessageReceived { get; set; }
+        public Action<string> OnConnectionError { get; set; }
         public Action<string> OnError;
 
         private const string MESSAGE_RECEIVE = "ReceiveMessage";
@@ -112,12 +113,12 @@ namespace Fireball.Game.Client.Modules
             }
         }
 
-        public void Reconnect()
+        public void Reconnect(Action<string> onConnect = null, Action<string> onError = null)
         {
             _logger.Log($"Reconnecting... ({_reconnectAttempt + 1}/{RECONNECT_MAX})");
             _signalR = null;
             _reconnectAttempt++;
-            Connect(_serverURL, _currentSession.ConnectionToken);
+            Connect(_serverURL, _currentSession.ConnectionToken, onConnect, onError);
         }
 
         public void Disconnect()

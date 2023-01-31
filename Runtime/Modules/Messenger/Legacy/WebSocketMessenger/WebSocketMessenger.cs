@@ -16,6 +16,7 @@ namespace Fireball.Game.Client.Modules
 
         public Action<bool, string> OnConnectionChange { get; set; }
         public Action<string> OnMessageReceived { get; set; }
+        public Action<string> OnConnectionError { get; set; }
         public Action<string> OnError;
         
         private WebSocket _websocket;
@@ -44,14 +45,11 @@ namespace Fireball.Game.Client.Modules
             ConnectAsync(server, connectionToken, onConnect, onError);
         }
 
-        public void Reconnect()
+        public void Reconnect(Action<string> onConnect = null, Action<string> onError = null)
         {
             _logger.Log("Reconnecting...");
             _reconnectAttempt++;
-            Connect(_serverURL, _currentSession.ConnectionToken, (id)=>
-            {
-
-            });
+            Connect(_serverURL, _currentSession.ConnectionToken, onConnect, onError);
         }
 
         public void Disconnect()

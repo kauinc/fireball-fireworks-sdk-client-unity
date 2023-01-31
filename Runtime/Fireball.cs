@@ -60,6 +60,7 @@ namespace Fireball.Game.Client
         private IMessenger _messenger;
         private IFireballLogger _logger = new FireballLogger();
         private INetworkChecker _networkChecker;
+        private AuthorizingRequestParams _autorizingParams = null;
 
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
         private readonly Dictionary<string, JToken> _pendingResponses = new Dictionary<string, JToken>();
@@ -145,14 +146,18 @@ namespace Fireball.Game.Client
                 });
         }
 
-        public void Authorize(AuthRequest authRequest, Action<AuthResponse> onSuccess = null, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1) =>
-            Authorize<AuthRequest, AuthResponse>(authRequest, onSuccess, onError);
+        public void Authorize(AuthRequest authRequest, Action<AuthResponse> onSuccess = null, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1)
+        {
+            _autorizingParams = new AuthorizingRequestParams(authRequest, onSuccess, onError, timeout, attempts);
+            Authorize<AuthRequest, AuthResponse>(authRequest, onSuccess, onError, timeout, attempts);
+        }
 
         public void Authorize<TRequest, TResponse>(TRequest authRequest, Action<TResponse> onSuccess = null, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1) where TRequest : AuthRequest where TResponse : AuthResponse
         {
             SendRequest<TRequest, TResponse>(authRequest,
                 response =>
                 {
+                    _autorizingParams = null;
                     _currentSession.GameSession = response.GameSession;
                     _currentSession.PlayerId = response.PlayerId;
                     _currentSession.OperatorPlayerId = response.OperatorPlayerId;
@@ -193,10 +198,9 @@ namespace Fireball.Game.Client
                 return;
             }
 
-            //_fireballLogger.Log($"On Connection change: connected = {connected}");
-
             if (_messenger is { IsClosed: true })
             {
+                _logger.Log($"OnInternetConnection: Connection lost, trying to reconnect...");
                 _messenger.Reconnect();
             }
         }
@@ -314,7 +318,7 @@ namespace Fireball.Game.Client
 
             float timePassed = 0;
             int attemptsLeft = attemptsCount - 1;
-            _pendingRequests.Add(request.ActionId, request.Name);
+            _pendingRequests[request.ActionId] = request.Name;
 
             if (!IsPendingResponse(request.ActionId))
             {
@@ -423,7 +427,7 @@ namespace Fireball.Game.Client
 
         private void AddPendingResponse(string actionID, JToken response)
         {
-            //_fireballLogger.Log($"Set Pending response actionID = {actionID}");
+            //_logger.Log($"Set Pending response actionID = {actionID}");
             if (_pendingResponses.ContainsKey(actionID))
             {
                 _pendingResponses[actionID] = response;
@@ -458,7 +462,7 @@ namespace Fireball.Game.Client
 
         private void OnMessageReceived(string json)
         {
-            //_fireballLogger.Log($"On Message Received: {json}");
+            //_logger.Log($"On Message Received: {json}");
             try
             {
                 var data = JObject.Parse(json);
@@ -508,6 +512,13 @@ namespace Fireball.Game.Client
 
                 _onInitSuccess?.Invoke(_currentSession);
                 _onInitSuccess = null;
+
+                if (_autorizingParams != null)
+                {
+                    _logger.Info($"Continue Auth with new connectionId = {connectionId}");
+                    _autorizingParams.Request.ConnectionId = connectionId;
+                    Authorize(_autorizingParams.Request, _autorizingParams.OnSuccess, _autorizingParams.OnError, _autorizingParams.Timeout, _autorizingParams.Attempts);
+                }
             }
         }
 
