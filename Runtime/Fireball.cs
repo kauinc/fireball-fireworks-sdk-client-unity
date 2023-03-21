@@ -37,6 +37,8 @@ namespace Fireball.Game.Client
         public FireballSession CurrentSession => _currentSession;
         public string LastActionID => _lastActionID;
 
+        public bool IsConnected => _messenger != null && _messenger.IsConnected;
+
         public bool IsInit => _currentSession != null
                               && !string.IsNullOrEmpty(_currentSession.ConnectionId)
                               && _messenger.IsInit;
@@ -49,6 +51,7 @@ namespace Fireball.Game.Client
                               || _currentSession.GameMode == GameMode.fun.ToString();
 
         public Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
+        public Action<string> OnServerConnectionError { get; set; }
 
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
@@ -121,6 +124,7 @@ namespace Fireball.Game.Client
 
             _messenger.OnMessageReceived += OnMessageReceived;
             _messenger.OnConnectionChange += OnConnectionChange;
+            _messenger.OnConnectionError += OnConnectionError;
 
             // Send ping to warm up Fireball system
             // SendPing();
@@ -520,6 +524,11 @@ namespace Fireball.Game.Client
                     Authorize(_autorizingParams.Request, _autorizingParams.OnSuccess, _autorizingParams.OnError, _autorizingParams.Timeout, _autorizingParams.Attempts);
                 }
             }
+        }
+
+        private void OnConnectionError(string error)
+        {
+            OnServerConnectionError?.Invoke(error);
         }
 
         public void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true)

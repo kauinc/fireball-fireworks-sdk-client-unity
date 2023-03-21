@@ -11,11 +11,13 @@ namespace Fireball.Game.Client
         FireballSession CurrentSession { get; }
         string LastActionID { get; }
 
+        bool IsConnected { get; }
         bool IsInit { get; }
         bool IsAuth { get; }
         bool IsDemo { get; }
 
         Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
+        Action<string> OnServerConnectionError { get; set; }
 
         void Init(Action<FireballSession> onSuccess = null, Action<string> onError = null);
         void Init(string customUrl, Action<FireballSession> onSuccess = null, Action<string> onError = null);
