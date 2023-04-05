@@ -486,7 +486,9 @@ namespace Fireball.Game.Client
 
                 var actionId = data[nameof(ResponseMessageWrapper<BaseResponse>.ActionId)]?.ToString();
                 var messageObject = data[nameof(ResponseMessageWrapper<BaseResponse>.Message)];
-                var name = messageObject?[nameof(JackpotUpdateMessage.name)]?.ToString();
+                var name = messageObject?[nameof(BaseMessage.Name)] != null ? messageObject[nameof(BaseMessage.Name)].ToString() :
+                           messageObject?[nameof(JackpotUpdateMessage.name)] != null ? messageObject[nameof(JackpotUpdateMessage.name)].ToString() :
+                           null;
 
                 if (name == JackpotUpdateMessage.MESSAGE_NAME)
                 {
