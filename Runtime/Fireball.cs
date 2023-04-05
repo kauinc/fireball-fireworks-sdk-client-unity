@@ -12,6 +12,12 @@ using UnityEngine.Networking;
 
 namespace Fireball.Game.Client
 {
+    public class MessageListener<T> where T : BaseMessage
+    {
+        public string Name;
+        public Action<T> OnMessageReieved;
+    }
+
     public class Fireball : MonoBehaviour, IFireball
     {
         public static Fireball Instance
@@ -51,6 +57,7 @@ namespace Fireball.Game.Client
                               || _currentSession.GameMode == GameMode.fun.ToString();
 
         public Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
+        public Action<string, string> OnBroadcastMessageRecieved { get; set; }
         public Action<string> OnServerConnectionError { get; set; }
 
         private static readonly object _syncRoot = new object();
@@ -67,6 +74,7 @@ namespace Fireball.Game.Client
 
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
         private readonly Dictionary<string, JToken> _pendingResponses = new Dictionary<string, JToken>();
+        private readonly Dictionary<string, MessageListener<BaseMessage>> _messageListeners = new Dictionary<string, MessageListener<BaseMessage>>();
 
         private Action<FireballSession> _onInitSuccess = null;
         private Action<string> _onInitError = null;
@@ -500,9 +508,14 @@ namespace Fireball.Game.Client
                     {
                         AddPendingResponse(actionId, messageObject);
                     }
+
+                    if (!_pendingRequests.ContainsKey(actionId))
+                    {
+                        OnBroadcastMessageRecieved?.Invoke(name, JsonConvert.SerializeObject(messageObject));
+                    }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.Error($"On Message error: can't parse json! Exception: {e.Message}");
             }
@@ -510,7 +523,7 @@ namespace Fireball.Game.Client
 
         private void OnConnectionChange(bool isConnected, string connectionId)
         {
-            if (isConnected)
+            if (isConnected && _currentSession.ConnectionId != connectionId)
             {
                 _currentSession.ConnectionId = connectionId;
 
@@ -587,6 +600,21 @@ namespace Fireball.Game.Client
                 },
                 onError);
         }
+
+
+        public void AddMessageListener<T>(string messageName, Action<T> onRecieved) where T : BaseMessage
+        {
+            if (_messageListeners.ContainsKey(messageName))
+            {
+                //(_messageListeners[messageName] as MessageListener<T>)?.OnMessageReieved += onRecieved
+            }
+        }
+
+        public void RemoveMessageListener<T>(string messageName, Action<T> onRecieved) where T : BaseMessage
+        {
+
+        }
+
 
         public void InvokeInMainThread(Action action, float delay = 0)
         {

@@ -17,6 +17,7 @@ namespace Fireball.Game.Client
         bool IsDemo { get; }
 
         Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
+        Action<string, string> OnBroadcastMessageRecieved { get; set; }
         Action<string> OnServerConnectionError { get; set; }
 
         void Init(Action<FireballSession> onSuccess = null, Action<string> onError = null);
