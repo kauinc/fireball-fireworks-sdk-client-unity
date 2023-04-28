@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Fireball.Game.Client.Tools;
-using BestHTTP;
 using BestHTTP.SignalRCore;
 using BestHTTP.SignalRCore.Encoders;
+using Fireball.Game.Client.Tools;
+using UnityEngine;
 
 namespace Fireball.Game.Client.Modules
 {

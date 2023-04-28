@@ -12,12 +12,6 @@ using UnityEngine.Networking;
 
 namespace Fireball.Game.Client
 {
-    public class MessageListener<T> where T : BaseMessage
-    {
-        public string Name;
-        public Action<T> OnMessageReieved;
-    }
-
     public class Fireball : MonoBehaviour, IFireball
     {
         public static Fireball Instance
@@ -39,8 +33,19 @@ namespace Fireball.Game.Client
                 return _instance;
             }
         }
-
+        public FireballMultiplayer Multiplayer
+        {
+            get
+            {
+                if (_multiplayer == null)
+                {
+                    _multiplayer = new FireballMultiplayer(this);
+                }
+                return _multiplayer;
+            }
+        }
         public FireballSession CurrentSession => _currentSession;
+
         public string LastActionID => _lastActionID;
 
         public bool IsConnected => _messenger != null && _messenger.IsConnected;
@@ -57,27 +62,29 @@ namespace Fireball.Game.Client
                               || _currentSession.GameMode == GameMode.fun.ToString();
 
         public Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
-        public Action<string, string> OnBroadcastMessageRecieved { get; set; }
         public Action<string> OnServerConnectionError { get; set; }
+
+
 
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
 
+        private IFireballLogger _logger = new FireballLogger();
+        private INetworkChecker _networkChecker;
+        private IMessenger _messenger;
         private ThreadDispatcher _dispatcher;
+        private FireballMultiplayer _multiplayer = null;
+        private AuthorizingRequestParams _autorizingParams = null;
         private FireballSession _currentSession;
         private string _customRouterUrl;
         private string _lastActionID;
-        private IMessenger _messenger;
-        private IFireballLogger _logger = new FireballLogger();
-        private INetworkChecker _networkChecker;
-        private AuthorizingRequestParams _autorizingParams = null;
 
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
         private readonly Dictionary<string, JToken> _pendingResponses = new Dictionary<string, JToken>();
-        private readonly Dictionary<string, MessageListener<BaseMessage>> _messageListeners = new Dictionary<string, MessageListener<BaseMessage>>();
 
         private Action<FireballSession> _onInitSuccess = null;
         private Action<string> _onInitError = null;
+        internal Action<string, JToken> _onBroadcastMessageRecieved;
 
         private string URLRouter => !string.IsNullOrEmpty(_customRouterUrl) ? _customRouterUrl : FireballConfig.URL_ROUTER_DEFAULT;
 
@@ -217,6 +224,29 @@ namespace Fireball.Game.Client
             }
         }
 
+        private void OnConnectionChange(bool isConnected, string connectionId)
+        {
+            if (isConnected && _currentSession.ConnectionId != connectionId)
+            {
+                _currentSession.ConnectionId = connectionId;
+
+                _onInitSuccess?.Invoke(_currentSession);
+                _onInitSuccess = null;
+
+                if (_autorizingParams != null)
+                {
+                    _logger.Info($"Continue Auth with new connectionId = {connectionId}");
+                    _autorizingParams.Request.ConnectionId = connectionId;
+                    Authorize(_autorizingParams.Request, _autorizingParams.OnSuccess, _autorizingParams.OnError, _autorizingParams.Timeout, _autorizingParams.Attempts);
+                }
+            }
+        }
+
+        private void OnConnectionError(string error)
+        {
+            OnServerConnectionError?.Invoke(error);
+        }
+
         private void OnDestroy()
         {
             if (_networkChecker != null)
@@ -233,6 +263,8 @@ namespace Fireball.Game.Client
             _dispatcher?.Dispose();
             _instance = null;
         }
+
+
 
         public void SendGET(string url, Dictionary<string, string> data = null, Action<string> onSuccess = null, Action<string> onError = null) =>
             StartCoroutine(SendGETCoroutine(url, data, onSuccess, onError));
@@ -513,7 +545,7 @@ namespace Fireball.Game.Client
 
                     if (!_pendingRequests.ContainsKey(actionId))
                     {
-                        OnBroadcastMessageRecieved?.Invoke(name, JsonConvert.SerializeObject(messageObject));
+                        _onBroadcastMessageRecieved?.Invoke(name, messageObject);
                     }
                 }
             }
@@ -523,28 +555,11 @@ namespace Fireball.Game.Client
             }
         }
 
-        private void OnConnectionChange(bool isConnected, string connectionId)
-        {
-            if (isConnected && _currentSession.ConnectionId != connectionId)
-            {
-                _currentSession.ConnectionId = connectionId;
 
-                _onInitSuccess?.Invoke(_currentSession);
-                _onInitSuccess = null;
 
-                if (_autorizingParams != null)
-                {
-                    _logger.Info($"Continue Auth with new connectionId = {connectionId}");
-                    _autorizingParams.Request.ConnectionId = connectionId;
-                    Authorize(_autorizingParams.Request, _autorizingParams.OnSuccess, _autorizingParams.OnError, _autorizingParams.Timeout, _autorizingParams.Attempts);
-                }
-            }
-        }
 
-        private void OnConnectionError(string error)
-        {
-            OnServerConnectionError?.Invoke(error);
-        }
+
+
 
         public void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true)
         {
@@ -604,18 +619,6 @@ namespace Fireball.Game.Client
         }
 
 
-        public void AddMessageListener<T>(string messageName, Action<T> onRecieved) where T : BaseMessage
-        {
-            if (_messageListeners.ContainsKey(messageName))
-            {
-                //(_messageListeners[messageName] as MessageListener<T>)?.OnMessageReieved += onRecieved
-            }
-        }
-
-        public void RemoveMessageListener<T>(string messageName, Action<T> onRecieved) where T : BaseMessage
-        {
-
-        }
 
 
         public void InvokeInMainThread(Action action, float delay = 0)

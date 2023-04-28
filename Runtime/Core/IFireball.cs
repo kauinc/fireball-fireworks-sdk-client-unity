@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using Fireball.Game.Client.Models;
 using Fireball.Game.Client.Modules;
-using UnityEngine;
 
 namespace Fireball.Game.Client
 {
     public interface IFireball
     {
+        FireballMultiplayer Multiplayer { get; }
         FireballSession CurrentSession { get; }
         string LastActionID { get; }
 
@@ -17,7 +17,6 @@ namespace Fireball.Game.Client
         bool IsDemo { get; }
 
         Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
-        Action<string, string> OnBroadcastMessageRecieved { get; set; }
         Action<string> OnServerConnectionError { get; set; }
 
         void Init(Action<FireballSession> onSuccess = null, Action<string> onError = null);
