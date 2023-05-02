@@ -1,20 +1,27 @@
 using UnityEngine.UI;
 using UnityEngine;
 
-namespace SlotSample
+namespace SlotsSample
 {
-    public class SampleUI : MonoBehaviour
+    public class SlotsUI : MonoBehaviour
     {
         [SerializeField] private Text _labelInit;
         [SerializeField] private Text _labelAuth;
         [SerializeField] private Text _labelSpin;
-        [SerializeField] private Text _labelError;
         [SerializeField] private Text _labelBalance;
         [SerializeField] private Text _labelBet;
         [SerializeField] private Text _labelWin;
         [SerializeField] private Button _buttonInit;
         [SerializeField] private Button _buttonAuth;
         [SerializeField] private Button _buttonSpin;
+        [SerializeField] private Button _buttonReset;
+
+        [Header("Success Panel")]
+        [SerializeField] private Text _labelSuccess;
+        [SerializeField] private RectTransform _panelSuccess;
+
+        [Header("Error Panel")]
+        [SerializeField] private Text _labelError;
         [SerializeField] private RectTransform _panelError;
 
         public void Start()
@@ -94,6 +101,20 @@ namespace SlotSample
             _labelWin.text = $"Win: {currency} {(win * 0.01f):N2}";
         }
 
+
+        public void ShowSuccess(string message)
+        {
+            _labelSuccess.text = message;
+            _panelSuccess.gameObject.SetActive(true);
+            CancelInvoke(nameof(HideSuccess));
+            Invoke(nameof(HideSuccess), 5.0f);
+        }
+
+        public void HideSuccess()
+        {
+            _panelSuccess.gameObject.SetActive(false);
+        }
+
         public void ShowError(string message)
         {
             _labelError.text = message;
@@ -124,6 +145,7 @@ namespace SlotSample
         {
             _labelSpin.text = label;
             _buttonSpin.interactable = enable;
+            _buttonReset.interactable = enable;
         }
 
     }

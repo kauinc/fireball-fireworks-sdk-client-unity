@@ -1,7 +1,7 @@
 using Fireball.Game.Client;
 using Fireball.Game.Client.Models;
 
-namespace SlotSample
+namespace SlotsSample
 {
     public class SpinRequest : BaseRequest
     {

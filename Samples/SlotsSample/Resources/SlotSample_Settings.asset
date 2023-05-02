@@ -10,20 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 19c2091cb32c44ea6950f63bc4deac81, type: 3}
-  m_Name: FireballSettings
+  m_Name: SlotSample_Settings
   m_EditorClassIdentifier: 
   GameMode: 1
   Environment: 0
-  OperatorId: 72c43a89-585e-4cf9-8fab-dcc1740eec40
+  OperatorId: 964d5c31-043c-413d-b28d-8d0c2c0b1504
   GameId: 08081e75-3b09-4253-95a3-5741b95634ed
   OperatorPlayerId: 566dd8dd-836c-40c1-afeb-dc930ddfac4f
   Token: aa2108de-9cfc-484d-a58f-a77e6b4989d6
   Language: en
-  Currency: DKK
-  Country: dk
+  Currency: USD
+  Country: us
   Gender: male
-  Extra:
-  - Key: siteId
-    Value: 1
-  - Key: platform
-    Value: web
+  Extra: []
