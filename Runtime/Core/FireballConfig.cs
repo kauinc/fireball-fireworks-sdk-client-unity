@@ -9,6 +9,7 @@ namespace Fireball.Game.Client
         public const string URL_MESENGER_DEFAULT = URL_FIREBALL_SERVER + "/messages/messages";
         public const string URL_TRANSACTIONS_HISTORY = URL_FIREBALL_SERVER + "/sessions/replay/transactions";
         public const string URL_TRANSACTIONS_REPLAY = URL_FIREBALL_SERVER + "/sessions/replay";
+        public const string URL_BET_TIERS = URL_FIREBALL_SERVER + "/matchmaker/bettiers";
 
         public const string DEFAULT_LANGUAGE_CODE = "en";
         public const string DEFAULT_COUNTRY_CODE = "US";

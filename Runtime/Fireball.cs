@@ -557,9 +557,33 @@ namespace Fireball.Game.Client
 
 
 
+        public void GetBetTiers(string currency, Action<List<TierData>> onSuccess, Action<string> onError = null)
+        {
+            var query = new Dictionary<string, string>()
+            {
+                { "currency", currency }
+            };
+            SendGET(FireballConfig.URL_BET_TIERS, query,
+                (json) =>
+                {
+                    try
+                    {
+                        _logger.Log($"On BetTiers: success! {json}");
+                        var result = JsonConvert.DeserializeObject<BetTiers>(json, new JsonSerializerSettings()
+                        {
+                            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+                        });
 
-
-
+                        onSuccess?.Invoke(result.Tiers);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error($"On BetTiers: Error - can't parse json! Exception: {e.Message}");
+                        onError?.Invoke(e.Message);
+                    }
+                },
+                onError);
+        }
 
         public void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true)
         {

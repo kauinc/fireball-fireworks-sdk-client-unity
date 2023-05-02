@@ -34,6 +34,7 @@ namespace Fireball.Game.Client
             where TRequest : BaseRequest
             where TResponse : BaseResponse;
 
+        void GetBetTiers(string currency, Action<List<TierData>> onSuccess, Action<string> onError = null);
         void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true);
         void GetReplaysList(string shortReplayId, Action<List<Transaction>> onSuccess, Action<string> onError = null);
 
