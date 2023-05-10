@@ -37,6 +37,7 @@ namespace Fireball.Game.Client
         void GetBetTiers(string currency, Action<List<TierData>> onSuccess, Action<string> onError = null);
         void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true);
         void GetReplaysList(string shortReplayId, Action<List<Transaction>> onSuccess, Action<string> onError = null);
+        void GetTranslation<T>(string gameId, string languageCode, Action<TranslationData<T>> onSuccess, Action<string> onError = null);
 
         void InvokeInMainThread(Action action, float delay = 0);
     }

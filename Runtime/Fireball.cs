@@ -24,7 +24,7 @@ namespace Fireball.Game.Client
                     {
                         if (_instance == null)
                         {
-                            _instance = new GameObject("Fireball").AddComponent<Fireball>();
+                            _instance = new GameObject(nameof(Fireball)).AddComponent<Fireball>();
                             DontDestroyOnLoad(_instance.gameObject);
                         }
                     }
@@ -636,6 +636,34 @@ namespace Fireball.Game.Client
                     catch (Exception e)
                     {
                         _logger.Error($"On Replays: Error - can't parse json! Exception: {e.Message}");
+                        onError?.Invoke(e.Message);
+                    }
+                },
+                onError);
+        }
+
+        public void GetTranslation<T>(string gameId, string languageCode, Action<TranslationData<T>> onSuccess, Action<string> onError = null)
+        {
+            var query = new Dictionary<string, string>()
+            {
+                { "appId", gameId },
+                { "languageIsoCode", languageCode }
+            };
+            SendGET(FireballConfig.URL_TRANSLATION, query,
+                (json) =>
+                {
+                    try
+                    {
+                        _logger.Log($"On Translation: success! {json}");
+                        var result = JsonConvert.DeserializeObject<TranslationResponse<T>>(json, new JsonSerializerSettings()
+                        {
+                            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+                        });
+                        onSuccess?.Invoke(result.Data);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error($"On Translation: Error - can't parse json! Exception: {e.Message}");
                         onError?.Invoke(e.Message);
                     }
                 },
