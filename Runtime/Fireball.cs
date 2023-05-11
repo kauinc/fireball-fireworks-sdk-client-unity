@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using Fireball.Game.Client.Models;
 using Fireball.Game.Client.Modules;
 using Fireball.Game.Client.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace Fireball.Game.Client
 {
@@ -44,6 +42,28 @@ namespace Fireball.Game.Client
                 return _multiplayer;
             }
         }
+        public Translation Translation
+        {
+            get
+            {
+                if (_translation == null)
+                {
+                    _translation = new Translation(Communicator, _logger);
+                }
+                return _translation;
+            }
+        }
+        public Communicator Communicator
+        {
+            get
+            {
+                if (_communicator == null)
+                {
+                    _communicator = new Communicator(this, _logger);
+                }
+                return _communicator;
+            }
+        }
         public FireballSession CurrentSession => _currentSession;
 
         public string LastActionID => _lastActionID;
@@ -65,7 +85,6 @@ namespace Fireball.Game.Client
         public Action<string> OnServerConnectionError { get; set; }
 
 
-
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
 
@@ -73,6 +92,8 @@ namespace Fireball.Game.Client
         private INetworkChecker _networkChecker;
         private IMessenger _messenger;
         private ThreadDispatcher _dispatcher;
+        private Communicator _communicator = null;
+        private Translation _translation = null;
         private FireballMultiplayer _multiplayer = null;
         private AuthorizingRequestParams _autorizingParams = null;
         private FireballSession _currentSession;
@@ -110,9 +131,11 @@ namespace Fireball.Game.Client
 
         private void Initialize(FireballSession customSession, Action<FireballSession> onSuccess = null, Action<string> onError = null, MessengerType messengerType = MessengerType.BestHTTPv2)
         {
-            _logger = new FireballLogger();
-            _networkChecker = new NetworkChecker(this, 2.0f);
-            _dispatcher = new ThreadDispatcher(this);
+            if(_logger == null) _logger = new FireballLogger();
+            if (_networkChecker == null) _networkChecker = new NetworkChecker(this, 2.0f);
+            if (_dispatcher == null) _dispatcher = new ThreadDispatcher(this);
+            if (_communicator == null) _communicator = new Communicator(this, _logger);
+            if (_translation == null) _translation = new Translation(_communicator, _logger);
 
             _onInitSuccess = onSuccess;
             _onInitError = onError;
@@ -208,7 +231,7 @@ namespace Fireball.Game.Client
         }
 
         public void SendPing() =>
-            SendPOST(URLRouter, new PingRequest(_currentSession));
+            _communicator.SendPOST(URLRouter, new PingRequest(_currentSession));
 
         private void OnInternetConnection(bool connected)
         {
@@ -266,80 +289,7 @@ namespace Fireball.Game.Client
 
 
 
-        public void SendGET(string url, Dictionary<string, string> data = null, Action<string> onSuccess = null, Action<string> onError = null) =>
-            StartCoroutine(SendGETCoroutine(url, data, onSuccess, onError));
 
-        private IEnumerator SendGETCoroutine(string url, Dictionary<string, string> data, Action<string> onSuccess, Action<string> onError)
-        {
-            long responceCode = 0;
-            string responceText = string.Empty;
-            url = FireballTools.FormatUrlAndParams(url, data);
-
-            _logger.Info($"Sending GET Request to URL = {url}");
-            DownloadHandler downloadHandler = new DownloadHandlerBuffer();
-            using (UnityWebRequest client = new UnityWebRequest(url, UnityWebRequest.kHttpVerbGET, downloadHandler, null))
-            {
-                client.SetRequestHeader("Content-Type", "application/json");
-                yield return client.SendWebRequest();
-
-                if (client.result == UnityWebRequest.Result.ConnectionError ||
-                    client.result == UnityWebRequest.Result.ProtocolError)
-                {
-                    responceText = client.error;
-                    responceCode = client.responseCode;
-                    _logger.Error($"GET Request Error: {responceText} ({responceCode})");
-                    onError?.Invoke(responceText);
-                }
-                else
-                {
-                    responceText = client.downloadHandler?.text;
-                    responceCode = client.responseCode;
-                    _logger.Info($"GET Response: {responceText} ({responceCode})");
-                    onSuccess?.Invoke(responceText);
-                }
-            }
-        }
-
-        public void SendPOST(string url, BaseMessage request, Action<string> onSuccess = null, Action<string> onError = null) =>
-            StartCoroutine(SendPOSTCoroutine(url, request, onSuccess, onError));
-
-        private IEnumerator SendPOSTCoroutine(string url, BaseMessage request, Action<string> onSuccess, Action<string> onError)
-        {
-            long responceCode = 0;
-            string responceText = string.Empty;
-            byte[] bytes = Encoding.UTF8.GetBytes(request.ToJson());
-
-            _logger.Info($"Message - {request.Name} - Sending... (ActionId: {request.ActionId})" +
-                $"\nMesaage: {request.ToJson()}");
-
-            UploadHandler uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(request.ToJson()));
-            DownloadHandler downloadHandler = new DownloadHandlerBuffer();
-
-            using (UnityWebRequest client = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST, downloadHandler, uploadHandler))
-            {
-                client.SetRequestHeader("Content-Type", "application/json");
-                client.SetRequestHeader("Accept", "application/json");
-                client.uploadHandler.contentType = "application/json";
-
-                yield return client.SendWebRequest();
-
-                if (client.result == UnityWebRequest.Result.ConnectionError ||
-                    client.result == UnityWebRequest.Result.ProtocolError)
-                {
-                    responceText = client.error;
-                    responceCode = client.responseCode;
-                    _logger.Error($"Message - {request.Name} - Error: {responceText} (ActionId: {request.ActionId})");
-                    onError?.Invoke(responceText);
-                }
-                else
-                {
-                    responceText = client.downloadHandler.text;
-                    responceCode = client.responseCode;
-                    _logger.Info($"Message - {request.Name} - Sent (ActionId: {request.ActionId})");
-                    onSuccess?.Invoke(responceText);
-                }
-            }
-        }
 
         public void SendRequest<TRequest, TResponse>(TRequest request, Action<TResponse> onSuccess, Action<ErrorResponse> onError = null, float timeout = FireballConfig.DEFAULT_TIMEOUT, int attempts = 1)
             where TRequest : BaseRequest
@@ -366,7 +316,7 @@ namespace Fireball.Game.Client
 
             if (!IsPendingResponse(request.ActionId))
             {
-                SendPOST(URLRouter, request, null,
+                _communicator.SendPOST(URLRouter, request, null,
                     errorReason =>
                     {
                         var error = ErrorResponse.CustomError(request.ActionId, errorReason);
@@ -382,7 +332,7 @@ namespace Fireball.Game.Client
                             attemptsLeft--;
                             timePassed = 0;
                             _logger.Warning($"Timeout! Try next attempt... ({attemptsCount - attemptsLeft})");
-                            SendPOST(URLRouter, request);
+                            _communicator.SendPOST(URLRouter, request);
                         }
                         else
                         {
@@ -563,7 +513,7 @@ namespace Fireball.Game.Client
             {
                 { "currency", currency }
             };
-            SendGET(FireballConfig.URL_BET_TIERS, query,
+            _communicator.SendGET(FireballConfig.URL_BET_TIERS, query,
                 (json) =>
                 {
                     try
@@ -595,7 +545,7 @@ namespace Fireball.Game.Client
             }
 
             var url = $"{FireballConfig.URL_TRANSACTIONS_HISTORY}/{CurrentSession.ConnectionId}/{includeGameStates}/{startIndex}";
-            SendGET(url, null,
+            _communicator.SendGET(url, null,
                 (json) =>
                 {
                     try
@@ -620,7 +570,7 @@ namespace Fireball.Game.Client
         public void GetReplaysList(string shortReplayId, Action<List<Transaction>> onSuccess, Action<string> onError = null)
         {
             var url = $"{FireballConfig.URL_TRANSACTIONS_REPLAY}/{shortReplayId}";
-            SendGET(url, null,
+            _communicator.SendGET(url, null,
                 (json) =>
                 {
                     try
@@ -642,33 +592,7 @@ namespace Fireball.Game.Client
                 onError);
         }
 
-        public void GetTranslation<T>(string gameId, string languageCode, Action<TranslationData<T>> onSuccess, Action<string> onError = null)
-        {
-            var query = new Dictionary<string, string>()
-            {
-                { "appId", gameId },
-                { "languageIsoCode", languageCode }
-            };
-            SendGET(FireballConfig.URL_TRANSLATION, query,
-                (json) =>
-                {
-                    try
-                    {
-                        _logger.Log($"On Translation: success! {json}");
-                        var result = JsonConvert.DeserializeObject<TranslationResponse<T>>(json, new JsonSerializerSettings()
-                        {
-                            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
-                        });
-                        onSuccess?.Invoke(result.Data);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.Error($"On Translation: Error - can't parse json! Exception: {e.Message}");
-                        onError?.Invoke(e.Message);
-                    }
-                },
-                onError);
-        }
+
 
 
 

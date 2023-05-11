@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Fireball.Game.Client.Models
+namespace Fireball.Game.Client.Modules
 {
     public class TranslationResponse<T>
     {
