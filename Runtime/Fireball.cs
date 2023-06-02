@@ -131,7 +131,7 @@ namespace Fireball.Game.Client
 
         private void Initialize(FireballSession customSession, Action<FireballSession> onSuccess = null, Action<string> onError = null, MessengerType messengerType = MessengerType.BestHTTPv2)
         {
-            if(_logger == null) _logger = new FireballLogger();
+            if (_logger == null) _logger = new FireballLogger();
             if (_networkChecker == null) _networkChecker = new NetworkChecker(this, 2.0f);
             if (_dispatcher == null) _dispatcher = new ThreadDispatcher(this);
             if (_communicator == null) _communicator = new Communicator(this, _logger);
@@ -204,6 +204,7 @@ namespace Fireball.Game.Client
                     _currentSession.PlayerId = response.PlayerId;
                     _currentSession.OperatorPlayerId = response.OperatorPlayerId;
                     _currentSession.OperatorPlayerSession = response.OperatorPlayerSession;
+
                     onSuccess?.Invoke(response);
                 },
                 onError, timeout, attempts);
@@ -211,20 +212,39 @@ namespace Fireball.Game.Client
 
         public void DemoAuthorize(string currency = FireballConfig.DEFAULT_CURRENCY, long balance = FireballConfig.DEMO_BALANCE, Action<AuthResponse> onSuccess = null, Action<ErrorResponse> onError = null)
         {
+            DemoAuthorize<AuthResponse>(currency, balance, onSuccess, onError);
+        }
+
+        public void DemoAuthorize<TResponse>(string currency = FireballConfig.DEFAULT_CURRENCY, long balance = FireballConfig.DEMO_BALANCE, Action<TResponse> onSuccess = null, Action<ErrorResponse> onError = null) where TResponse : AuthResponse, new()
+        {
             try
             {
-                _currentSession = new FireballSession();
+                if (_currentSession == null)
+                    _currentSession = new FireballSession();
+
                 _currentSession.GameMode = GameMode.fun.ToString();
                 _currentSession.GameSession = FireballConfig.DEMO_SESSION;
                 _currentSession.PlayerId = FireballConfig.DEMO_USER_ID;
 
-                var response = new AuthResponse();
+                var response = new TResponse();
+                response.ActionId = FireballTools.GenerateActionID();
+                response.MessageTimestamp = FireballTools.GetNowTimestampMilliSeconds();
+                response.ConnectionId = _currentSession.ConnectionId;
                 response.Balance = balance;
                 response.Currency = currency;
+                response.GameMode = _currentSession.GameMode;
+                response.Environment = _currentSession.Environment;
+                response.GameId = _currentSession.GameId;
+                response.PlayerId = _currentSession.PlayerId;
+                response.GameSession = _currentSession.GameSession;
+                response.OperatorId = _currentSession.OperatorId;
+                response.OperatorPlayerId = _currentSession.OperatorPlayerId;
+                response.OperatorPlayerSession = _currentSession.OperatorPlayerSession;
+                response.Extra = _currentSession.Extra;
 
                 onSuccess?.Invoke(response);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 onError?.Invoke(ErrorResponse.CustomError(null, e.Message, 0));
             }
