@@ -251,7 +251,7 @@ namespace Fireball.Game.Client
         }
 
         public void SendPing() =>
-            _communicator.SendPOST(URLRouter, new PingRequest(_currentSession));
+            Communicator.SendPOST(URLRouter, new PingRequest(_currentSession));
 
         private void OnInternetConnection(bool connected)
         {
@@ -336,7 +336,7 @@ namespace Fireball.Game.Client
 
             if (!IsPendingResponse(request.ActionId))
             {
-                _communicator.SendPOST(URLRouter, request, null,
+                Communicator.SendPOST(URLRouter, request, null,
                     errorReason =>
                     {
                         var error = ErrorResponse.CustomError(request.ActionId, errorReason);
@@ -352,7 +352,7 @@ namespace Fireball.Game.Client
                             attemptsLeft--;
                             timePassed = 0;
                             _logger.Warning($"Timeout! Try next attempt... ({attemptsCount - attemptsLeft})");
-                            _communicator.SendPOST(URLRouter, request);
+                            Communicator.SendPOST(URLRouter, request);
                         }
                         else
                         {
@@ -533,7 +533,7 @@ namespace Fireball.Game.Client
             {
                 { "currency", currency }
             };
-            _communicator.SendGET(FireballConfig.URL_BET_TIERS, query,
+            Communicator.SendGET(FireballConfig.URL_BET_TIERS, query,
                 (json) =>
                 {
                     try
@@ -565,7 +565,7 @@ namespace Fireball.Game.Client
             }
 
             var url = $"{FireballConfig.URL_TRANSACTIONS_HISTORY}/{CurrentSession.ConnectionId}/{includeGameStates}/{startIndex}";
-            _communicator.SendGET(url, null,
+            Communicator.SendGET(url, null,
                 (json) =>
                 {
                     try
@@ -590,7 +590,7 @@ namespace Fireball.Game.Client
         public void GetReplaysList(string shortReplayId, Action<List<Transaction>> onSuccess, Action<string> onError = null)
         {
             var url = $"{FireballConfig.URL_TRANSACTIONS_REPLAY}/{shortReplayId}";
-            _communicator.SendGET(url, null,
+            Communicator.SendGET(url, null,
                 (json) =>
                 {
                     try

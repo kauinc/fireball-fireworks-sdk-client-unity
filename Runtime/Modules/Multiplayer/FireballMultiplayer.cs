@@ -31,12 +31,10 @@ namespace Fireball.Game.Client.Modules
         {
             var messageType = typeof(T);
 
-            if (_messageListener[messageName] == null)
+            if (_messageListener.ContainsKey(messageName) && _messageListener[messageName].Contains(onRecieved))
             {
-                _messageListener[messageName] = new BroadcastMessageListener(messageName, messageType);
+                _messageListener[messageName].Remove(onRecieved);
             }
-
-            _messageListener[messageName].Remove(onRecieved);
         }
 
         private void BroadcastMessageInvoke(string messageName, JToken response)

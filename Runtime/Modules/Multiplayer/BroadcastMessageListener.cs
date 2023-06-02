@@ -34,5 +34,10 @@ namespace Fireball.Game.Client.Modules
             if (MessageActions.Contains(action))
                 MessageActions.Remove(action);
         }
+
+        public bool Contains(Action<BaseMessage> action)
+        {
+            return MessageActions == null && MessageActions.Contains(action);
+        }
     }
 }
