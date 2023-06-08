@@ -11,6 +11,7 @@ namespace Fireball.Game.Client
         FireballSession CurrentSession { get; }
         Translation Translation { get; }
         Communicator Communicator { get; }
+        FireballGCI GameClientInterface { get; }
         string LastActionID { get; }
 
         bool IsConnected { get; }
