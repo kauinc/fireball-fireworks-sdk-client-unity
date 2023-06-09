@@ -1,14 +1,14 @@
 function GetFireballEventName(eventName) {
-    if (eventName === 'stopAutoplay') return FIREBALL_GCI_EVENT.STOP_AUTOSPINS;
-    else if (eventName === 'setAudio') return FIREBALL_GCI_EVENT.AUDIO_TOGGLE;
-    else if (eventName === 'updateBalance') return FIREBALL_GCI_EVENT.UPDATE_BALANCE;
+    if (eventName === 'setAudio') return FIREBALL_EVENTS.TO_GAME.AUDIO_VOLUME;
+    else if (eventName === 'stopAutoplay') return FIREBALL_EVENTS.TO_GAME.STOP_AUTOPLAY;
+    else if (eventName === 'updateBalance') return FIREBALL_EVENTS.TO_GAME.UPDATE_BALANCE;
     return null;
 }
 
 function GetOperatorEventName(fireballEventName) {
-    if (fireballEventName === FIREBALL_GCI_EVENT.LOADING_PROGRESS) return 'loadProgress';
-    else if (fireballEventName === FIREBALL_GCI_EVENT.LOADING_COMPLETE) return 'loadCompleted';
-    else if (fireballEventName === FIREBALL_GCI_EVENT.AUDIO_TOGGLE) return 'setAudio';
+    if (fireballEventName === FIREBALL_EVENTS.FROM_GAME.LOADING_PROGRESS) return 'loadProgress';
+    else if (fireballEventName === FIREBALL_EVENTS.FROM_GAME.LOADING_COMPLETE) return 'loadCompleted';
+    else if (fireballEventName === FIREBALL_EVENTS.FROM_GAME.AUDIO_VOLUME) return 'setAudio';
     return null;
 }
 
@@ -23,7 +23,7 @@ function SendEventFromGame(event) {
         value: eventValue,
     };
     console.log("[OPERATOR-GCI] postMessage: name = ", message);
-    //window.parent.postMessage(message, '*');
+    window.parent.postMessage(message, '*');
 }
 
 function SendEventToGame(event) {
@@ -41,8 +41,8 @@ function SendEventToGame(event) {
 window.addEventListener("message", SendEventToGame);
 
 // subscribe for messages from game
-firebalGCI.addEventListenerFromGame(FIREBALL_GCI_EVENT.AUDIO_TOGGLE, SendEventFromGame);
-firebalGCI.addEventListenerFromGame(FIREBALL_GCI_EVENT.LOADING_COMPLETE, SendEventFromGame);
-firebalGCI.addEventListenerFromGame(FIREBALL_GCI_EVENT.LOADING_PROGRESS, SendEventFromGame);
+firebalGCI.addEventListenerFromGame(FIREBALL_EVENTS.FROM_GAME.AUDIO_VOLUME, SendEventFromGame);
+firebalGCI.addEventListenerFromGame(FIREBALL_EVENTS.FROM_GAME.LOADING_COMPLETE, SendEventFromGame);
+firebalGCI.addEventListenerFromGame(FIREBALL_EVENTS.FROM_GAME.LOADING_PROGRESS, SendEventFromGame);
 
 

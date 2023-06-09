@@ -12,15 +12,17 @@ namespace Fireball.Game.Client.Modules
         private static FireballGCIEventsReceiver _eventsListener = null;
         private IFireballLogger _logger = null;
 
-        public static string EVENT_STOP_AUTOSPINS = "StopAutospins";
-        public static string EVENT_AUDIO_TOGGLE = "AudioToggle";
-        public static string EVENT_UPDATE_BALANCE = "UpdateBalance";
-        public static string EVENT_LOADING_COMPLETE = "LoadingComplete";
-        public static string EVENT_LOADING_PROGRESS = "LoadingProgress";
+        public const string EVENT_OPERATOR_AUDIO_VOLUME = "operator_audio_volume";
+        public const string EVENT_OPERATOR_STOP_AUTOPLAY = "operator_stop_autoplay";
+        public const string EVENT_OPERATOR_UPDATE_BALANCE = "operator_update_balance";
 
-        public Action OnStopAutospins;
-        public Action<float> OnAudioToggle;
-        public Action<string> OnBalanceUpdated;
+        public const string EVENT_GAME_AUDIO_VOLUME = "game_audio_volume";
+        public const string EVENT_GAME_LOADING_COMPLETE = "game_loading_complete";
+        public const string EVENT_GAME_LOADING_PROGRESS = "game_loading_progress";
+
+        public Action OnStopAutoplay;
+        public Action<float> OnAudioVolume;
+        public Action<long> OnBalanceUpdated;
 
         public FireballGCI(IFireballLogger logger)
         {
@@ -29,29 +31,56 @@ namespace Fireball.Game.Client.Modules
             {
                 var go = new GameObject(nameof(FireballGCIEventsReceiver));
                 _eventsListener = go.AddComponent<FireballGCIEventsReceiver>();
-                _eventsListener.Init(this);
+                _eventsListener.OnEventReceived += OnReceivedEvent;
             }
         }
 
         public void SendLoadingProgress(float percent)
         {
-            _logger.Info($"GCI SendEvent LoadingProgress: {percent}");
-            var eventData = new FireballGCIEvent(EVENT_LOADING_PROGRESS, percent);
-            sendFirebalGCIEvent(eventData.ToJson());
+            SendGCIEvent(EVENT_GAME_LOADING_PROGRESS, percent);
         }
 
         public void SendLoadingComplete()
         {
-            _logger.Info($"GCI SendEvent LoadingComplete");
-            var eventData = new FireballGCIEvent(EVENT_LOADING_COMPLETE);
-            sendFirebalGCIEvent(eventData.ToJson());
+            SendGCIEvent(EVENT_GAME_LOADING_COMPLETE);
         }
 
         public void SendAudioToggle(float percent)
         {
-            _logger.Info($"GCI SendEvent AudioToggle: {percent}");
-            var eventData = new FireballGCIEvent(EVENT_AUDIO_TOGGLE, percent);
+            SendGCIEvent(EVENT_GAME_AUDIO_VOLUME, percent);
+        }
+
+        private void SendGCIEvent(string eventName, object eventValue = null)
+        {
+            _logger.Info($"GCI SendEvent: {eventName} - {eventValue}");
+            var eventData = new FireballGCIEvent(eventName, eventValue);
             sendFirebalGCIEvent(eventData.ToJson());
+        }
+
+        private void OnReceivedEvent(FireballGCIEvent eventData)
+        {
+            _logger.Info($"GCI ReceivedEvent: {eventData.ToJson()}");
+
+            switch (eventData.name)
+            {
+                case FireballGCI.EVENT_OPERATOR_STOP_AUTOPLAY:
+                    OnStopAutoplay?.Invoke();
+                    break;
+
+                case FireballGCI.EVENT_OPERATOR_AUDIO_VOLUME:
+                    float volume = eventData.value != null ? float.Parse(eventData.value.ToString()) : 0.0f;
+                    OnAudioVolume?.Invoke(volume);
+                    break;
+
+                case FireballGCI.EVENT_OPERATOR_UPDATE_BALANCE:
+                    long balance = eventData.value != null ? (long)eventData.value : 0;
+                    OnBalanceUpdated?.Invoke(balance);
+                    break;
+
+                default:
+                    _logger.Warning($"GCI ReceivedEvent: undefined event with name - {eventData?.name}");
+                    break;
+            }
         }
 
 #if UNITY_EDITOR

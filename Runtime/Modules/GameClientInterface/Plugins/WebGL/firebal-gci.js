@@ -1,14 +1,21 @@
-var FIREBALL_GCI_EVENT = {
-    STOP_AUTOSPINS: "StopAutospins",
-    AUDIO_TOGGLE: "AudioToggle",
-    UPDATE_BALANCE: "UpdateBalance",
-    LOADING_COMPLETE: "LoadingComplete",
-    LOADING_PROGRESS: "LoadingProgress",
+var FIREBALL_EVENTS = {
+    FROM_GAME:{
+        AUDIO_VOLUME: "game_audio_volume",
+        LOADING_COMPLETE: "game_loading_complete",
+        LOADING_PROGRESS: "game_loading_progress",
+    },
+    TO_GAME:{
+        AUDIO_VOLUME: "operator_audio_volume",
+        STOP_AUTOPLAY: "operator_stop_autoplay",
+        UPDATE_BALANCE: "operator_update_balance",
+    },
+
 };
 
 var firebalGCI = {
-    OPERATOR_SCRIPT_URL: "https://storage.googleapis.com/fireball-game-clients/games/mount-olympus/test/front-end-script-03.js",
+    OPERATOR_SCRIPT_URL: "https://storage.googleapis.com/fireball-game-clients/games/mount-olympus/test/front-end-script-04.js",
     UNITY_EVENT_RECEIVER: "FireballGCIEventsReceiver",
+    UNITY_EVENT_FUNCTION: "ReceiveEvent",
 
     _init: false,
     _environment: null,
@@ -45,8 +52,12 @@ var firebalGCI = {
 
     sendEventToGame: function (eventName, eventValue) {
         if (this._unityInstance) {
-            console.log("[FIREBALL-GCI-JS] sendEventToGame: " + eventName + " = " + eventValue);
-            this._unityInstance.SendMessage(this.UNITY_EVENT_RECEIVER, eventName, eventValue);
+            console.log("[FIREBALL-GCI-JS] sendEventToGame: name = " + eventName + ", value = " + eventValue);
+            var eventData = {
+                name: eventName,
+                value: eventValue,
+            };
+            this._unityInstance.SendMessage(this.UNITY_EVENT_RECEIVER, this.UNITY_EVENT_FUNCTION, JSON.stringify(eventData));
         }
         else{
             console.error("[FIREBALL-GCI-JS] sendEventToGame error: _unityInstance = null");
