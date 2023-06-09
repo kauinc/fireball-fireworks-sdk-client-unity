@@ -10,6 +10,7 @@ namespace Fireball.Game.Client.Modules
     public class FireballGCI
     {
         private static FireballGCIEventsReceiver _eventsListener = null;
+        private IFireballLogger _logger = null;
 
         public static string EVENT_STOP_AUTOSPINS = "StopAutospins";
         public static string EVENT_AUDIO_TOGGLE = "AudioToggle";
@@ -21,8 +22,9 @@ namespace Fireball.Game.Client.Modules
         public Action<float> OnAudioToggle;
         public Action<string> OnBalanceUpdated;
 
-        public FireballGCI()
+        public FireballGCI(IFireballLogger logger)
         {
+            _logger = logger;
             if (_eventsListener == null)
             {
                 var go = new GameObject(nameof(FireballGCIEventsReceiver));
@@ -33,21 +35,21 @@ namespace Fireball.Game.Client.Modules
 
         public void SendLoadingProgress(float percent)
         {
-            Debug.Log($"[GCI-UNITY] Send LoadingProgress: {percent}");
+            _logger.Info($"GCI SendEvent LoadingProgress: {percent}");
             var eventData = new FireballGCIEvent(EVENT_LOADING_PROGRESS, percent);
             sendFirebalGCIEvent(eventData.ToJson());
         }
 
         public void SendLoadingComplete()
         {
-            Debug.Log($"[GCI-UNITY] Send LoadingComplete");
+            _logger.Info($"GCI SendEvent LoadingComplete");
             var eventData = new FireballGCIEvent(EVENT_LOADING_COMPLETE);
             sendFirebalGCIEvent(eventData.ToJson());
         }
 
         public void SendAudioToggle(float percent)
         {
-            Debug.Log($"[GCI-UNITY] Send AudioToggle: {percent}");
+            _logger.Info($"GCI SendEvent AudioToggle: {percent}");
             var eventData = new FireballGCIEvent(EVENT_AUDIO_TOGGLE, percent);
             sendFirebalGCIEvent(eventData.ToJson());
         }

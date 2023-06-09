@@ -70,7 +70,7 @@ namespace Fireball.Game.Client
             {
                 if (_gameClientInterface == null)
                 {
-                    _gameClientInterface = new FireballGCI();
+                    _gameClientInterface = new FireballGCI(_logger);
                 }
                 return _gameClientInterface;
             }
