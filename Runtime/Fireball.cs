@@ -75,11 +75,11 @@ namespace Fireball.Game.Client
                               && _messenger.IsInit;
 
         public bool IsAuth => _currentSession != null
-                              && !string.IsNullOrEmpty(_currentSession.GameSession)
-                              && !string.IsNullOrEmpty(_currentSession.PlayerId);
-
-        public bool IsDemo => _currentSession.GameSession.Equals(FireballConfig.DEMO_SESSION)
-                              || _currentSession.GameMode == GameMode.fun.ToString();
+                              && ((!string.IsNullOrEmpty(_currentSession.GameSession) && !string.IsNullOrEmpty(_currentSession.PlayerId))
+                              || !string.IsNullOrEmpty(_currentSession.OperatorPlayerSession));
+                                
+        public bool IsDemo => _currentSession?.GameSession == FireballConfig.DEMO_SESSION
+                              || _currentSession?.GameMode?.ToLower() == GameMode.fun.ToString();
 
         public Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
         public Action<string> OnServerConnectionError { get; set; }
@@ -246,7 +246,7 @@ namespace Fireball.Game.Client
             }
             catch (Exception e)
             {
-                onError?.Invoke(ErrorResponse.CustomError(null, e.Message, 0));
+                onError?.Invoke(ErrorResponse.CustomError(null, e.ToString(), 0));
             }
         }
 
@@ -399,8 +399,8 @@ namespace Fireball.Game.Client
             }
             catch(Exception e)
             {
-                _logger.Error(e.Message);
-                onError?.Invoke(ErrorResponse.CustomError(request.ActionId, e.Message));
+                _logger.Error(e.ToString());
+                onError?.Invoke(ErrorResponse.CustomError(request.ActionId, e.ToString()));
             }
             
 
@@ -521,7 +521,7 @@ namespace Fireball.Game.Client
             }
             catch (Exception e)
             {
-                _logger.Error($"On Message error: can't parse json! Exception: {e.Message}");
+                _logger.Error($"On Message error: can't parse json! Exception: {e.ToString()}");
             }
         }
 
@@ -548,7 +548,7 @@ namespace Fireball.Game.Client
                     }
                     catch (Exception e)
                     {
-                        _logger.Error($"On BetTiers: Error - can't parse json! Exception: {e.Message}");
+                        _logger.Error($"On BetTiers: Error - can't parse json! Exception: {e.ToString()}");
                         onError?.Invoke(e.Message);
                     }
                 },
@@ -580,7 +580,7 @@ namespace Fireball.Game.Client
                     }
                     catch (Exception e)
                     {
-                        _logger.Error($"On Transactions: Error - can't parse json! Exception: {e.Message}");
+                        _logger.Error($"On Transactions: Error - can't parse json! Exception: {e.ToString()}");
                         onError?.Invoke(e.Message);
                     }
                 },

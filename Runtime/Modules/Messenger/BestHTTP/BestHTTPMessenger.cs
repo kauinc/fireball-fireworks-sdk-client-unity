@@ -87,7 +87,7 @@ namespace Fireball.Game.Client.Modules
             }
             catch (Exception e)
             {
-                _logger.Error($"Exception! {e.Message}");
+                _logger.Error($"Exception! {e.ToString()}");
                 onError?.Invoke(e.Message);
             }
         }
