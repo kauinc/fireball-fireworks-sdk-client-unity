@@ -45,7 +45,7 @@ namespace Fireball.Game.Client.Modules
             SendGCIEvent(EVENT_GAME_LOADING_COMPLETE);
         }
 
-        public void SendAudioToggle(float percent)
+        public void SendAudioVolume(float percent)
         {
             SendGCIEvent(EVENT_GAME_AUDIO_VOLUME, percent);
         }
