@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.8.2] - 2023-06-12
+- added multiplayer module
+- added get bet tiers list
+- added translations support
+- add communicator module
+- update demo authorize with nice params
+- remove coins and last action id from auth response
+- updated reconnection logic
+
 ## [0.8.1] - 2022-11-23
 - added transaction replays
 - added custom Action Id for Auth Request
