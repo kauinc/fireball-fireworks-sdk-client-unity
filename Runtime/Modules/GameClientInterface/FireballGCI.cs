@@ -11,22 +11,17 @@ namespace Fireball.Game.Client.Modules
     public class FireballGCI
     {
         private static FireballGCI _instance = null;
+
+        public delegate void EventJsonDelegate(System.IntPtr ptr);
+        private static event Action<string> OnReceivedEventJson;
+
         private IFireballLogger _logger = null;
-
-        public const string EVENT_OPERATOR_AUDIO_VOLUME = "operator_audio_volume";
-        public const string EVENT_OPERATOR_STOP_AUTOPLAY = "operator_stop_autoplay";
-        public const string EVENT_OPERATOR_UPDATE_BALANCE = "operator_update_balance";
-
-        public const string EVENT_GAME_AUDIO_VOLUME = "game_audio_volume";
-        public const string EVENT_GAME_LOADING_COMPLETE = "game_loading_complete";
-        public const string EVENT_GAME_LOADING_PROGRESS = "game_loading_progress";
 
         public Action OnStopAutoplay;
         public Action<float> OnAudioVolume;
         public Action<long> OnBalanceUpdated;
-
-        public delegate void EventJsonDelegate(System.IntPtr ptr);
-        private static event Action<string> OnReceivedEventJson;
+        public Action<bool> OnVisibleHelp;
+        public Action<bool> OnVisiblePaytable;
 
         private FireballGCI(IFireballLogger logger)
         {
@@ -47,26 +42,42 @@ namespace Fireball.Game.Client.Modules
 
         public void SendLoadingProgress(float percent)
         {
-            SendGCIEvent(EVENT_GAME_LOADING_PROGRESS, percent);
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_LOADING_PROGRESS, percent);
         }
-
         public void SendLoadingComplete()
         {
-            SendGCIEvent(EVENT_GAME_LOADING_COMPLETE);
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_LOADING_COMPLETE);
         }
-
         public void SendAudioVolume(float percent)
         {
-            SendGCIEvent(EVENT_GAME_AUDIO_VOLUME, percent);
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_AUDIO_VOLUME, percent);
         }
-
+        public void SendBetPlaced(long betValue)
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_AUDIO_VOLUME, betValue);
+        }
+        public void SendBetResult(long winValue)
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_BET_RESULT, winValue);
+        }
+        public void SendBetUpdate(long betValue)
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_BET_UPDATE, betValue);
+        }
+        public void SendErrorMessage(string message)
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_ERROR_MESSAGE, message);
+        }
+        public void SendGameClosed()
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_CLOSED);
+        }
         private void SendGCIEvent(string eventName, object eventValue = null)
         {
             _logger.Info($"GCI: SendEvent: {eventName} - {eventValue}");
             var eventData = new FireballGCIEvent(eventName, eventValue);
             sendFireballGCIEvent(eventData.ToJson());
         }
-
         public void ParseReceivedEventJson(string eventJson)
         {
             try
@@ -75,18 +86,28 @@ namespace Fireball.Game.Client.Modules
                 var eventData = Newtonsoft.Json.JsonConvert.DeserializeObject<FireballGCIEvent>(eventJson);
                 switch (eventData.name)
                 {
-                    case FireballGCI.EVENT_OPERATOR_STOP_AUTOPLAY:
+                    case FireballGCIEvent.EVENT_OPERATOR_STOP_AUTOPLAY:
                         OnStopAutoplay?.Invoke();
                         break;
 
-                    case FireballGCI.EVENT_OPERATOR_AUDIO_VOLUME:
+                    case FireballGCIEvent.EVENT_OPERATOR_AUDIO_VOLUME:
                         float volume = eventData.value != null ? float.Parse(eventData.value.ToString()) : 0.0f;
                         OnAudioVolume?.Invoke(volume);
                         break;
 
-                    case FireballGCI.EVENT_OPERATOR_UPDATE_BALANCE:
+                    case FireballGCIEvent.EVENT_OPERATOR_UPDATE_BALANCE:
                         long balance = eventData.value != null ? (long)eventData.value : 0;
                         OnBalanceUpdated?.Invoke(balance);
+                        break;
+
+                    case FireballGCIEvent.EVENT_OPERATOR_VISIBLE_HELP:
+                        bool visibleHelp = eventData.value != null ? (bool)eventData.value : true;
+                        OnVisibleHelp?.Invoke(visibleHelp);
+                        break;
+
+                    case FireballGCIEvent.EVENT_OPERATOR_VISIBLE_PAYTABLE:
+                        bool visiblePaytable = eventData.value != null ? (bool)eventData.value : true;
+                        OnVisiblePaytable?.Invoke(visiblePaytable);
                         break;
 
                     default:
@@ -111,9 +132,9 @@ namespace Fireball.Game.Client.Modules
         }
 #else
         private static bool isInit() => true;
-        private static void init(EventJsonDelegate eventCallback) => Debug.LogWarning($"[FIREBALL] GCI: Not implemented for current platform");
-        private static void onEventRecieved(System.IntPtr ptr) => Debug.LogWarning($"[FIREBALL] GCI: Not implemented for current platform");
-        private static void sendFireballGCIEvent(string eventJson) => Debug.LogWarning($"[FIREBALL] GCI: Not implemented for current platform");
+        private static void init(EventJsonDelegate eventCallback) => Debug.LogWarning($"[Fireball] GCI: Not implemented for current platform");
+        private static void onEventRecieved(System.IntPtr ptr) => Debug.LogWarning($"[Fireball] GCI: Not implemented for current platform");
+        private static void sendFireballGCIEvent(string eventJson) => Debug.LogWarning($"[Fireball] GCI: Not implemented for current platform");
 #endif
 
     }
