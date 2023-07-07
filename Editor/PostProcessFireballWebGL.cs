@@ -15,6 +15,11 @@ namespace Fireball.Editor
             if (buildTarget != BuildTarget.WebGL)
                 return;
 
+            // add scripts here
+        }
+
+        private static void AddFireballGCLIScript(string pathToBuiltProject)
+        {
             if (CopyAsset(pathToBuiltProject, "Packages/com.kau.fireball/Runtime/Modules/GameClientInterface/Plugins/WebGL/firebal-gci.js", "firebal-gci.js"))
             {
                 AddScriptToIndexHTML(pathToBuiltProject, "firebal-gci.js");
