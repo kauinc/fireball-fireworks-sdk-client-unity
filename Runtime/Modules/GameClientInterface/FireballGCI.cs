@@ -62,7 +62,7 @@ namespace Fireball.Game.Client.Modules
 
         private void SendGCIEvent(string eventName, object eventValue = null)
         {
-            _logger.Info($"GCI SendEvent: {eventName} - {eventValue}");
+            _logger.Info($"GCI: SendEvent: {eventName} - {eventValue}");
             var eventData = new FireballGCIEvent(eventName, eventValue);
             sendFireballGCIEvent(eventData.ToJson());
         }
@@ -71,7 +71,7 @@ namespace Fireball.Game.Client.Modules
         {
             try
             {
-                _logger.Info($"GCI ReceivedEvent: {eventJson}");
+                _logger.Info($"GCI: ReceivedEvent: {eventJson}");
                 var eventData = Newtonsoft.Json.JsonConvert.DeserializeObject<FireballGCIEvent>(eventJson);
                 switch (eventData.name)
                 {
@@ -90,13 +90,13 @@ namespace Fireball.Game.Client.Modules
                         break;
 
                     default:
-                        _logger.Warning($"GCI ReceivedEvent: undefined event with name - {eventData?.name}");
+                        _logger.Warning($"GCI: ReceivedEvent: undefined event with name - {eventData?.name}");
                         break;
                 }
             }
             catch (Exception e)
             {
-                _logger.Error($"GCI Events Receiver Exception: {e}");
+                _logger.Error($"GCI: Events Receiver Exception: {e}");
             }
         }
 
@@ -111,9 +111,9 @@ namespace Fireball.Game.Client.Modules
         }
 #else
         private static bool isInit() => true;
-        private static void init(EventJsonDelegate eventCallback) => Debug.LogWarning($"[GCI-UNITY] Not implemented for current platform");
-        private static void onEventRecieved(System.IntPtr ptr) => Debug.LogWarning($"[GCI-UNITY] Not implemented for current platform");
-        private static void sendFireballGCIEvent(string eventJson) => Debug.LogWarning($"[GCI-UNITY] Not implemented for current platform");
+        private static void init(EventJsonDelegate eventCallback) => Debug.LogWarning($"[FIREBALL] GCI: Not implemented for current platform");
+        private static void onEventRecieved(System.IntPtr ptr) => Debug.LogWarning($"[FIREBALL] GCI: Not implemented for current platform");
+        private static void sendFireballGCIEvent(string eventJson) => Debug.LogWarning($"[FIREBALL] GCI: Not implemented for current platform");
 #endif
 
     }
