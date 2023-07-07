@@ -54,7 +54,7 @@ namespace Fireball.Game.Client.Modules
         }
         public void SendBetPlaced(long betValue)
         {
-            SendGCIEvent(FireballGCIEvent.EVENT_GAME_AUDIO_VOLUME, betValue);
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_BET_PLACED, betValue);
         }
         public void SendBetResult(long winValue)
         {
