@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.3] - 2023-07-10
+- added game client interface (gci) module
+- added free bets campaign support
+- added client vars parsing on any base response
+- fixed exceptions logging
+
 ## [0.8.2] - 2023-06-12
 - added multiplayer module
 - added get bet tiers list
