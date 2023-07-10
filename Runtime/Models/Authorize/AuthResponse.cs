@@ -8,8 +8,6 @@ namespace Fireball.Game.Client.Models
 
         public long Balance;
         public Dictionary<string, object> GameState;
-        public Dictionary<string, object> server_side;
-        public Dictionary<string, object> client_side;
         public List<JackpotDetail> Jackpots;
         public List<FreeBetCampaign> FreeBetCampaigns;
 
