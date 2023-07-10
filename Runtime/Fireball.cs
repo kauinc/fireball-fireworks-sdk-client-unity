@@ -64,6 +64,17 @@ namespace Fireball.Game.Client
                 return _communicator;
             }
         }
+        public FireballGCI GameClientInterface
+        {
+            get
+            {
+                if (_gameClientInterface == null)
+                {
+                    _gameClientInterface = FireballGCI.GetInstance(_logger);
+                }
+                return _gameClientInterface;
+            }
+        }
         public FireballSession CurrentSession => _currentSession;
 
         public string LastActionID => _lastActionID;
@@ -95,6 +106,7 @@ namespace Fireball.Game.Client
         private Communicator _communicator = null;
         private Translation _translation = null;
         private FireballMultiplayer _multiplayer = null;
+        private FireballGCI _gameClientInterface = null;
         private AuthorizingRequestParams _autorizingParams = null;
         private FireballSession _currentSession;
         private string _customRouterUrl;
