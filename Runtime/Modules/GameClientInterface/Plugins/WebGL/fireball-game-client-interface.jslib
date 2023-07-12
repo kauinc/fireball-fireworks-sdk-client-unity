@@ -13,7 +13,7 @@ var UnityGameClientInterface = {
             return buffer;
         },
         addScript: function (url) {
-            return new Promise((resolve, reject) => {
+            return new Promise(function (resolve, reject) {
                 const script = document.createElement('script');
                 script.src = url;
                 script.addEventListener('load', resolve);
@@ -22,7 +22,7 @@ var UnityGameClientInterface = {
             });
         },
         getScriptURL: function (urlParams) {
-            this.environment = urlParams.get("environment") ?? "production";
+            this.environment = urlParams.get("environment") ? urlParams.get("environment") : "production";
             this.operatorId = urlParams.get("operatorId");
             var url = this.OPERATOR_SCRIPT_URL + this.environment;
             if (this.operatorId) {
@@ -43,7 +43,7 @@ var UnityGameClientInterface = {
             console.log("[FIREBALL-GCI] Init: Environment = " + unityGCI.environment);
             console.log("[FIREBALL-GCI] Init: OperatorId = " + unityGCI.operatorId);
             console.log("[FIREBALL-GCI] Init: Add script from URL = " + url);
-            unityGCI.addScript(url).then(() => {
+            unityGCI.addScript(url).then(function () {
                 unityGCI.init = true;
                 if (fireballGCI) {
                     console.log("[FIREBALL-GCI] Init: fireballGCI.js = " + fireballGCI);
