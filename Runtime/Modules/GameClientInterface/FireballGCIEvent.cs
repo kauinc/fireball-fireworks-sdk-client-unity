@@ -17,6 +17,8 @@
         public const string EVENT_GAME_ERROR_MESSAGE = "game_error_message";
         public const string EVENT_GAME_CLOSED = "game_closed";
 
+        public const string EVENT_INTEGRATION_ERROR = "integration_error";
+
         public string name = null;
         public object value = null;
 

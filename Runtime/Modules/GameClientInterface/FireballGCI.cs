@@ -72,6 +72,10 @@ namespace Fireball.Game.Client.Modules
         {
             SendGCIEvent(FireballGCIEvent.EVENT_GAME_CLOSED);
         }
+        public void SendIntegrationError(string message)
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_INTEGRATION_ERROR, message);
+        }
         private void SendGCIEvent(string eventName, object eventValue = null)
         {
             _logger.Info($"GCI: SendEvent: {eventName} - {eventValue}");

@@ -104,6 +104,9 @@ var UnityGameClientInterface = {
                 case FIREBALL_EVENTS.FROM_GAME.CLOSED:
                     fireballGCI.gameClosed();
                     break;
+                case FIREBALL_EVENTS.FROM_GAME.INTEGRATION_ERROR:
+                    fireballGCI.gameIntegrationError(eventValue);
+                    break;
                 default:
                     console.warn("[FIREBALL-GCI] Game Event with name = " + eventName + " not found");
             }
