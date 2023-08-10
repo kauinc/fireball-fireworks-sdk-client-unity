@@ -217,6 +217,16 @@ namespace Fireball.Game.Client
                     _currentSession.OperatorPlayerId = response.OperatorPlayerId;
                     _currentSession.OperatorPlayerSession = response.OperatorPlayerSession;
 
+                    if (response.Currency != null && _currentSession.Currency != response.Currency)
+                    {
+                        _logger.Warning($"Currency changed: {_currentSession.Currency} -> {response.Currency}");
+                        _currentSession.Currency = response.Currency;
+                        if (_currentSession.Extra.ContainsKey(URLData.PARAM_NAME_CURRENCY))
+                        {
+                            _currentSession.Extra[URLData.PARAM_NAME_CURRENCY] = response.Currency;
+                        }
+                    }
+
                     onSuccess?.Invoke(response);
                 },
                 onError, timeout, attempts);
