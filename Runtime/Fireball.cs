@@ -406,10 +406,15 @@ namespace Fireball.Game.Client
                         $"\nError: {error.ToJson()}" +
                         $"\nTime passed: {timePassed:F1} sec, Attempts: {attemptsCount}");
 
+                    if (error?.ClientScript?.Value != null)
+                    {
+                        GameClientInterface.SendIntegrationError(error.ClientScript.Value);
+                    }
+
                     onError?.Invoke(error);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.Error(e.ToString());
                 onError?.Invoke(ErrorResponse.CustomError(request.ActionId, e.ToString()));
