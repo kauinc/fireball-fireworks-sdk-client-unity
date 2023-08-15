@@ -10,12 +10,11 @@ namespace Fireball.Game.Client.Models
         public int Code;
         public string Reason;
 
-        public ErrorDialog Dialog;
-        public ErrorClientScript ClientScript;
+        public ErrorBase Error { get; set; }
 
         public bool IsCustomError => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_ERROR);
         public bool IsTimeout => !string.IsNullOrEmpty(Name) && Name.Equals(NAME_TIMEOUT);
-        public bool HasDialog => Dialog != null;
+        public bool HasDialog => Error?.Dialog != null;
 
         public static ErrorResponse CustomError(string actionId, string reason, int code = 0)
         {
@@ -38,6 +37,12 @@ namespace Fireball.Game.Client.Models
                 Code = code,
             };
         }
+    }
+
+    public class ErrorBase
+    {
+        public ErrorDialog Dialog { get; set; }
+        public ErrorClientScript ClientScript { get; set; }
     }
 
     // INTEGRATION ERROR EVENT MESSAGE
