@@ -9,6 +9,7 @@ namespace Fireball.Game.Client.Models
         Retry = 2,
         Redirect = 3,
         ClientScript = 4,
+        Home = 5,
     }
 
     public class ErrorDialog

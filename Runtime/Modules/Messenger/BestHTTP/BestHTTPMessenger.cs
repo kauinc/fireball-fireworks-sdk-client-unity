@@ -177,7 +177,7 @@ namespace Fireball.Game.Client.Modules
         private void OnMessage(string message)
         {
             _logger.Log($"{MESSAGE_RECEIVE} - {message}");
-            SignalRMessageData data = JsonUtility.FromJson<SignalRMessageData>(message);
+            SignalRMessageData data = Newtonsoft.Json.JsonConvert.DeserializeObject<SignalRMessageData>(message);
             if (data == null)
             {
                 _logger.Error("Can't parse message...");
