@@ -6,13 +6,15 @@ namespace Fireball.Game.Client.Modules
 {
     public class NetworkChecker : INetworkChecker
     {
+        public bool IsConnected => _isNetworkConnected != null ? _isNetworkConnected.Value : false;
+
         public event Action<bool> OnNetworkConnectionChanged;
         
         private MonoBehaviour _coroutineHandler;
         private Coroutine _checkConnectionCoroutine;
         private IFireballLogger _logger;
         
-        private bool _isNetworkConnected;
+        private bool? _isNetworkConnected;
         private float _checkInterval;
 
         public NetworkChecker(MonoBehaviour coroutineHandler, float checkInterval)
@@ -31,7 +33,7 @@ namespace Fireball.Game.Client.Modules
 
         public void StopNetworkCheck()
         {
-            if(_checkConnectionCoroutine != null)
+            if (_checkConnectionCoroutine != null)
             {
                 _coroutineHandler.StopCoroutine(_checkConnectionCoroutine);
                 _checkConnectionCoroutine = null;
@@ -42,20 +44,24 @@ namespace Fireball.Game.Client.Modules
         {
             while (true)
             {
-                yield return new WaitForSeconds(_checkInterval);
                 CheckConnection();
+                yield return new WaitForSeconds(_checkInterval);
             }
         }
         
         private void CheckConnection()
         {
             bool isNetworkConnected = Application.internetReachability != NetworkReachability.NotReachable;
-            
-            if (_isNetworkConnected != isNetworkConnected)
+            if (_isNetworkConnected == null)
             {
                 _logger.Log($"is connected = {isNetworkConnected}");
                 _isNetworkConnected = isNetworkConnected;
-                OnNetworkConnectionChanged?.Invoke(_isNetworkConnected);
+            }
+            else if (_isNetworkConnected != isNetworkConnected)
+            {
+                _logger.Log($"Connection Changed: connected = {isNetworkConnected}");
+                _isNetworkConnected = isNetworkConnected;
+                OnNetworkConnectionChanged?.Invoke(_isNetworkConnected.Value);
             }
         }
     }

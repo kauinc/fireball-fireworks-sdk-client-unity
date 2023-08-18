@@ -76,6 +76,7 @@ namespace Fireball.Game.Client
             }
         }
         public FireballSession CurrentSession => _currentSession;
+        public INetworkChecker Network => _networkChecker;
 
         public string LastActionID => _lastActionID;
 
@@ -144,7 +145,7 @@ namespace Fireball.Game.Client
         private void Initialize(FireballSession customSession, Action<FireballSession> onSuccess = null, Action<string> onError = null, MessengerType messengerType = MessengerType.BestHTTPv2)
         {
             if (_logger == null) _logger = new FireballLogger();
-            if (_networkChecker == null) _networkChecker = new NetworkChecker(this, 2.0f);
+            if (_networkChecker == null) _networkChecker = new NetworkChecker(this, 0.5f);
             if (_dispatcher == null) _dispatcher = new ThreadDispatcher(this);
             if (_communicator == null) _communicator = new Communicator(this, _logger);
             if (_translation == null) _translation = new Translation(_communicator, _logger);
@@ -342,7 +343,7 @@ namespace Fireball.Game.Client
             where TRequest : BaseRequest
             where TResponse : BaseResponse
         {
-            if (_messenger == null || !_messenger.IsConnected)
+            if (_messenger == null || !_messenger.IsConnected || !_networkChecker.IsConnected)
             {
                 _logger.Error("Can't send request! Fail to connect to server");
                 onError?.Invoke(ErrorResponse.CustomError(request.ActionId, ErrorResponse.NO_CONNECTION_REASON));

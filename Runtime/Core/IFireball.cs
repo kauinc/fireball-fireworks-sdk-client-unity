@@ -12,6 +12,7 @@ namespace Fireball.Game.Client
         Translation Translation { get; }
         Communicator Communicator { get; }
         FireballGCI GameClientInterface { get; }
+        INetworkChecker Network { get; }
         string LastActionID { get; }
 
         bool IsConnected { get; }

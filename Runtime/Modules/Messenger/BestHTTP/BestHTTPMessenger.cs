@@ -94,6 +94,13 @@ namespace Fireball.Game.Client.Modules
 
         public void Reconnect(Action<string> onConnect = null, Action<string> onError = null)
         {
+            if (!_fireball.Network.IsConnected)
+            {
+                _logger.Error("Can't Reconnect... No network conection");
+                onError?.Invoke($"Server Unavailable: No network connection");
+                return;
+            }
+
             if (_reconnectAttempt < RECONNECT_MAX)
             {
                 _fireball.InvokeInMainThread(() =>
