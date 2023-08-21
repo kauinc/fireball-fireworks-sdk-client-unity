@@ -33,6 +33,7 @@ namespace Fireball.Game.Client.Modules
         [DllImport("__Internal")] private static extern bool isFirefox();
         [DllImport("__Internal")] private static extern bool isOpera();
         [DllImport("__Internal")] private static extern bool isOperaMini();
+        [DllImport("__Internal")] private static extern bool isOnline();
 
         [DllImport("__Internal")] private static extern void sendBeacon(string url, string json);
         [DllImport("__Internal")] private static extern void postMessage(string msg);
@@ -75,6 +76,7 @@ namespace Fireball.Game.Client.Modules
         public static bool IsFirefox => isFirefox();
         public static bool IsOpera => isOpera();
         public static bool IsOperaMini => isOperaMini();
+        public static bool IsOnline => isOnline();
 
 
         public static void SendBeacon(string url, string json)
@@ -145,6 +147,7 @@ namespace Fireball.Game.Client.Modules
         public static bool IsFirefox => false;
         public static bool IsOpera => false;
         public static bool IsOperaMini => false;
+        public static bool IsOnline => UnityEngine.Application.internetReachability != UnityEngine.NetworkReachability.NotReachable;
 
         public static void SendBeacon(string url, string json) { }
         public static void PostMessage(string msg) { }

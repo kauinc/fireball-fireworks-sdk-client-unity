@@ -83,6 +83,15 @@ var unityWebBrowser = {
         return /blackberry/.test(browser.userAgent()) || /bb10/.test(browser.userAgent());
     },
 
+    isOnline: function(){
+        try{
+            return window.navigator.onLine;
+        }
+        catch(e){
+            return false;
+        }
+    },
+
     sendBeacon: function (url, json) {
         url = UTF8ToString(url);
         json = UTF8ToString(json);
@@ -194,7 +203,7 @@ var unityWebBrowser = {
         } else {
             window.location.reload();
         }
-    }
+    },
 };
 
 autoAddDeps(unityWebBrowser, '$browser');

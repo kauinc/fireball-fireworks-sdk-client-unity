@@ -51,7 +51,7 @@ namespace Fireball.Game.Client.Modules
         
         private void CheckConnection()
         {
-            bool isNetworkConnected = Application.internetReachability != NetworkReachability.NotReachable;
+            bool isNetworkConnected = GetInternetConnectionSimple();
             if (_isNetworkConnected == null)
             {
                 _logger.Log($"is connected = {isNetworkConnected}");
@@ -63,6 +63,15 @@ namespace Fireball.Game.Client.Modules
                 _isNetworkConnected = isNetworkConnected;
                 OnNetworkConnectionChanged?.Invoke(_isNetworkConnected.Value);
             }
+        }
+
+        private bool GetInternetConnectionSimple()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            return WebBrowser.IsOnline;
+#else
+            return Application.internetReachability != NetworkReachability.NotReachable;
+#endif
         }
     }
 }
