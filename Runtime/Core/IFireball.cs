@@ -39,11 +39,14 @@ namespace Fireball.Game.Client
        void SendRequest<TRequest, TResponse>(TRequest request, Action<TResponse> onSuccess, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1)
             where TRequest : BaseRequest
             where TResponse : BaseResponse;
+        void ResendFailedRequest();
 
         void GetBetTiers(string currency, Action<List<TierData>> onSuccess, Action<string> onError = null);
         void GetTransactionsList(Action<TransactionsList> onSuccess, Action<string> onError = null, int startIndex = 0, bool includeGameStates = true);
         void GetReplaysList(string shortReplayId, Action<List<Transaction>> onSuccess, Action<string> onError = null);
 
         void InvokeInMainThread(Action action, float delay = 0);
+
+        void GoHomePage();
     }
 }

@@ -96,7 +96,7 @@ namespace Fireball.Game.Client
         public Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
         public Action<string> OnServerConnectionError { get; set; }
 
-
+        private static readonly string RESEND_FAILED_REQUEST_ACTION = "resend-failed-request";
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
 
@@ -112,6 +112,7 @@ namespace Fireball.Game.Client
         private FireballSession _currentSession;
         private string _customRouterUrl;
         private string _lastActionID;
+        private string _lastFailedActionID;
 
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
         private readonly Dictionary<string, JToken> _pendingResponses = new Dictionary<string, JToken>();
@@ -336,8 +337,10 @@ namespace Fireball.Game.Client
 
         public void SendRequest<TRequest, TResponse>(TRequest request, Action<TResponse> onSuccess, Action<ErrorResponse> onError = null, float timeout = FireballConfig.DEFAULT_TIMEOUT, int attempts = 1)
             where TRequest : BaseRequest
-            where TResponse : BaseResponse =>
+            where TResponse : BaseResponse
+        {
             StartCoroutine(SendRequestCoroutine(request, onSuccess, onError, timeout, attempts));
+        }
 
         private IEnumerator SendRequestCoroutine<TRequest, TResponse>(TRequest request, Action<TResponse> onSuccess, Action<ErrorResponse> onError, float timeout, int attemptsCount)
             where TRequest : BaseRequest
@@ -351,6 +354,7 @@ namespace Fireball.Game.Client
             }
 
             //CheckAndClearPendingResponses();
+            _lastFailedActionID = null;
             _lastActionID = request.ActionId;
 
             float timePassed = 0;
@@ -408,10 +412,12 @@ namespace Fireball.Game.Client
                         $"\nMessage: {response.ToJson()}" +
                         $"\nTime passed: {timePassed:F1} sec, Attempts: {attemptsCount}");
 
+                    _lastFailedActionID = null;
                     onSuccess?.Invoke(response);
                 }
                 else
                 {
+                    _lastFailedActionID = request.ActionId;
                     var error = responseObject.ToObject<ErrorResponse>();
                     _logger.Error($"Message - {error.Name} - Error (ActionId: {error.ActionId})" +
                         $"\nError: {error.ToJson()}" +
@@ -428,9 +434,9 @@ namespace Fireball.Game.Client
             catch (Exception e)
             {
                 _logger.Error(e.ToString());
+                _lastFailedActionID = request.ActionId;
                 onError?.Invoke(ErrorResponse.CustomError(request.ActionId, e.ToString()));
             }
-            
 
             if (_pendingRequests.ContainsKey(request.ActionId))
             {
@@ -443,6 +449,24 @@ namespace Fireball.Game.Client
             }
 
             CheckAndClearPendingResponses();
+
+
+            while (_lastFailedActionID != null && _lastFailedActionID != RESEND_FAILED_REQUEST_ACTION)
+            {
+                //_logger.Warning("Wait for resend failed request...");
+                yield return null;
+            }
+
+            if (_lastFailedActionID == RESEND_FAILED_REQUEST_ACTION)
+            {
+                //_logger.Warning("Resending last failed request...");
+                _lastFailedActionID = null;
+                SendRequest(request, onSuccess, onError, timeout, attemptsCount);
+            }
+            else
+            {
+                //_logger.Warning("Skipped failed request...");
+            }
         }
 
         private bool IsPendingResponse(string actionID) =>
@@ -553,7 +577,17 @@ namespace Fireball.Game.Client
             }
         }
 
-
+        public void ResendFailedRequest()
+        {
+            if (_lastFailedActionID != null && _lastFailedActionID != RESEND_FAILED_REQUEST_ACTION)
+            {
+                _lastFailedActionID = RESEND_FAILED_REQUEST_ACTION;
+            }
+            else
+            {
+                _logger.Warning("No failed requests found...");
+            }
+        }
 
         public void GetBetTiers(string currency, Action<List<TierData>> onSuccess, Action<string> onError = null)
         {
@@ -640,7 +674,18 @@ namespace Fireball.Game.Client
                 onError);
         }
 
-
+        public void GoHomePage()
+        {
+            if (string.IsNullOrEmpty(CurrentSession?.HomeUrl))
+            { 
+                _logger.Warning("Home param were not provided in game URL! Trying close game by sending event to operators page...");
+                GameClientInterface.SendGameClosed();
+            }
+            else
+            {
+                WebBrowser.SetLocation(CurrentSession.HomeUrl);
+            }
+        }
 
 
 
