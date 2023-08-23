@@ -21,7 +21,7 @@ namespace Fireball.Game.Client.Modules
         private const string MESSAGE_SEND = "SendMessage";
         private const string MESSAGE_ACKNOWLEDGE = "AcknowledgeMessage";
 
-        private const int RECONNECT_MAX = 5;
+        private const int RECONNECT_MAX = 3;
         private int _reconnectAttempt;
         private bool _isDisconnecting = false;
 
@@ -78,7 +78,12 @@ namespace Fireball.Game.Client.Modules
                 _onConnectSuccess = onConnect;
                 _onConnectFail = onError;
 
-                _signalR = new HubConnection(new Uri(serverUrlFull), new JsonProtocol(new LitJsonEncoder()));
+                _signalR = new HubConnection(new Uri(serverUrlFull), new JsonProtocol(new LitJsonEncoder()), new HubOptions()
+                {
+                    PingInterval = TimeSpan.FromSeconds(5),
+                    PingTimeoutInterval = TimeSpan.FromSeconds(10),
+                    ConnectTimeout = TimeSpan.FromSeconds(5),
+                });
                 _signalR.OnConnected += OnConnected;
                 _signalR.OnClosed += OnClose;
                 _signalR.OnError += OnErrorReceived;

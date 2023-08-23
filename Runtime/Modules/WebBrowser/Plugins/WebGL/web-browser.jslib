@@ -83,11 +83,11 @@ var unityWebBrowser = {
         return /blackberry/.test(browser.userAgent()) || /bb10/.test(browser.userAgent());
     },
 
-    isOnline: function(){
-        try{
+    isOnline: function () {
+        try {
             return window.navigator.onLine;
         }
-        catch(e){
+        catch (e) {
             return false;
         }
     },

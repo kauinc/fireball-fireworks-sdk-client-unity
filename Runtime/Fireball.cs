@@ -175,8 +175,8 @@ namespace Fireball.Game.Client
             }
 
             _messenger.OnMessageReceived += OnMessageReceived;
-            _messenger.OnConnectionChange += OnConnectionChange;
-            _messenger.OnConnectionError += OnConnectionError;
+            _messenger.OnConnectionChange += OnMessangerConnectionChange;
+            _messenger.OnConnectionError += OnMessangerConnectionError;
 
             // Send ping to warm up Fireball system
             // SendPing();
@@ -284,6 +284,11 @@ namespace Fireball.Game.Client
                 return;
             }
 
+            if (!connected)
+            {
+                OnServerConnectionError?.Invoke("Connection lost...");
+            }
+
             if (_messenger is { IsClosed: true })
             {
                 _logger.Log($"OnInternetConnection: Connection lost, trying to reconnect...");
@@ -291,7 +296,7 @@ namespace Fireball.Game.Client
             }
         }
 
-        private void OnConnectionChange(bool isConnected, string connectionId)
+        private void OnMessangerConnectionChange(bool isConnected, string connectionId)
         {
             if (isConnected && _currentSession.ConnectionId != connectionId)
             {
@@ -309,8 +314,13 @@ namespace Fireball.Game.Client
             }
         }
 
-        private void OnConnectionError(string error)
+        private void OnMessangerConnectionError(string error)
         {
+            if (!_networkChecker.IsConnected)
+            {
+                _logger.Error($"Messanger Error: {error}");
+            }
+
             OnServerConnectionError?.Invoke(error);
         }
 
