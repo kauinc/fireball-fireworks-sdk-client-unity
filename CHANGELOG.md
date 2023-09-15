@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.8.4] - 2023-09-15
+- added free bets details
+- added gci integration error event
+- added error dialog and error client script on error response
+- update currency in session and extra if it changed after authorization
+- update web browser set url from iframe
+- update error response with optional balance param
+- update network checker and show connection error
+
 ## [0.8.3] - 2023-07-10
 - added game client interface (gci) module
 - added free bets campaign support
