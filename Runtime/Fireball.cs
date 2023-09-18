@@ -94,6 +94,7 @@ namespace Fireball.Game.Client
                               || _currentSession?.GameMode?.ToLower() == GameMode.fun.ToString();
 
         public Action<JackpotUpdateMessage> OnJackpotUpdate { get; set; }
+        public Action<ServerMessage> OnServerMessageReceived { get; set; }
         public Action<string> OnServerConnectionError { get; set; }
 
         private static readonly string RESEND_FAILED_REQUEST_ACTION = "resend-failed-request";
@@ -119,7 +120,7 @@ namespace Fireball.Game.Client
 
         private Action<FireballSession> _onInitSuccess = null;
         private Action<string> _onInitError = null;
-        internal Action<string, JToken> _onBroadcastMessageRecieved;
+        internal Action<string, JToken> _onBroadcastMessageReceived;
 
         private string URLRouter => !string.IsNullOrEmpty(_customRouterUrl) ? _customRouterUrl : FireballConfig.URL_ROUTER_DEFAULT;
 
@@ -577,7 +578,8 @@ namespace Fireball.Game.Client
 
                     if (!_pendingRequests.ContainsKey(actionId))
                     {
-                        _onBroadcastMessageRecieved?.Invoke(name, messageObject);
+                        OnServerMessageReceived?.Invoke(new ServerMessage(actionId, name, messageObject));
+                        _onBroadcastMessageReceived?.Invoke(name, messageObject);
                     }
                 }
             }

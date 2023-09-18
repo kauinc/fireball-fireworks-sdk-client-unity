@@ -12,10 +12,10 @@ namespace Fireball.Game.Client.Modules
 
         public FireballMultiplayer(Fireball fireball)
         {
-            fireball._onBroadcastMessageRecieved = BroadcastMessageInvoke;
+            fireball._onBroadcastMessageReceived = BroadcastMessageInvoke;
         }
 
-        public void AddBroadcastListener<T>(string messageName, Action<BaseMessage> onRecieved) where T : BaseMessage
+        public void AddBroadcastListener<T>(string messageName, Action<BaseMessage> onReceived) where T : BaseMessage
         {
             var messageType = typeof(T);
 
@@ -24,16 +24,16 @@ namespace Fireball.Game.Client.Modules
                 _messageListener[messageName] = new BroadcastMessageListener(messageName, messageType);
             }
 
-            _messageListener[messageName].Add(onRecieved);
+            _messageListener[messageName].Add(onReceived);
         }
 
-        public void RemoveBroadcastListener<T>(string messageName, Action<BaseMessage> onRecieved) where T : BaseMessage
+        public void RemoveBroadcastListener<T>(string messageName, Action<BaseMessage> onReceived) where T : BaseMessage
         {
             var messageType = typeof(T);
 
-            if (_messageListener.ContainsKey(messageName) && _messageListener[messageName].Contains(onRecieved))
+            if (_messageListener.ContainsKey(messageName) && _messageListener[messageName].Contains(onReceived))
             {
-                _messageListener[messageName].Remove(onRecieved);
+                _messageListener[messageName].Remove(onReceived);
             }
         }
 
