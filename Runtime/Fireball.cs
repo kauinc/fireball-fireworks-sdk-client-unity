@@ -578,9 +578,10 @@ namespace Fireball.Game.Client
 
                     if (!_pendingRequests.ContainsKey(actionId))
                     {
-                        OnServerMessageReceived?.Invoke(new ServerMessage(actionId, name, messageObject));
                         _onBroadcastMessageReceived?.Invoke(name, messageObject);
                     }
+
+                    OnServerMessageReceived?.Invoke(new ServerMessage(actionId, name, messageObject));
                 }
             }
             catch (Exception e)
