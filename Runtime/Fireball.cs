@@ -37,7 +37,7 @@ namespace Fireball.Game.Client
             {
                 if (_multiplayer == null)
                 {
-                    _multiplayer = new FireballMultiplayer(this);
+                    _multiplayer = new FireballMultiplayer(this, _logger);
                 }
                 return _multiplayer;
             }
@@ -120,7 +120,7 @@ namespace Fireball.Game.Client
 
         private Action<FireballSession> _onInitSuccess = null;
         private Action<string> _onInitError = null;
-        internal Action<string, JToken> _onBroadcastMessageReceived;
+        internal Action<ServerMessage> _onBroadcastMessageReceived;
 
         private string URLRouter => !string.IsNullOrEmpty(_customRouterUrl) ? _customRouterUrl : FireballConfig.URL_ROUTER_DEFAULT;
 
@@ -578,7 +578,7 @@ namespace Fireball.Game.Client
 
                     if (!_pendingRequests.ContainsKey(actionId))
                     {
-                        _onBroadcastMessageReceived?.Invoke(name, messageObject);
+                        _onBroadcastMessageReceived?.Invoke(new ServerMessage(actionId, name, messageObject));
                     }
 
                     OnServerMessageReceived?.Invoke(new ServerMessage(actionId, name, messageObject));

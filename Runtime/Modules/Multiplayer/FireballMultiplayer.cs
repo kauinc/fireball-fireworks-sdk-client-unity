@@ -1,56 +1,50 @@
 using System;
 using System.Collections.Generic;
 using Fireball.Game.Client.Models;
-using Newtonsoft.Json.Linq;
 
 namespace Fireball.Game.Client.Modules
 {
     public class FireballMultiplayer
     {
+        private readonly IFireballLogger _logger;
         private readonly Dictionary<string, BroadcastMessageListener> _messageListener = new Dictionary<string, BroadcastMessageListener>();
 
-
-        public FireballMultiplayer(Fireball fireball)
+        public FireballMultiplayer(Fireball fireball, IFireballLogger logger)
         {
+            _logger = logger;
             fireball._onBroadcastMessageReceived = BroadcastMessageInvoke;
         }
 
-        public void AddBroadcastListener<T>(string messageName, Action<BaseMessage> onReceived) where T : BaseMessage
+        public void AddBroadcastListener<T>(string messageName, Action<T> onReceived) where T : BaseMessage
         {
-            var messageType = typeof(T);
-
-            if (!_messageListener.ContainsKey(messageName) || _messageListener[messageName] == null)
+            if (_messageListener.ContainsKey(messageName))
             {
-                _messageListener[messageName] = new BroadcastMessageListener(messageName, messageType);
+                _logger.Warning($"Multiplayer: rewriting broadcast listener for {messageName}");
             }
-
-            _messageListener[messageName].Add(onReceived);
+            _messageListener[messageName] = new BroadcastMessageListener(messageName, typeof(T), (serverMessage) => onReceived?.Invoke(serverMessage.GetMessage<T>()));
         }
 
-        public void RemoveBroadcastListener<T>(string messageName, Action<BaseMessage> onReceived) where T : BaseMessage
+        public void RemoveBroadcastListener(string messageName)
         {
-            var messageType = typeof(T);
-
-            if (_messageListener.ContainsKey(messageName) && _messageListener[messageName].Contains(onReceived))
+            if (_messageListener.ContainsKey(messageName))
             {
-                _messageListener[messageName].Remove(onReceived);
+                _messageListener.Remove(messageName);
+            }
+            else
+            {
+                _logger.Warning($"Multiplayer: can't remove broadcast listener! Not found listener for {messageName} found!");
             }
         }
 
-        private void BroadcastMessageInvoke(string messageName, JToken response)
+        private void BroadcastMessageInvoke(ServerMessage serverMessage)
         {
-            if (_messageListener[messageName] != null)
+            if (_messageListener.ContainsKey(serverMessage.Name) && _messageListener[serverMessage.Name] != null)
             {
-                var listener = _messageListener[messageName];
-                var messageObject = response.ToObject(listener.MessageType);
-
-                if (listener.MessageActions != null)
-                {
-                    foreach (var action in listener.MessageActions)
-                    {
-                        action?.Invoke(messageObject as BaseMessage);
-                    }
-                }
+                _messageListener[serverMessage.Name].MessageAction?.Invoke(serverMessage);
+            }
+            else
+            {
+                _logger.Warning($"Multiplayer: no broadcast listener for message {serverMessage.Name}");
             }
         }
     }
