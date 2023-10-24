@@ -63,7 +63,7 @@ namespace Fireball.Game.Client.Modules
             string responceText = string.Empty;
             byte[] bytes = Encoding.UTF8.GetBytes(request.ToJson());
 
-            _logger.Info($"Message - {request.Name} - Sending... (ActionId: {request.ActionId})" +
+            _logger.Info($"Message - {request.Name} - Sending... (ActionId: {request.ActionId}, GameSession: {request?.GameSession})" +
                 $"\nMesaage: {request.ToJson()}");
 
             UploadHandler uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(request.ToJson()));
@@ -82,14 +82,14 @@ namespace Fireball.Game.Client.Modules
                 {
                     responceText = client.error;
                     responceCode = client.responseCode;
-                    _logger.Error($"Message - {request.Name} - Error: {responceText} (ActionId: {request.ActionId})");
+                    _logger.Error($"Message - {request.Name} - Error: {responceText} (ActionId: {request?.ActionId}, GameSession: {request?.GameSession})");
                     onError?.Invoke(responceText);
                 }
                 else
                 {
                     responceText = client.downloadHandler.text;
                     responceCode = client.responseCode;
-                    _logger.Info($"Message - {request.Name} - Sent (ActionId: {request.ActionId})");
+                    _logger.Info($"Message - {request.Name} - Sent (ActionId: {request?.ActionId}, GameSession: {request?.GameSession})");
                     onSuccess?.Invoke(responceText);
                 }
             }

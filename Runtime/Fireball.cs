@@ -419,7 +419,7 @@ namespace Fireball.Game.Client
                 if (string.IsNullOrEmpty(errorReason))
                 {
                     var response = responseObject.ToObject<TResponse>();
-                    _logger.Info($"Message - {response.Name} - Received (ActionId: {response.ActionId})" +
+                    _logger.Info($"Message - {response.Name} - Received (ActionId: {response?.ActionId}, GameSession: {response?.GameSession})" +
                         $"\nMessage: {response.ToJson()}" +
                         $"\nTime passed: {timePassed:F1} sec, Attempts: {attemptsCount}");
 
@@ -430,7 +430,7 @@ namespace Fireball.Game.Client
                 {
                     _lastFailedActionID = request.ActionId;
                     var error = responseObject.ToObject<ErrorResponse>();
-                    _logger.Error($"Message - {error.Name} - Error (ActionId: {error.ActionId})" +
+                    _logger.Error($"Message - {error.Name} - Error (ActionId: {error?.ActionId}, GameSession: {error?.GameSession})" +
                         $"\nError: {error.ToJson()}" +
                         $"\nTime passed: {timePassed:F1} sec, Attempts: {attemptsCount}");
 
