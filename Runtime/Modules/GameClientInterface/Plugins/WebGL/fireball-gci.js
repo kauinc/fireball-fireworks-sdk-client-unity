@@ -1,22 +1,35 @@
 // Fireball GCI events
 var FIREBALL_EVENTS = {
     FROM_GAME: {
-        AUDIO_VOLUME: "game_audio_volume",
-        LOADING_COMPLETE: "game_loading_complete",
+        LOADING_STARTED: "game_loading_started",
         LOADING_PROGRESS: "game_loading_progress",
+        LOADING_COMPLETE: "game_loading_complete",
+        READY_PLAY: "game_ready_play",
+        AUDIO_VOLUME: "game_audio_volume",
+        BET_TURBO: "game_bet_turbo",
         BET_PLACED: "game_bet_placed",
         BET_RESULT: "game_bet_result",
         BET_UPDATE: "game_bet_update",
+        BALANCE_UPDATED: "game_balance_updated",
+        AUTOPLAY_STARTED: "game_autoplay_started",
+        AUTOPLAY_COMPLETE: "game_autoplay_complete",
+        BONUS_FEATURE_STARTED: "game_bonus_feature_started",
+        BONUS_FEATURE_COMPLETE: "game_bonus_feature_complete",
+        OPEN_URL: "game_open_url",
         ERROR_MESSAGE: "game_error_message",
         CLOSED: "game_closed",
         INTEGRATION_ERROR: "integration_error",
     },
     TO_GAME: {
         AUDIO_VOLUME: "operator_audio_volume",
-        STOP_AUTOPLAY: "operator_stop_autoplay",
+        BET_TURBO: "operator_bet_turbo",
+        BET_PLACE: "operator_bet_place",
+        BET_UPDATE: "operator_bet_update",
         UPDATE_BALANCE: "operator_update_balance",
+        STOP_AUTOPLAY: "operator_stop_autoplay",
         VISIBLE_HELP: "operator_visible_help",
         VISIBLE_PAYTABLE: "operator_visible_paytable",
+        PAUSE_GAME: "operator_pause_game",
     },
 };
 
@@ -35,14 +48,23 @@ var fireballGCI = function () {
 
     var functions = {
         // From Game To Operator Script
-        gameAudioVolume: function (volume) {
-            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.AUDIO_VOLUME, volume);
+        gameLoadingStarted: function () {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.LOADING_STARTED);
         },
         gameLoadingProgress: function (progress) {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.LOADING_PROGRESS, progress);
         },
         gameLoadingComplete: function () {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.LOADING_COMPLETE);
+        },
+        gameReadyToPlay: function () {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.READY_PLAY);
+        },
+        gameAudioVolume: function (volume) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.AUDIO_VOLUME, volume);
+        },
+        gameBetTurbo: function (enabled) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.BET_TURBO, enabled);
         },
         gameBetPlaced: function (betValue) {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.BET_PLACED, betValue);
@@ -52,6 +74,24 @@ var fireballGCI = function () {
         },
         gameBetUpdate: function (betValue) {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.BET_UPDATE, betValue);
+        },
+        gameBalanceUpdated: function (balance) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.BALANCE_UPDATED, balance);
+        },
+        gameAutoplayStarted: function () {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.AUTOPLAY_STARTED);
+        },
+        gameAutoplayComplete: function () {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.AUTOPLAY_COMPLETE);
+        },
+        gameBonusFeatureStarted: function (feature) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.BONUS_FEATURE_STARTED, feature);
+        },
+        gameBonusFeatureComplete: function (feature) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.BONUS_FEATURE_COMPLETE, feature);
+        },
+        gameOpenUrl: function (url) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.OPEN_URL, url);
         },
         gameErrorMessage: function (message) {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.ERROR_MESSAGE, message);
@@ -67,17 +107,29 @@ var fireballGCI = function () {
         operatorAudioVolume: function (volume) {
             _dispatchEvent(FIREBALL_EVENTS.TO_GAME.AUDIO_VOLUME, volume);
         },
-        operatorStopAutoplay: function () {
-            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.STOP_AUTOPLAY);
+        operatorBetTurbo: function (enabled) {
+            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.BET_TURBO, enabled);
+        },
+        operatorBetPlace: function (betValue) {
+            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.BET_PLACE, betValue);
+        },
+        operatorBetUpdate: function (betValue) {
+            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.BET_UPDATE, betValue);
         },
         operatorUpdateBalance: function (balance) {
             _dispatchEvent(FIREBALL_EVENTS.TO_GAME.UPDATE_BALANCE, balance);
+        },
+        operatorStopAutoplay: function () {
+            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.STOP_AUTOPLAY);
         },
         operatorVisibleHelp: function (visible) {
             _dispatchEvent(FIREBALL_EVENTS.TO_GAME.VISIBLE_HELP, visible);
         },
         operatorVisiblePaytable: function (visible) {
             _dispatchEvent(FIREBALL_EVENTS.TO_GAME.VISIBLE_PAYTABLE, visible);
+        },
+        operatorPauseGame: function (pause) {
+            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.PAUSE_GAME, pause);
         },
 
         // Subscribe to any event

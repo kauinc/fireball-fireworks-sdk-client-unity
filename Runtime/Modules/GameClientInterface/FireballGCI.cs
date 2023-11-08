@@ -17,11 +17,15 @@ namespace Fireball.Game.Client.Modules
 
         private IFireballLogger _logger = null;
 
-        public Action OnStopAutoplay;
         public Action<float> OnAudioVolume;
+        public Action<bool> OnBetTurbo; // new 
+        public Action<long> OnBetPlace; // new 
+        public Action<long> OnBetUpdate; // new 
         public Action<long> OnBalanceUpdated;
+        public Action OnStopAutoplay;
         public Action<bool> OnVisibleHelp;
         public Action<bool> OnVisiblePaytable;
+        public Action<bool> OnPauseGame; // new 
 
         private FireballGCI(IFireballLogger logger)
         {
@@ -40,6 +44,10 @@ namespace Fireball.Game.Client.Modules
             return _instance;
         }
 
+        public void SendLoadingStarted() // new 
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_LOADING_STARTED);
+        }
         public void SendLoadingProgress(float percent)
         {
             SendGCIEvent(FireballGCIEvent.EVENT_GAME_LOADING_PROGRESS, percent);
@@ -48,9 +56,17 @@ namespace Fireball.Game.Client.Modules
         {
             SendGCIEvent(FireballGCIEvent.EVENT_GAME_LOADING_COMPLETE);
         }
+        public void SendReadyToPlay() // new 
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_READY_PLAY);
+        }
         public void SendAudioVolume(float percent)
         {
             SendGCIEvent(FireballGCIEvent.EVENT_GAME_AUDIO_VOLUME, percent);
+        }
+        public void SendBetTurbo(bool enabled) // new 
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_BET_TURBO, enabled);
         }
         public void SendBetPlaced(long betValue)
         {
@@ -64,6 +80,30 @@ namespace Fireball.Game.Client.Modules
         {
             SendGCIEvent(FireballGCIEvent.EVENT_GAME_BET_UPDATE, betValue);
         }
+        public void SendBalanceUpdated(long balance) // new 
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_BALANCE_UPDATED, balance);
+        }
+        public void SendAutoplayStarted() // new 
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_AUTOPLAY_STARTED);
+        }
+        public void SendAutoplayComplete() // new 
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_AUTOPLAY_COMPLETE);
+        }
+        public void SendBonusFeatureStarted() // new 
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_BONUS_FEATURE_STARTED);
+        }
+        public void SendBonusFeatureComplete() // new 
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_BONUS_FEATURE_COMPLETE);
+        }
+        public void SendOpenUrl(string url) // new 
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_OPEN_URL, url);
+        }
         public void SendErrorMessage(string message)
         {
             SendGCIEvent(FireballGCIEvent.EVENT_GAME_ERROR_MESSAGE, message);
@@ -72,10 +112,12 @@ namespace Fireball.Game.Client.Modules
         {
             SendGCIEvent(FireballGCIEvent.EVENT_GAME_CLOSED);
         }
+
         public void SendIntegrationError(object message)
         {
             SendGCIEvent(FireballGCIEvent.EVENT_INTEGRATION_ERROR, message);
         }
+
         private void SendGCIEvent(string eventName, object eventValue = null)
         {
             _logger.Info($"GCI: SendEvent: {eventName} - {eventValue}");
@@ -90,30 +132,41 @@ namespace Fireball.Game.Client.Modules
                 var eventData = Newtonsoft.Json.JsonConvert.DeserializeObject<FireballGCIEvent>(eventJson);
                 switch (eventData.name)
                 {
-                    case FireballGCIEvent.EVENT_OPERATOR_STOP_AUTOPLAY:
-                        OnStopAutoplay?.Invoke();
-                        break;
-
                     case FireballGCIEvent.EVENT_OPERATOR_AUDIO_VOLUME:
                         float volume = eventData.value != null ? float.Parse(eventData.value.ToString()) : 0.0f;
                         OnAudioVolume?.Invoke(volume);
                         break;
-
+                    case FireballGCIEvent.EVENT_OPERATOR_BET_TURBO:
+                        bool enabled = eventData.value != null ? (bool)eventData.value : false;
+                        OnBetTurbo?.Invoke(enabled);
+                        break;
+                    case FireballGCIEvent.EVENT_OPERATOR_BET_PLACE:
+                        long betValue = eventData.value != null ? (long)eventData.value : 0;
+                        OnBetPlace?.Invoke(betValue);
+                        break;
+                    case FireballGCIEvent.EVENT_OPERATOR_BET_UPDATE:
+                        long newBetValue = eventData.value != null ? (long)eventData.value : 0;
+                        OnBetUpdate?.Invoke(newBetValue);
+                        break;
                     case FireballGCIEvent.EVENT_OPERATOR_UPDATE_BALANCE:
                         long balance = eventData.value != null ? (long)eventData.value : 0;
                         OnBalanceUpdated?.Invoke(balance);
                         break;
-
+                    case FireballGCIEvent.EVENT_OPERATOR_STOP_AUTOPLAY:
+                        OnStopAutoplay?.Invoke();
+                        break;
                     case FireballGCIEvent.EVENT_OPERATOR_VISIBLE_HELP:
                         bool visibleHelp = eventData.value != null ? (bool)eventData.value : true;
                         OnVisibleHelp?.Invoke(visibleHelp);
                         break;
-
                     case FireballGCIEvent.EVENT_OPERATOR_VISIBLE_PAYTABLE:
                         bool visiblePaytable = eventData.value != null ? (bool)eventData.value : true;
                         OnVisiblePaytable?.Invoke(visiblePaytable);
                         break;
-
+                    case FireballGCIEvent.EVENT_OPERATOR_PAUSE_GAME:
+                        bool pause = eventData.value != null ? (bool)eventData.value : false;
+                        OnPauseGame?.Invoke(pause);
+                        break;
                     default:
                         _logger.Warning($"GCI: ReceivedEvent: undefined event with name - {eventData?.name}");
                         break;

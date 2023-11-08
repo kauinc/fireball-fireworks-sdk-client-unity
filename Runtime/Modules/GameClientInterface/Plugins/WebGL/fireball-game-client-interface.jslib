@@ -48,10 +48,14 @@ var UnityGameClientInterface = {
                 if (fireballGCI) {
                     console.log("[FIREBALL-GCI] Init: fireballGCI.js = " + fireballGCI);
                     fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.AUDIO_VOLUME, unityGCI.sendEventToUnity);
-                    fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.STOP_AUTOPLAY, unityGCI.sendEventToUnity);
+                    fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.BET_TURBO, unityGCI.sendEventToUnity);
+                    fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.BET_PLACE, unityGCI.sendEventToUnity);
+                    fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.BET_UPDATE, unityGCI.sendEventToUnity);
                     fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.UPDATE_BALANCE, unityGCI.sendEventToUnity);
+                    fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.STOP_AUTOPLAY, unityGCI.sendEventToUnity);
                     fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.VISIBLE_HELP, unityGCI.sendEventToUnity);
                     fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.VISIBLE_PAYTABLE, unityGCI.sendEventToUnity);
+                    fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.PAUSE_GAME, unityGCI.sendEventToUnity);
                 }
                 else {
                     console.error("[FIREBALL-GCI] fireballGCI = null");
@@ -80,14 +84,23 @@ var UnityGameClientInterface = {
 
         if (fireballGCI) {
             switch (eventName) {
-                case FIREBALL_EVENTS.FROM_GAME.AUDIO_VOLUME:
-                    fireballGCI.gameAudioVolume(eventValue);
+                case FIREBALL_EVENTS.FROM_GAME.LOADING_STARTED:
+                    fireballGCI.gameLoadingStarted();
                     break;
                 case FIREBALL_EVENTS.FROM_GAME.LOADING_PROGRESS:
                     fireballGCI.gameLoadingProgress(eventValue);
                     break;
                 case FIREBALL_EVENTS.FROM_GAME.LOADING_COMPLETE:
                     fireballGCI.gameLoadingComplete();
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.READY_PLAY:
+                    fireballGCI.gameReadyToPlay();
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.AUDIO_VOLUME:
+                    fireballGCI.gameAudioVolume(eventValue);
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.BET_TURBO:
+                    fireballGCI.gameBetTurbo(eventValue);
                     break;
                 case FIREBALL_EVENTS.FROM_GAME.BET_PLACED:
                     fireballGCI.gameBetPlaced(eventValue);
@@ -97,6 +110,24 @@ var UnityGameClientInterface = {
                     break;
                 case FIREBALL_EVENTS.FROM_GAME.BET_UPDATE:
                     fireballGCI.gameBetUpdate(eventValue);
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.BALANCE_UPDATED:
+                    fireballGCI.gameBalanceUpdated(eventValue);
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.AUTOPLAY_STARTED:
+                    fireballGCI.gameAutoplayStarted();
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.AUTOPLAY_COMPLETE:
+                    fireballGCI.gameAutoplayComplete();
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.BONUS_FEATURE_STARTED:
+                    fireballGCI.gameBonusFeatureStarted(eventValue);
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.BONUS_FEATURE_COMPLETE:
+                    fireballGCI.gameBonusFeatureComplete(eventValue);
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.OPEN_URL:
+                    fireballGCI.gameOpenUrl(eventValue);
                     break;
                 case FIREBALL_EVENTS.FROM_GAME.ERROR_MESSAGE:
                     fireballGCI.gameErrorMessage(eventValue);
