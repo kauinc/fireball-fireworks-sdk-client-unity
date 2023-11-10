@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Fireball GCI Operator Page test</title>
+    <style>
+        body {
+            background-color: rgb(66, 66, 66);
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .logo {
+            margin: 0 auto;
+            width: 300px;
+        }
+
+        .url-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .url-input {
+            width: 300px;
+            padding: 5px;
+        }
+
+        .load-button {
+            padding: 5px 10px;
+        }
+
+        .iframe-container {
+            margin: 20px auto;
+            width: 800px;
+            height: 450px;
+            background-color: black;
+            border-radius: 8px;
+        }
+
+        .label {
+            color: white;
+        }
+
+        .button-row {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .button {
+            margin: 0 10px;
+            padding: 5px 10px;
+        }
+    </style>
+<body>
+    <div class="container">
+        <img class="logo" src="https://fireballserver.com/images/fireball/fireball-logo-new.png" alt="Logo">
+
+        <div class="url-container">
+            <input id="url-input" class="url-input" type="text" placeholder="Enter URL">
+            <button class="load-button" onclick=onClickLoadUrl()>Load</button>
+        </div>
+
+        <div class="iframe-container">
+            <iframe id="url-iframe" src="" frameborder="0" width="800px" height="450px"></iframe>
+        </div>
+
+        <p class="label">Operators GCI event:</p>
+        <div class="button-row">
+            <button class="button" onclick=onClickStopAutoplay()>Stop Autoplay</button>
+            <button class="button" onclick=onClickMuteAudio()>Mute Audio</button>
+            <button class="button" onclick=onClickUnmuteAudio()>Unmute Audio</button>
+            <button class="button" onclick=onClickShowHelp()>Show Help</button>
+            <button class="button" onclick=onClickShowPaytable()>Show Paytable</button>
+        </div>
+        <div class="url-container">
+            <input id="balance-input" class="url-input" type="text" placeholder="0">
+            <button class="load-button" onclick=onClickUpdateBalance()>Update Balance</button>
+        </div>
+
+    </div>
+
+    <script>
+        var _url = "";
+        var _mute = false;
+        var _showingHelp = false;
+        var _showingPaytable = false;
+        var _balance = 100000;
+        var _init = false;
+        var _fireballGCI = null;
+
+        var _iframe = document.getElementById("url-iframe");
+        var _urlInput = document.getElementById("url-input");
+        var _balanceInput = document.getElementById("balance-input");
+
+        _balanceInput.value = _balance;
+
+        function onClickLoadUrl() {
+            _url = _urlInput.value;
+            console.log("[OPERATOR-GCI] onClickLoadUrl: " + _url);
+            _iframe.src = _url;
+        }
+        function onClickUpdateBalance() {
+            _balance = +_balanceInput.value;
+            console.log("[OPERATOR-GCI] onClickUpdateBalance: " + _balance);
+            if (CheckInit()) {
+                _fireballGCI.operatorUpdateBalance(_balance);
+            }
+        }
+        function onClickStopAutoplay() {
+            console.log("[OPERATOR-GCI] onClickStopAutoplay");
+            if (CheckInit()) {
+                _fireballGCI.operatorStopAutoplay();
+            }
+        }
+        function onClickMuteAudio() {
+            console.log("[OPERATOR-GCI] onClickMuteAudio: " + _mute);
+            if (CheckInit()) {
+                _mute = true;
+                _fireballGCI.operatorAudioVolume(0);
+            }
+        }
+        function onClickUnmuteAudio() {
+            console.log("[OPERATOR-GCI] onClickUnmuteAudio: " + _mute);
+            if (CheckInit()) {
+                _mute = false;
+                _fireballGCI.operatorAudioVolume(1);
+            }
+        }
+        function onClickShowHelp() {
+            console.log("[OPERATOR-GCI] onClickShowHelp");
+            if (CheckInit()) {
+                _fireballGCI.operatorVisibleHelp(true);
+            }
+        }
+        function onClickShowPaytable() {
+            console.log("[OPERATOR-GCI] onClickShowPaytable");
+            if (CheckInit()) {
+                _fireballGCI.operatorVisiblePaytable(true);
+            }
+        }
+        function SendEventFromGame(event) {
+            var eventName = event.detail.name;
+            var eventValue = event.detail.value;
+
+            console.log("[OPERATOR-GCI] Received event from Game: " + eventName);
+            if(CheckInit()){
+                switch (eventName){
+                    case _iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.AUDIO_VOLUME: 
+                    //_mute = eventValue > 0;
+                    break;
+                }
+            }
+        }
+
+        function CheckInit() {
+            try {
+                if (_iframe.contentWindow.fireballGCI) {
+                    if (!_init) {
+                        _init = true;
+                        _fireballGCI = _iframe.contentWindow.fireballGCI;
+                        // subscribe for messages from game
+                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.AUDIO_VOLUME, SendEventFromGame);
+                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.LOADING_PROGRESS, SendEventFromGame);
+                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.LOADING_COMPLETE, SendEventFromGame);
+                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.BET_PLACED, SendEventFromGame);
+                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.BET_RESULT, SendEventFromGame);
+                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.BET_UPDATE, SendEventFromGame);
+                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.ERROR_MESSAGE, SendEventFromGame);
+                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.CLOSED, SendEventFromGame);
+                    } return true;
+                } else {
+                    console.error("[OPERATOR-GCI] fireballGCI = null");
+                }
+            }
+            catch (e) {
+                console.error("[OPERATOR-GCI] fireballGCI = null! ", e);
+            }
+
+            return false;
+        }
+    </script>
+</body>
+
+</html>

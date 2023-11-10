@@ -11,11 +11,16 @@ var FIREBALL_EVENTS = {
         BET_RESULT: "game_bet_result",
         BET_UPDATE: "game_bet_update",
         BALANCE_UPDATED: "game_balance_updated",
+        JACKPOT_UPDATED: "game_balance_updated",
         AUTOPLAY_STARTED: "game_autoplay_started",
         AUTOPLAY_COMPLETE: "game_autoplay_complete",
         BONUS_FEATURE_STARTED: "game_bonus_feature_started",
         BONUS_FEATURE_COMPLETE: "game_bonus_feature_complete",
         OPEN_URL: "game_open_url",
+        SPLASH_SCREEN_VISIBLE: "game_splash_screen_visible",
+        CONFIRM_VISIBLE: "game_confirm_visible",
+        BUY_FEATURE_VISIBLE: "game_confirm_visible",
+        OPEN_DEPOSIT_MENU: "game_open_deposit_menu",
         ERROR_MESSAGE: "game_error_message",
         CLOSED: "game_closed",
         INTEGRATION_ERROR: "integration_error",
@@ -29,7 +34,9 @@ var FIREBALL_EVENTS = {
         STOP_AUTOPLAY: "operator_stop_autoplay",
         VISIBLE_HELP: "operator_visible_help",
         VISIBLE_PAYTABLE: "operator_visible_paytable",
+        CONFIRMED_ACTION: "operator_confirmed_action",
         PAUSE_GAME: "operator_pause_game",
+        CLOSE_GAME: "operator_close_game",
     },
 };
 
@@ -78,6 +85,9 @@ var fireballGCI = function () {
         gameBalanceUpdated: function (balance) {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.BALANCE_UPDATED, balance);
         },
+        gameJackpotUpdated: function (jackpotDetails) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.JACKPOT_UPDATED, jackpotDetails);
+        },
         gameAutoplayStarted: function () {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.AUTOPLAY_STARTED);
         },
@@ -92,6 +102,18 @@ var fireballGCI = function () {
         },
         gameOpenUrl: function (url) {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.OPEN_URL, url);
+        },
+        gameSplashScreenVisible: function (visible) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.SPLASH_SCREEN_VISIBLE, visible);
+        },
+        gameConfirmVisible: function (visible) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.CONFIRM_VISIBLE, visible);
+        },
+        gameBuyFeatureVisible: function (visible) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.BUY_FEATURE_VISIBLE, visible);
+        },
+        gameOpenDepositMenu: function () {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.OPEN_DEPOSIT_MENU);
         },
         gameErrorMessage: function (message) {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.ERROR_MESSAGE, message);
@@ -128,8 +150,14 @@ var fireballGCI = function () {
         operatorVisiblePaytable: function (visible) {
             _dispatchEvent(FIREBALL_EVENTS.TO_GAME.VISIBLE_PAYTABLE, visible);
         },
+        operatorConfirmedAction: function () {
+            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.CONFIRMED_ACTION);
+        },
         operatorPauseGame: function (pause) {
             _dispatchEvent(FIREBALL_EVENTS.TO_GAME.PAUSE_GAME, pause);
+        },
+        operatorCloseGame: function () {
+            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.CLOSE_GAME);
         },
 
         // Subscribe to any event

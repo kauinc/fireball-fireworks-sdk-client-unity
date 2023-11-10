@@ -55,7 +55,9 @@ var UnityGameClientInterface = {
                     fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.STOP_AUTOPLAY, unityGCI.sendEventToUnity);
                     fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.VISIBLE_HELP, unityGCI.sendEventToUnity);
                     fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.VISIBLE_PAYTABLE, unityGCI.sendEventToUnity);
+                    fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.CONFIRMED_ACTION, unityGCI.sendEventToUnity);
                     fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.PAUSE_GAME, unityGCI.sendEventToUnity);
+                    fireballGCI.addEventListener(FIREBALL_EVENTS.TO_GAME.CLOSE_GAME, unityGCI.sendEventToUnity);
                 }
                 else {
                     console.error("[FIREBALL-GCI] fireballGCI = null");
@@ -114,6 +116,9 @@ var UnityGameClientInterface = {
                 case FIREBALL_EVENTS.FROM_GAME.BALANCE_UPDATED:
                     fireballGCI.gameBalanceUpdated(eventValue);
                     break;
+                case FIREBALL_EVENTS.FROM_GAME.JACKPOT_UPDATED:
+                    fireballGCI.gameJackpotUpdated(eventValue);
+                    break;
                 case FIREBALL_EVENTS.FROM_GAME.AUTOPLAY_STARTED:
                     fireballGCI.gameAutoplayStarted();
                     break;
@@ -128,6 +133,18 @@ var UnityGameClientInterface = {
                     break;
                 case FIREBALL_EVENTS.FROM_GAME.OPEN_URL:
                     fireballGCI.gameOpenUrl(eventValue);
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.SPLASH_SCREEN_VISIBLE:
+                    fireballGCI.gameSplashScreenVisible(eventValue);
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.CONFIRM_VISIBLE:
+                    fireballGCI.gameConfirmVisible(eventValue);
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.BUY_FEATURE_VISIBLE:
+                    fireballGCI.gameBuyFeatureVisible(eventValue);
+                    break;
+                case FIREBALL_EVENTS.FROM_GAME.OPEN_DEPOSIT_MENU:
+                    fireballGCI.gameOpenDepositMenu();
                     break;
                 case FIREBALL_EVENTS.FROM_GAME.ERROR_MESSAGE:
                     fireballGCI.gameErrorMessage(eventValue);
