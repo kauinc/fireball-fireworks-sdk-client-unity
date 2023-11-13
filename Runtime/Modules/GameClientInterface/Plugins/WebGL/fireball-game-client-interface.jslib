@@ -149,6 +149,9 @@ var UnityGameClientInterface = {
                 case FIREBALL_EVENTS.FROM_GAME.ERROR_MESSAGE:
                     fireballGCI.gameErrorMessage(eventValue);
                     break;
+                case FIREBALL_EVENTS.FROM_GAME.LOCK_INTERACTION:
+                    fireballGCI.gameLockInteraction(eventValue);
+                    break;
                 case FIREBALL_EVENTS.FROM_GAME.CLOSED:
                     fireballGCI.gameClosed();
                     break;

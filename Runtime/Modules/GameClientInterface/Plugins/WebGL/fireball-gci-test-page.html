@@ -55,6 +55,16 @@
             margin: 0 10px;
             padding: 5px 10px;
         }
+        .button-input-container{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+        }
+        .button-input{
+            width: 50px;
+            padding: 5px;
+        }
     </style>
 <body>
     <div class="container">
@@ -69,81 +79,152 @@
             <iframe id="url-iframe" src="" frameborder="0" width="800px" height="450px"></iframe>
         </div>
 
-        <p class="label">Operators GCI event:</p>
+        <p class="label">Operators GCI event - Settings:</p>
+        <div class="button-row">
+            <button class="button" id="pause-game" onclick=onClickPauseGame()>Pause</button>
+            <button class="button" id="audio-mute" onclick=onClickMuteAudio()>Mute</button>
+            <button class="button" id="bet-turbo" onclick=onClickToggleBetTurbo()>BetTurbo</button>
+            <button class="button" id="show-help" onclick=onClickShowHelp()>Show Help</button>
+            <button class="button" id="show-paytable" onclick=onClickShowPaytable()>Show Paytable</button>
+        </div>
+        <p class="label">Operators GCI event - Game:</p>
         <div class="button-row">
             <button class="button" onclick=onClickStopAutoplay()>Stop Autoplay</button>
-            <button class="button" onclick=onClickMuteAudio()>Mute Audio</button>
-            <button class="button" onclick=onClickUnmuteAudio()>Unmute Audio</button>
-            <button class="button" onclick=onClickShowHelp()>Show Help</button>
-            <button class="button" onclick=onClickShowPaytable()>Show Paytable</button>
+            <div class="button-input-container">
+                <input id="bet-input" class="button-input" type="text" placeholder="0">
+                <button id="bet-update" class="load-button" onclick=onClickUpdateBalance()>Update Bet</button>
+            </div>
+            <button class="button" id="bet-place" onclick=onClickPlaceBet()>Place Bet</button>
+            <div class="button-input-container">
+                <input id="balance-input" class="button-input" type="text" placeholder="0">
+                <button id="balance-update" class="load-button" onclick=onClickUpdateBalance()>Update Balance</button>
+            </div>
         </div>
-        <div class="url-container">
-            <input id="balance-input" class="url-input" type="text" placeholder="0">
-            <button class="load-button" onclick=onClickUpdateBalance()>Update Balance</button>
+        <p class="label">Operators GCI event - Control:</p>
+        <div class="button-row">
+            <button class="button" id="confirm-action" onclick=onClickConfirmAction()>Confirm Action</button>
+            <button class="button" id="close-game" onclick=onClickCloseGame()>Close Game</button>
         </div>
-
     </div>
 
     <script>
         var _url = "";
-        var _mute = false;
-        var _showingHelp = false;
-        var _showingPaytable = false;
-        var _balance = 100000;
         var _init = false;
         var _fireballGCI = null;
+        var _fireballEvents = null;
+
+        var _pause = false;
+        var _mute = false;
+        var _betTurbo = false;
+        var _showingHelp = false;
+        var _showingPaytable = false;
+
+        var _bet = 100;
+        var _balance = 100000;
 
         var _iframe = document.getElementById("url-iframe");
         var _urlInput = document.getElementById("url-input");
-        var _balanceInput = document.getElementById("balance-input");
+        
+        var _buttonPause = document.getElementById("pause-game");
+        var _buttonMute = document.getElementById("audio-mute");
+        var _buttonBetTurbo = document.getElementById("bet-turbo");
+        var _buttonShowHelp = document.getElementById("show-help");
+        var _buttonShowPaytable = document.getElementById("show-paytable");
 
-        _balanceInput.value = _balance;
+        var _betInput = document.getElementById("bet-input");
+        var _balanceInput = document.getElementById("balance-input");
+        
 
         function onClickLoadUrl() {
             _url = _urlInput.value;
             console.log("[OPERATOR-GCI] onClickLoadUrl: " + _url);
             _iframe.src = _url;
         }
-        function onClickUpdateBalance() {
-            _balance = +_balanceInput.value;
-            console.log("[OPERATOR-GCI] onClickUpdateBalance: " + _balance);
+
+        function onClickPauseGame(){
+            _pause = !_pause;
+            UpdateUI();
+            console.log("[OPERATOR-GCI] onClickPauseGame: "+_pause);
             if (CheckInit()) {
-                _fireballGCI.operatorUpdateBalance(_balance);
+                _fireballGCI.operatorPauseGame(_pause);
             }
         }
+        function onClickMuteAudio() {
+            _mute = !_mute;
+            UpdateUI();
+            console.log("[OPERATOR-GCI] onClickMuteAudio: " + _mute);
+            if (CheckInit()) {
+                _fireballGCI.operatorAudioVolume(_mute? 0 : 1);
+            }
+        }
+        function onClickToggleBetTurbo(){
+            _betTurbo = !_betTurbo;
+            UpdateUI();
+            console.log("[OPERATOR-GCI] onClickToggleBetTurbo: "+_betTurbo);
+            if (CheckInit()) {
+                _fireballGCI.operatorBetTurbo(_betTurbo);
+            }
+        }
+        function onClickShowHelp() {
+            _showingHelp = !_showingHelp;
+            UpdateUI();
+            console.log("[OPERATOR-GCI] onClickShowHelp: "+_showingHelp);
+            if (CheckInit()) {
+                _fireballGCI.operatorVisibleHelp(_showingHelp);
+            }
+        }
+        function onClickShowPaytable() {
+            _showingPaytable = !_showingPaytable;
+            UpdateUI();
+            console.log("[OPERATOR-GCI] onClickShowPaytable: "+_showingPaytable);
+            if (CheckInit()) {
+                _fireballGCI.operatorVisiblePaytable(_showingPaytable);
+            }
+        }
+        
         function onClickStopAutoplay() {
             console.log("[OPERATOR-GCI] onClickStopAutoplay");
             if (CheckInit()) {
                 _fireballGCI.operatorStopAutoplay();
             }
         }
-        function onClickMuteAudio() {
-            console.log("[OPERATOR-GCI] onClickMuteAudio: " + _mute);
+        function onClickUpdateBet() {
+            _bet = +_betInput.value;
+            UpdateUI();
+            console.log("[OPERATOR-GCI] onClickUpdateBet: " + _bet);
             if (CheckInit()) {
-                _mute = true;
-                _fireballGCI.operatorAudioVolume(0);
+                _fireballGCI.operatorBetUpdate(_bet);
             }
         }
-        function onClickUnmuteAudio() {
-            console.log("[OPERATOR-GCI] onClickUnmuteAudio: " + _mute);
+        function onClickPlaceBet(){
+            console.log("[OPERATOR-GCI] onClickPlaceBet: " + _bet);
             if (CheckInit()) {
-                _mute = false;
-                _fireballGCI.operatorAudioVolume(1);
+                _fireballGCI.operatorBetPlace(_bet);
             }
         }
-        function onClickShowHelp() {
-            console.log("[OPERATOR-GCI] onClickShowHelp");
+        function onClickUpdateBalance() {
+            _balance = +_balanceInput.value;
+            UpdateUI();
+            console.log("[OPERATOR-GCI] onClickUpdateBalance: " + _balance);
             if (CheckInit()) {
-                _fireballGCI.operatorVisibleHelp(true);
+                _fireballGCI.operatorUpdateBalance(_balance);
             }
         }
-        function onClickShowPaytable() {
-            console.log("[OPERATOR-GCI] onClickShowPaytable");
+
+        function onClickConfirmAction() {
+            console.log("[OPERATOR-GCI] onClickConfirmAction");
             if (CheckInit()) {
-                _fireballGCI.operatorVisiblePaytable(true);
+                _fireballGCI.operatorConfirmedAction();
             }
         }
-        function SendEventFromGame(event) {
+        function onClickCloseGame() {
+            console.log("[OPERATOR-GCI] onClickCloseGame");
+            if (CheckInit()) {
+                _fireballGCI.operatorCloseGame();
+            }
+        }
+
+        function ReceiveEventFromGame(event) {
             var eventName = event.detail.name;
             var eventValue = event.detail.value;
 
@@ -157,32 +238,47 @@
             }
         }
 
+        function UpdateUI(){
+            _buttonPause.innerText = "Pause: "+_pause;
+            _buttonMute.innerText = "Mute: "+_mute;
+            _buttonBetTurbo.innerText = "BetTurbo: "+_betTurbo;
+            _buttonShowHelp.innerHTML = _showingHelp ? "Hide Help" : "Show Help";
+            _buttonShowPaytable.innerHTML = _showingPaytable ? "Hide Paytable" : "Show Paytable";
+
+            _betInput.value = +_bet;
+            _balanceInput.value = +_balance;
+        }
+
         function CheckInit() {
             try {
                 if (_iframe.contentWindow.fireballGCI) {
                     if (!_init) {
                         _init = true;
                         _fireballGCI = _iframe.contentWindow.fireballGCI;
+                        _fireballEvents = _iframe.contentWindow.FIREBALL_EVENTS;
                         // subscribe for messages from game
-                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.AUDIO_VOLUME, SendEventFromGame);
-                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.LOADING_PROGRESS, SendEventFromGame);
-                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.LOADING_COMPLETE, SendEventFromGame);
-                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.BET_PLACED, SendEventFromGame);
-                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.BET_RESULT, SendEventFromGame);
-                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.BET_UPDATE, SendEventFromGame);
-                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.ERROR_MESSAGE, SendEventFromGame);
-                        _fireballGCI.addEventListener(_iframe.contentWindow.FIREBALL_EVENTS.FROM_GAME.CLOSED, SendEventFromGame);
-                    } return true;
-                } else {
+                        _fireballGCI.addEventListener(_fireballEvents.FROM_GAME.AUDIO_VOLUME, ReceiveEventFromGame);
+                        _fireballGCI.addEventListener(_fireballEvents.FROM_GAME.LOADING_PROGRESS, ReceiveEventFromGame);
+                        _fireballGCI.addEventListener(_fireballEvents.FROM_GAME.LOADING_COMPLETE, ReceiveEventFromGame);
+                        _fireballGCI.addEventListener(_fireballEvents.FROM_GAME.BET_PLACED, ReceiveEventFromGame);
+                        _fireballGCI.addEventListener(_fireballEvents.FROM_GAME.BET_RESULT, ReceiveEventFromGame);
+                        _fireballGCI.addEventListener(_fireballEvents.FROM_GAME.BET_UPDATE, ReceiveEventFromGame);
+                        _fireballGCI.addEventListener(_fireballEvents.FROM_GAME.ERROR_MESSAGE, ReceiveEventFromGame);
+                        _fireballGCI.addEventListener(_fireballEvents.FROM_GAME.CLOSED, ReceiveEventFromGame);
+                    } 
+                    return true;
+                } 
+                else {
                     console.error("[OPERATOR-GCI] fireballGCI = null");
                 }
             }
             catch (e) {
                 console.error("[OPERATOR-GCI] fireballGCI = null! ", e);
             }
-
             return false;
         }
+
+        UpdateUI();
     </script>
 </body>
 

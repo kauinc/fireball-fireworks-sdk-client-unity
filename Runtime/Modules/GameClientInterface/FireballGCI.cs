@@ -364,6 +364,15 @@ namespace Fireball.Game.Client.Modules
         }
 
         /// <summary>
+        /// Sends during long in-game win animations or game feature mechanics that blocks player interaction with game
+        /// </summary>
+        /// <param name="locked"></param>
+        public void SendLockInteraction(bool locked)
+        {
+            SendGCIEvent(FireballGCIEvent.EVENT_GAME_LOCK_INTERACTION, locked);
+        }
+
+        /// <summary>
         /// Sends when game fully closed
         /// </summary>
         public void SendGameClosed()

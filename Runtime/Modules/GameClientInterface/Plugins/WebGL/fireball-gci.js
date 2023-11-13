@@ -11,7 +11,7 @@ var FIREBALL_EVENTS = {
         BET_RESULT: "game_bet_result",
         BET_UPDATE: "game_bet_update",
         BALANCE_UPDATED: "game_balance_updated",
-        JACKPOT_UPDATED: "game_balance_updated",
+        JACKPOT_UPDATED: "game_jackpot_updated",
         AUTOPLAY_STARTED: "game_autoplay_started",
         AUTOPLAY_COMPLETE: "game_autoplay_complete",
         BONUS_FEATURE_STARTED: "game_bonus_feature_started",
@@ -22,6 +22,7 @@ var FIREBALL_EVENTS = {
         BUY_FEATURE_VISIBLE: "game_confirm_visible",
         OPEN_DEPOSIT_MENU: "game_open_deposit_menu",
         ERROR_MESSAGE: "game_error_message",
+        LOCK_INTERACTION: "game_lock_interaction",
         CLOSED: "game_closed",
         INTEGRATION_ERROR: "integration_error",
     },
@@ -117,6 +118,9 @@ var fireballGCI = function () {
         },
         gameErrorMessage: function (message) {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.ERROR_MESSAGE, message);
+        },
+        gameLockInteraction: function (lock) {
+            _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.LOCK_INTERACTION, lock);
         },
         gameClosed: function () {
             _dispatchEvent(FIREBALL_EVENTS.FROM_GAME.CLOSED);

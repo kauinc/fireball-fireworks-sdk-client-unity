@@ -26,7 +26,7 @@
         public const string EVENT_GAME_BET_RESULT = "game_bet_result";
         public const string EVENT_GAME_BET_UPDATE = "game_bet_update";
         public const string EVENT_GAME_BALANCE_UPDATED = "game_balance_updated";// added 
-        public const string EVENT_GAME_JACKPOT_UPDATED = "game_balance_updated";// added 
+        public const string EVENT_GAME_JACKPOT_UPDATED = "game_jackpot_updated";// added 
         public const string EVENT_GAME_AUTOPLAY_STARTED = "game_autoplay_started";// added 
         public const string EVENT_GAME_AUTOPLAY_COMPLETE = "game_autoplay_complete";// added 
         public const string EVENT_GAME_BONUS_FEATURE_STARTED = "game_bonus_feature_started";// added 
@@ -37,6 +37,7 @@
         public const string EVENT_GAME_BUY_FEATURE_VISIBLE = "game_confirm_visible";// added 
         public const string EVENT_GAME_OPEN_DEPOSIT_MENU = "game_open_deposit_menu";// added 
         public const string EVENT_GAME_ERROR_MESSAGE = "game_error_message";
+        public const string EVENT_GAME_LOCK_INTERACTION = "game_lock_interaction";
         public const string EVENT_GAME_CLOSED = "game_closed";
 
         public const string EVENT_INTEGRATION_ERROR = "integration_error";
