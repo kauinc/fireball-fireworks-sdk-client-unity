@@ -8,6 +8,13 @@ using System.Runtime.InteropServices;
 
 namespace Fireball.Game.Client.Modules
 {
+    public enum VisibilityOption
+    {
+        Hide = 0,
+        Show = 1,
+        Toggle = 2,
+    }
+
     public class FireballGCI
     {
         private static FireballGCI _instance = null;
@@ -72,12 +79,12 @@ namespace Fireball.Game.Client.Modules
         /// <summary>
         /// Operator's page ask game to show/hide in game Help page/popup/screen.
         /// </summary>
-        public Action<bool> OnVisibleHelp;
+        public Action<VisibilityOption> OnVisibleHelp;
 
         /// <summary>
         /// Operator's page ask game to show/hide in game Paytable page/popup/screen.
         /// </summary>
-        public Action<bool> OnVisiblePaytable;
+        public Action<VisibilityOption> OnVisiblePaytable;
 
         /// <summary>
         /// Operator's page ask game to confirm and close previosly opened popup/screen. Used with event sent by game client:
@@ -133,11 +140,11 @@ namespace Fireball.Game.Client.Modules
                         OnStopAutoplay?.Invoke();
                         break;
                     case FireballGCIEvent.EVENT_OPERATOR_VISIBLE_HELP:
-                        bool visibleHelp = eventData.value != null ? (bool)eventData.value : true;
+                        VisibilityOption visibleHelp = eventData.value != null ? (VisibilityOption)(int)eventData.value : VisibilityOption.Toggle;
                         OnVisibleHelp?.Invoke(visibleHelp);
                         break;
                     case FireballGCIEvent.EVENT_OPERATOR_VISIBLE_PAYTABLE:
-                        bool visiblePaytable = eventData.value != null ? (bool)eventData.value : true;
+                        VisibilityOption visiblePaytable = eventData.value != null ? (VisibilityOption)(int)eventData.value : VisibilityOption.Toggle;
                         OnVisiblePaytable?.Invoke(visiblePaytable);
                         break;
                     case FireballGCIEvent.EVENT_OPERATOR_CONFIRMED_ACTION:
@@ -365,6 +372,7 @@ namespace Fireball.Game.Client.Modules
 
         /// <summary>
         /// Sends during long in-game win animations or game feature mechanics that blocks player interaction with game
+        /// <code>NOTE:</code> supported only by some operators
         /// </summary>
         /// <param name="locked"></param>
         public void SendLockInteraction(bool locked)

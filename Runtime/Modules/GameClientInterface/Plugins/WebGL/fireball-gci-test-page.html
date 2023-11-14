@@ -139,8 +139,8 @@
         var _pause = false;
         var _mute = false;
         var _betTurbo = false;
-        var _showingHelp = false;
-        var _showingPaytable = false;
+        var _showingHelp = 0;
+        var _showingPaytable = 0;
 
         var _bet = 100;
         var _balance = 100000;
@@ -294,8 +294,8 @@
             _buttonPause.innerText = "Pause: " + _pause;
             _buttonMute.innerText = "Mute: " + _mute;
             _buttonBetTurbo.innerText = "BetTurbo: " + _betTurbo;
-            _buttonShowHelp.innerHTML = _showingHelp ? "Hide Help" : "Show Help";
-            _buttonShowPaytable.innerHTML = _showingPaytable ? "Hide Paytable" : "Show Paytable";
+            _buttonShowHelp.innerHTML = _showingHelp == 1 ? "Hide Help" : "Show Help";
+            _buttonShowPaytable.innerHTML = _showingPaytable == 1 ? "Hide Paytable" : "Show Paytable";
 
             _betInput.value = +_bet;
             _balanceInput.value = +_balance;
