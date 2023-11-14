@@ -108,7 +108,7 @@
             <button class="button" onclick=onClickStopAutoplay()>Stop Autoplay</button>
             <div class="button-input-container">
                 <input id="bet-input" class="button-input" type="text" placeholder="0">
-                <button id="bet-update" class="load-button" onclick=onClickUpdateBalance()>Update Bet</button>
+                <button id="bet-update" class="load-button" onclick=onClickUpdateBet()>Update Bet</button>
             </div>
             <button class="button" id="bet-place" onclick=onClickPlaceBet()>Place Bet</button>
             <div class="button-input-container">
@@ -139,8 +139,8 @@
         var _pause = false;
         var _mute = false;
         var _betTurbo = false;
-        var _showingHelp = 0;
-        var _showingPaytable = 0;
+        var _showingHelp = 2;
+        var _showingPaytable = 2;
 
         var _bet = 100;
         var _balance = 100000;
@@ -162,6 +162,8 @@
             _url = _urlInput.value;
             console.log("[OPERATOR-GCI] onClickLoadUrl: " + _url);
             _iframe.src = _url;
+
+            AutoInit();
         }
 
         function onClickPauseGame() {
@@ -189,7 +191,7 @@
             }
         }
         function onClickShowHelp() {
-            _showingHelp = !_showingHelp;
+            _showingHelp = 2; //!_showingHelp;
             UpdateUI();
             console.log("[OPERATOR-GCI] onClickShowHelp: " + _showingHelp);
             if (CheckInit()) {
@@ -197,7 +199,7 @@
             }
         }
         function onClickShowPaytable() {
-            _showingPaytable = !_showingPaytable;
+            _showingPaytable = 2; //!_showingPaytable;
             UpdateUI();
             console.log("[OPERATOR-GCI] onClickShowPaytable: " + _showingPaytable);
             if (CheckInit()) {
@@ -294,11 +296,19 @@
             _buttonPause.innerText = "Pause: " + _pause;
             _buttonMute.innerText = "Mute: " + _mute;
             _buttonBetTurbo.innerText = "BetTurbo: " + _betTurbo;
-            _buttonShowHelp.innerHTML = _showingHelp == 1 ? "Hide Help" : "Show Help";
-            _buttonShowPaytable.innerHTML = _showingPaytable == 1 ? "Hide Paytable" : "Show Paytable";
+            _buttonShowHelp.innerHTML = _showingHelp == 2 ? "Toggle Help" : (_showingHelp == 1 ? "Hide Help" : "Show Help");
+            _buttonShowPaytable.innerHTML = _showingHelp == 2 ? "Toggle Paytable" : (_showingPaytable == 1 ? "Hide Paytable" : "Show Paytable");
 
             _betInput.value = +_bet;
             _balanceInput.value = +_balance;
+        }
+
+        function AutoInit() {
+            if (!CheckInit()) {
+                setTimeout(() => {
+                    AutoInit();
+                }, 100);
+            }
         }
 
         function CheckInit() {

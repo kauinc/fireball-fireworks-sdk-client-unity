@@ -79,12 +79,12 @@ namespace Fireball.Game.Client.Modules
         public Action OnStopAutoplay;
 
         /// <summary>
-        /// Operator's page ask game to show/hide/toggle in game Help page/popup/screen.
+        /// Operator's page ask game to show/hide/toggle in game Help screen.
         /// </summary>
         public Action<VisibilityOption> OnVisibleHelp;
 
         /// <summary>
-        /// Operator's page ask game to show/hide/toggle in game Paytable page/popup/screen.
+        /// Operator's page ask game to show/hide/toggle in game Paytable screen.
         /// </summary>
         public Action<VisibilityOption> OnVisiblePaytable;
 
@@ -141,11 +141,11 @@ namespace Fireball.Game.Client.Modules
                         OnStopAutoplay?.Invoke();
                         break;
                     case FireballGCIEvent.EVENT_OPERATOR_VISIBLE_HELP:
-                        VisibilityOption visibleHelp = eventData.value != null ? (VisibilityOption)(int)eventData.value : VisibilityOption.Toggle;
+                        VisibilityOption visibleHelp = eventData.value != null ? (VisibilityOption)(long)eventData.value : VisibilityOption.Toggle;
                         OnVisibleHelp?.Invoke(visibleHelp);
                         break;
                     case FireballGCIEvent.EVENT_OPERATOR_VISIBLE_PAYTABLE:
-                        VisibilityOption visiblePaytable = eventData.value != null ? (VisibilityOption)(int)eventData.value : VisibilityOption.Toggle;
+                        VisibilityOption visiblePaytable = eventData.value != null ? (VisibilityOption)(long)eventData.value : VisibilityOption.Toggle;
                         OnVisiblePaytable?.Invoke(visiblePaytable);
                         break;
                     case FireballGCIEvent.EVENT_OPERATOR_CONFIRMED_ACTION:
@@ -440,6 +440,11 @@ namespace Fireball.Game.Client.Modules
             {
                 TemplateId = templateId;
                 Value = value;
+            }
+
+            public override string ToString()
+            {
+                return Newtonsoft.Json.JsonConvert.SerializeObject(this);
             }
         }
     }

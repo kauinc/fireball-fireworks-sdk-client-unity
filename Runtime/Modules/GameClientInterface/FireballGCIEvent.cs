@@ -37,7 +37,7 @@
         public const string EVENT_GAME_BUY_FEATURE_VISIBLE = "game_confirm_visible";// added 
         public const string EVENT_GAME_OPEN_DEPOSIT_MENU = "game_open_deposit_menu";// added 
         public const string EVENT_GAME_ERROR_MESSAGE = "game_error_message";
-        public const string EVENT_GAME_LOCK_INTERACTION = "game_lock_interaction";
+        public const string EVENT_GAME_LOCK_INTERACTION = "game_lock_interaction";// added 
         public const string EVENT_GAME_CLOSED = "game_closed";
 
         public const string EVENT_INTEGRATION_ERROR = "integration_error";
