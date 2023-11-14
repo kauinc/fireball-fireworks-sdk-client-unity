@@ -67,9 +67,11 @@ namespace Fireball.Game.Client.Modules
         public Action<long> OnBetUpdate; // new
 
         /// <summary>
-        /// Operator's page send updated balance outside the game. Ex: after player makes deposit. Balance value sends in cents.
+        /// Operator's page send request about balance have been changed outside the game (ex: after player makes deposit).
+        /// Game need to ask remote server for new updated balance and after notify operator with game event:
+        /// <code>SendBalanceUpdated(balance)</code>
         /// </summary>
-        public Action<long> OnBalanceUpdated;
+        public Action OnBalanceUpdated;
 
         /// <summary>
         /// Operator's page ask game to stop autoplay.
@@ -77,12 +79,12 @@ namespace Fireball.Game.Client.Modules
         public Action OnStopAutoplay;
 
         /// <summary>
-        /// Operator's page ask game to show/hide in game Help page/popup/screen.
+        /// Operator's page ask game to show/hide/toggle in game Help page/popup/screen.
         /// </summary>
         public Action<VisibilityOption> OnVisibleHelp;
 
         /// <summary>
-        /// Operator's page ask game to show/hide in game Paytable page/popup/screen.
+        /// Operator's page ask game to show/hide/toggle in game Paytable page/popup/screen.
         /// </summary>
         public Action<VisibilityOption> OnVisiblePaytable;
 
@@ -133,8 +135,7 @@ namespace Fireball.Game.Client.Modules
                         OnBetUpdate?.Invoke(newBetValue);
                         break;
                     case FireballGCIEvent.EVENT_OPERATOR_UPDATE_BALANCE:
-                        long balance = eventData.value != null ? (long)eventData.value : 0;
-                        OnBalanceUpdated?.Invoke(balance);
+                        OnBalanceUpdated?.Invoke();
                         break;
                     case FireballGCIEvent.EVENT_OPERATOR_STOP_AUTOPLAY:
                         OnStopAutoplay?.Invoke();

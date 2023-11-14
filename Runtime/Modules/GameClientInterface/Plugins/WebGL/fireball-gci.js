@@ -142,8 +142,8 @@ var fireballGCI = function () {
         operatorBetUpdate: function (betValue) {
             _dispatchEvent(FIREBALL_EVENTS.TO_GAME.BET_UPDATE, betValue);
         },
-        operatorUpdateBalance: function (balance) {
-            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.UPDATE_BALANCE, balance);
+        operatorUpdateBalance: function () {
+            _dispatchEvent(FIREBALL_EVENTS.TO_GAME.UPDATE_BALANCE);
         },
         operatorStopAutoplay: function () {
             _dispatchEvent(FIREBALL_EVENTS.TO_GAME.STOP_AUTOPLAY);
