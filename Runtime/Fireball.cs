@@ -275,6 +275,11 @@ namespace Fireball.Game.Client
             }
         }
 
+        public void GetBalance(BalanceRequest request, Action<BalanceResponse> onSuccess = null, Action<ErrorResponse> onError = null)
+        {
+            SendRequest<BalanceRequest, BalanceResponse>(request, onSuccess, onError);
+        }
+
         public void SendPing() =>
             Communicator.SendPOST(URLRouter, new PingRequest(_currentSession));
 
