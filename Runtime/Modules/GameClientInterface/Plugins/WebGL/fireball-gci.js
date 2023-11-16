@@ -19,7 +19,7 @@ var FIREBALL_EVENTS = {
         OPEN_URL: "game_open_url",
         SPLASH_SCREEN_VISIBLE: "game_splash_screen_visible",
         CONFIRM_VISIBLE: "game_confirm_visible",
-        BUY_FEATURE_VISIBLE: "game_confirm_visible",
+        BUY_FEATURE_VISIBLE: "game_buy_feature_visible",
         OPEN_DEPOSIT_MENU: "game_open_deposit_menu",
         ERROR_MESSAGE: "game_error_message",
         LOCK_INTERACTION: "game_lock_interaction",

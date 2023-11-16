@@ -34,7 +34,7 @@
         public const string EVENT_GAME_OPEN_URL = "game_open_url";// added
         public const string EVENT_GAME_SPLASH_SCREEN_VISIBLE = "game_splash_screen_visible";// added 
         public const string EVENT_GAME_CONFIRM_VISIBLE = "game_confirm_visible";// added 
-        public const string EVENT_GAME_BUY_FEATURE_VISIBLE = "game_confirm_visible";// added 
+        public const string EVENT_GAME_BUY_FEATURE_VISIBLE = "game_buy_feature_visible";// added 
         public const string EVENT_GAME_OPEN_DEPOSIT_MENU = "game_open_deposit_menu";// added 
         public const string EVENT_GAME_ERROR_MESSAGE = "game_error_message";
         public const string EVENT_GAME_LOCK_INTERACTION = "game_lock_interaction";// added 
