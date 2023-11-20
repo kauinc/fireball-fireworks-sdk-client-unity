@@ -1,5 +1,8 @@
-﻿#if UNITY_WEBGL
+﻿using System;
+
+#if UNITY_WEBGL
 using System.Runtime.InteropServices;
+using AOT;
 #endif
 
 namespace Fireball.Game.Client.Modules
@@ -41,6 +44,8 @@ namespace Fireball.Game.Client.Modules
 
         [DllImport("__Internal")] private static extern bool inIFrame();
         [DllImport("__Internal")] private static extern bool isFullScreen();
+        [DllImport("__Internal")] private static extern bool isTabActive();
+        [DllImport("__Internal")] private static extern void onTabVisibility(Action<int> callback);
         [DllImport("__Internal")] private static extern void enterFullScreen();
         [DllImport("__Internal")] private static extern void exitFullScreen();
 
@@ -96,6 +101,24 @@ namespace Fireball.Game.Client.Modules
 
         public static bool InIFrame => inIFrame();
         public static bool IsFullScreen => isFullScreen();
+        public static bool IsTabActive => isTabActive();
+
+        private static Action<bool> _tabVisibilityCallback;
+
+        [MonoPInvokeCallback(typeof(Action<int>))]
+        public static void TabVisibilityCallback(int visible)
+        {
+            _tabVisibilityCallback?.Invoke(visible == 1);
+        }
+        public static void OnTabVisibility(Action<bool> callback)
+        {
+            _tabVisibilityCallback += callback;
+            onTabVisibility(TabVisibilityCallback);
+        }
+        public static void RemoveTabVisibility(Action<bool> callback)
+        {
+            _tabVisibilityCallback -= callback;
+        }
         public static void ToggleFullScreen()
         {
             UnityEngine.Debug.Log($"[WINDOW] IsFullScreen = {IsFullScreen}");
@@ -155,6 +178,9 @@ namespace Fireball.Game.Client.Modules
 
         public static bool InIFrame => false;
         public static bool IsFullScreen => false;
+        public static bool IsTabActive => true;
+        public static void OnTabVisibility(Action<bool> callback) { }
+        public static void RemoveTabVisibility(Action<bool> callback) { }
         public static void ToggleFullScreen() { }
         public static void EnterFullScreen() { }
         public static void ExitFullScreen() { }
@@ -162,5 +188,6 @@ namespace Fireball.Game.Client.Modules
         public static void ReloadPage() { }
 
 #endif
+
     }
 }

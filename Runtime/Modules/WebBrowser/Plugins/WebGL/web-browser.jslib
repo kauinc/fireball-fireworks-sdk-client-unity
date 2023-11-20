@@ -3,6 +3,7 @@ var unityWebBrowser = {
     // TAKED FROM IS.JS LIBRARY
     // https://github.com/arasatasaygin/is.js/blob/master/is.js
     $browser: {
+        isTabActive: true,
         userAgent: function () {
             return (window.navigator && window.navigator.userAgent || '').toLowerCase();
         },
@@ -13,6 +14,8 @@ var unityWebBrowser = {
             return (window.navigator && window.navigator.vendor || '').toLowerCase();
         },
     },
+
+
 
     userAgent: function () {
         return browser.userAgent();
@@ -150,6 +153,18 @@ var unityWebBrowser = {
         else return true;
     },
 
+    isTabActive: function(){
+        return browser.isTabActive;
+    },
+
+    onTabVisibility: function (callback) {
+        document.addEventListener("visibilitychange",
+            () => {
+                browser.isTabActive = document.visibilityState == "visible";
+                dynCall_vi(callback, browser.isTabActive);
+            });
+    },
+
     enterFullScreen: function () {
         var element = document.body;
         try {
@@ -204,6 +219,8 @@ var unityWebBrowser = {
             window.location.reload();
         }
     },
+
+
 };
 
 autoAddDeps(unityWebBrowser, '$browser');
