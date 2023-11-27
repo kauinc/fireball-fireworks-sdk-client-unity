@@ -8,6 +8,7 @@ namespace Fireball.Game.Client.Models
     public class BaseResponse : BaseMessage
     {
         public Dictionary<string, object> client_side;
+        public int Variant = 1;
 
         public T GetClientVariables<T>() where T : class
         {
