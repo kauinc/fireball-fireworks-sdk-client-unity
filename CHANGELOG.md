@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.5] - 2023-11-30
+- added game variants support
+- added get balance
+- updated GCI events from operator and from game
+- updated multiplayer broadcast messages listener
+
 ## [0.8.4] - 2023-09-15
 - added free bets details
 - added gci integration error event
