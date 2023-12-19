@@ -1,10 +1,7 @@
 {
-    "name": "Fireball.Game.Client",
+    "name": "BestHTTP",
     "rootNamespace": "",
-    "references": [
-        "GUID:e92b2da13722040cc98ad801da181a46",
-        "GUID:a2f4d7126634f49cdb7e9842821df1a9"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,

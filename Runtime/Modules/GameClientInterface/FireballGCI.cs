@@ -22,18 +22,18 @@ namespace Fireball.Game.Client.Modules
         public delegate void EventJsonDelegate(System.IntPtr ptr);
         private static event Action<string> OnReceivedEventJson;
 
-        private IFireballLogger _logger = null;
+        //private IFireballLogger _logger = null;
 
-        private FireballGCI(IFireballLogger logger)
+        private FireballGCI()//IFireballLogger logger)
         {
-            _logger = logger;
+            //_logger = logger;
         }
 
-        internal static FireballGCI GetInstance(IFireballLogger logger)
+        public static FireballGCI GetInstance()//IFireballLogger logger)
         {
             if (_instance == null)
             {
-                _instance = new FireballGCI(logger);
+                _instance = new FireballGCI();// logger);
                 init(onEventRecieved);
                 OnReceivedEventJson += _instance.ParseReceivedEventJson;
             }
@@ -114,7 +114,7 @@ namespace Fireball.Game.Client.Modules
         {
             try
             {
-                _logger.Info($"GCI: ReceivedEvent: {eventJson}");
+                Debug.Log($"[Fireball] GCI: ReceivedEvent: {eventJson}");
                 var eventData = Newtonsoft.Json.JsonConvert.DeserializeObject<FireballGCIEvent>(eventJson);
                 switch (eventData.name)
                 {
@@ -159,13 +159,13 @@ namespace Fireball.Game.Client.Modules
                         OnCloseGame?.Invoke();
                         break;
                     default:
-                        _logger.Warning($"GCI: ReceivedEvent: undefined event with name - {eventData?.name}");
+                        Debug.LogWarning($"[Fireball] GCI: ReceivedEvent: undefined event with name - {eventData?.name}");
                         break;
                 }
             }
             catch (Exception e)
             {
-                _logger.Error($"GCI: Events Receiver Exception: {e}");
+                Debug.LogError($"[Fireball] GCI: Events Receiver Exception: {e}");
             }
         }
 
@@ -405,7 +405,7 @@ namespace Fireball.Game.Client.Modules
         /// <param name="eventValue"></param>
         private void SendGCIEvent(string eventName, object eventValue = null)
         {
-            _logger.Info($"GCI: SendEvent: {eventName} - {eventValue}");
+            Debug.Log($"[Fireball] GCI: SendEvent: {eventName} - {eventValue}");
             var eventData = new FireballGCIEvent(eventName, eventValue);
             sendFireballGCIEvent(eventData.ToJson());
         }

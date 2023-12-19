@@ -10,22 +10,22 @@ namespace Fireball.Game.Client.Modules
     public class WebLocation
     {
         /*
-     * https://some.domain.com:port/path/to/resource/resourceName.html?name=Foobar&id=3#HashString
-     * | #1 |  |     #2      | |#3||          #4                     ||      #5       ||    #6   |
-     *         |        #7        |
-     * |            #8            |
-     * |                                          #9                                             |
-     * #1: location.protocol  "https:"
-     * #2: location.hostname  "some.domain.com"
-     * #3: location.port      "port"
-     * #4: location.pathname  "/path/to/resource/resourceName.html"
-     * #5: location.search    "?name=Foobar&id=3"
-     * #6: location.hash      "#HashString"
-     * 
-     * #7: location.host      "some.domain.com:port"
-     * #8: location.origin    "https://some.domain.com:port"
-     * #9: location.href      "*full URL*"
-    **/
+        * https://some.domain.com:port/path/to/resource/resourceName.html?name=Foobar&id=3#HashString
+        * | #1 |  |     #2      | |#3||          #4                     ||      #5       ||    #6   |
+        *         |        #7        |
+        * |            #8            |
+        * |                                          #9                                             |
+        * #1: location.protocol  "https:"
+        * #2: location.hostname  "some.domain.com"
+        * #3: location.port      "port"
+        * #4: location.pathname  "/path/to/resource/resourceName.html"
+        * #5: location.search    "?name=Foobar&id=3"
+        * #6: location.hash      "#HashString"
+        * 
+        * #7: location.host      "some.domain.com:port"
+        * #8: location.origin    "https://some.domain.com:port"
+        * #9: location.href      "*full URL*"
+        */
 
         private static char[] _splitChars = new char[] { '&' };
 

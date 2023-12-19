@@ -1,3 +1,0 @@
-0.0.4 (pre-release)
-
-Source:https://github.com/evanlindsey/Unity-WebGL-SignalR
