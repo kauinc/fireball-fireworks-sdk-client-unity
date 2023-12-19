@@ -101,7 +101,7 @@ namespace Fireball.Game.Client
         private static readonly object _syncRoot = new object();
         private static Fireball _instance;
 
-        private IFireballLogger _logger = new FireballLogger(FireballConfig.LogLevel);
+        private IFireballLogger _logger = new FireballLogger();
         private INetworkChecker _networkChecker;
         private IMessenger _messenger;
         private ThreadDispatcher _dispatcher;
@@ -146,7 +146,7 @@ namespace Fireball.Game.Client
 
         private void Initialize(FireballSession customSession, Action<FireballSession> onSuccess = null, Action<string> onError = null)
         {
-            if (_logger == null) _logger = new FireballLogger(FireballConfig.LogLevel);
+            if (_logger == null) _logger = new FireballLogger();
             if (_networkChecker == null) _networkChecker = new NetworkChecker(this, 0.5f);
             if (_dispatcher == null) _dispatcher = new ThreadDispatcher(this);
             if (_communicator == null) _communicator = new Communicator(this, _logger);

@@ -54,13 +54,10 @@ namespace Fireball.Game.Client.Tools
                 else if (param.Equals(PARAM_NAME_COUNTRY)) session.Country = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_GENDER)) session.Gender = paramsDict[param];
                 else if (param.Equals(PARAM_NAME_TOKEN)) session.Token = paramsDict[param];
-                else if (param.Equals(PARAM_NAME_WS_SERVER))
-                    session.WsServer = UnityWebRequest.UnEscapeURL(paramsDict[param]);
+                else if (param.Equals(PARAM_NAME_WS_SERVER)) session.WsServer = UnityWebRequest.UnEscapeURL(paramsDict[param]);
                 else if (param.Equals(PARAM_NAME_MODE)) session.GameMode = paramsDict[param];
-                else if (param.Equals(PARAM_NAME_ROUTER_URL))
-                    session.Router = UnityWebRequest.UnEscapeURL(paramsDict[param]);
-                else if (param.Equals(PARAM_NAME_HOME_URL))
-                    session.HomeUrl = UnityWebRequest.UnEscapeURL(paramsDict[param]);
+                else if (param.Equals(PARAM_NAME_ROUTER_URL)) session.Router = UnityWebRequest.UnEscapeURL(paramsDict[param]);
+                else if (param.Equals(PARAM_NAME_HOME_URL)) session.HomeUrl = UnityWebRequest.UnEscapeURL(paramsDict[param]);
                 else
                 {
                     extraDict.Add(param, paramsDict[param]);
@@ -78,7 +75,7 @@ namespace Fireball.Game.Client.Tools
 
         private static FireballSession ValidateData(FireballSession session)
         {
-            IFireballLogger logger = new FireballLogger(FireballConfig.LogLevel);
+            IFireballLogger logger = new FireballLogger();
             
             // Check URL params
             if (string.IsNullOrEmpty(session.OperatorId))

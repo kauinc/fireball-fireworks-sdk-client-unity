@@ -22,18 +22,21 @@ namespace Fireball.Game.Client.Modules
         public delegate void EventJsonDelegate(System.IntPtr ptr);
         private static event Action<string> OnReceivedEventJson;
 
-        //private IFireballLogger _logger = null;
+        private static ModuleLogger _logger = null;
 
-        private FireballGCI()//IFireballLogger logger)
+        private FireballGCI()
         {
-            //_logger = logger;
+            if (_logger == null)
+            {
+                _logger = new ModuleLogger("GCI");
+            }
         }
 
-        public static FireballGCI GetInstance()//IFireballLogger logger)
+        public static FireballGCI GetInstance()
         {
             if (_instance == null)
             {
-                _instance = new FireballGCI();// logger);
+                _instance = new FireballGCI();
                 init(onEventRecieved);
                 OnReceivedEventJson += _instance.ParseReceivedEventJson;
             }
@@ -114,7 +117,7 @@ namespace Fireball.Game.Client.Modules
         {
             try
             {
-                Debug.Log($"[Fireball] GCI: ReceivedEvent: {eventJson}");
+                _logger.Log($"ReceivedEvent: {eventJson}");
                 var eventData = Newtonsoft.Json.JsonConvert.DeserializeObject<FireballGCIEvent>(eventJson);
                 switch (eventData.name)
                 {
@@ -159,13 +162,13 @@ namespace Fireball.Game.Client.Modules
                         OnCloseGame?.Invoke();
                         break;
                     default:
-                        Debug.LogWarning($"[Fireball] GCI: ReceivedEvent: undefined event with name - {eventData?.name}");
+                        _logger.Warning($"ReceivedEvent: undefined event with name - {eventData?.name}");
                         break;
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"[Fireball] GCI: Events Receiver Exception: {e}");
+                _logger.Error($"Events Receiver Exception: {e}");
             }
         }
 
@@ -405,7 +408,7 @@ namespace Fireball.Game.Client.Modules
         /// <param name="eventValue"></param>
         private void SendGCIEvent(string eventName, object eventValue = null)
         {
-            Debug.Log($"[Fireball] GCI: SendEvent: {eventName} - {eventValue}");
+            _logger.Log($"SendEvent: {eventName} - {eventValue}");
             var eventData = new FireballGCIEvent(eventName, eventValue);
             sendFireballGCIEvent(eventData.ToJson());
         }
@@ -421,11 +424,16 @@ namespace Fireball.Game.Client.Modules
         {
             OnReceivedEventJson?.Invoke(Marshal.PtrToStringAuto(ptr));
         }
+#elif UNITY_EDITOR
+        private static bool isInit() => true;
+        private static void init(EventJsonDelegate eventCallback) => _logger.Warning($"Not working in Unity editor");
+        private static void onEventRecieved(System.IntPtr ptr) => _logger.Warning($"Not working in Unity editor");
+        private static void sendFireballGCIEvent(string eventJson) => _logger.Warning($"Not working in Unity editor");
 #else
         private static bool isInit() => true;
-        private static void init(EventJsonDelegate eventCallback) => Debug.LogWarning($"[Fireball] GCI: Not implemented for current platform");
-        private static void onEventRecieved(System.IntPtr ptr) => Debug.LogWarning($"[Fireball] GCI: Not implemented for current platform");
-        private static void sendFireballGCIEvent(string eventJson) => Debug.LogWarning($"[Fireball] GCI: Not implemented for current platform");
+        private static void init(EventJsonDelegate eventCallback) => _logger.Warning($"Not implemented for current platform");
+        private static void onEventRecieved(System.IntPtr ptr) => _logger.Warning($"Not implemented for current platform");
+        private static void sendFireballGCIEvent(string eventJson) => _logger.Warning($"Not implemented for current platform");
 #endif
 
         public class JackpotData

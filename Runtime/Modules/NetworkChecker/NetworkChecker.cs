@@ -9,7 +9,8 @@ namespace Fireball.Game.Client.Modules
         public bool IsConnected => _isNetworkConnected != null ? _isNetworkConnected.Value : false;
 
         public event Action<bool> OnNetworkConnectionChanged;
-        
+
+        private ModuleLogger _logger;
         private MonoBehaviour _coroutineHandler;
         private Coroutine _checkConnectionCoroutine;
         
@@ -20,6 +21,7 @@ namespace Fireball.Game.Client.Modules
         {
             _coroutineHandler = coroutineHandler;
             _checkInterval = checkInterval;
+            _logger = new ModuleLogger("Network");
         }
 
         public void StartNetworkCheck()
@@ -52,12 +54,12 @@ namespace Fireball.Game.Client.Modules
             bool isNetworkConnected = GetInternetConnectionSimple();
             if (_isNetworkConnected == null)
             {
-                Debug.Log($"[Fireball] Network:is connected = {isNetworkConnected}");
+                _logger.Log($"is connected = {isNetworkConnected}");
                 _isNetworkConnected = isNetworkConnected;
             }
             else if (_isNetworkConnected != isNetworkConnected)
             {
-                Debug.Log($"[Fireball] Network: Connection Changed: connected = {isNetworkConnected}");
+                _logger.Log($"Connection Changed: connected = {isNetworkConnected}");
                 _isNetworkConnected = isNetworkConnected;
                 OnNetworkConnectionChanged?.Invoke(_isNetworkConnected.Value);
             }

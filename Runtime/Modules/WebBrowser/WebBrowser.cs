@@ -121,7 +121,6 @@ namespace Fireball.Game.Client.Modules
         }
         public static void ToggleFullScreen()
         {
-            UnityEngine.Debug.Log($"[WINDOW] IsFullScreen = {IsFullScreen}");
             if (IsFullScreen) ExitFullScreen();
             else EnterFullScreen();
         }
