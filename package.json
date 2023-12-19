@@ -1,7 +1,7 @@
 {
-  "name": "com.kau.fireball",
+  "name": "com.fireball.unitysdk",
   "displayName": "Fireball SDK",
-  "version": "0.8.5",
+  "version": "1.0.0",
   "unity": "2019.2",
   "keywords": [
     "Fireball",
@@ -12,11 +12,11 @@
   "samples": [
     {
       "displayName": "Slot Game Sample",
-      "description": "Siplest slog game sample with Fireball authorize and custom request",
+      "description": "Simplest slot game sample with Fireball authorization and custom requests",
       "path": "Samples/SlotSample"
     }
   ],
   "dependencies": {
-    "com.unity.nuget.newtonsoft-json": "3.0.2"
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
   }
 }
