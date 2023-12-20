@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.0] - 2023-12-20
+- re-organizing folder structure
+- removed legacy messengers
+
 ## [0.8.5] - 2023-11-30
 - added game variants support
 - added get balance

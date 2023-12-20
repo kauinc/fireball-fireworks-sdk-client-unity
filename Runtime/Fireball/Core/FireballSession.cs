@@ -35,5 +35,13 @@ namespace Fireball.Game.Client
 
         public string ToJson() =>
             JsonConvert.SerializeObject(this);
+
+        public FireballSession()
+        {
+            GameMode = Client.GameMode.fun.ToString();
+            Environment = Environments.development.ToString();
+            Router = FireballConfig.URL_ROUTER_DEFAULT;
+            WsServer = FireballConfig.URL_MESENGER_DEFAULT;
+        }
     }
 }

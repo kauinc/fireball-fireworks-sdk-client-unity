@@ -141,7 +141,7 @@ namespace Fireball.Game.Client
 
         public void Init(FireballSettings playerData, Action<FireballSession> onSuccess = null, Action<string> onError = null)
         {
-            Initialize(playerData.GetSession(), onSuccess, onError);
+            Initialize(playerData != null ? playerData.GetSession() : URLData.ParseSessionFromURL(), onSuccess, onError);
         }
 
         private void Initialize(FireballSession customSession, Action<FireballSession> onSuccess = null, Action<string> onError = null)
