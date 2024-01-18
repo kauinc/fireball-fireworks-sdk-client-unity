@@ -8,11 +8,17 @@ namespace Fireball.Game.Client.Models
     {
         public string Currency { get; set; }
         public List<TierData> Tiers { get; set; }
+
+        [UnityEngine.Scripting.Preserve]
+        public BetTiers() { }
     }
 
     public class TierData
     {
         public int Tier { get; set; }
         public long Value { get; set; }
+
+        [UnityEngine.Scripting.Preserve]
+        public TierData() { }
     }
 }

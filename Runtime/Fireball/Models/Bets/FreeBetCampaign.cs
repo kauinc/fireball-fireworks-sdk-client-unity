@@ -10,5 +10,8 @@ namespace Fireball.Game.Client.Models
         public long BetAmount { get; set; }
         public int NumberOfBets { get; set; }
         public Dictionary<string, object> Settings { get; set; }
+
+        [UnityEngine.Scripting.Preserve]
+        public FreeBetCampaign() { }
     }
 }

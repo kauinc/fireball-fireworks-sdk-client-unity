@@ -6,5 +6,8 @@
         public string FreeBetId { get; set; }
         public int NumberOfBets { get; set; }
         public bool IsFreeBetCampaignOver { get; set; }
+
+        [UnityEngine.Scripting.Preserve]
+        public FreeBetDetails() { }
     }
 }
