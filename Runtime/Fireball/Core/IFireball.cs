@@ -37,7 +37,7 @@ namespace Fireball.Game.Client
         void DemoAuthorize<TResponse>(string currency = FireballConfig.DEFAULT_CURRENCY, long balance = FireballConfig.DEMO_BALANCE, Action<TResponse> onSuccess = null, Action<ErrorResponse> onError = null)
             where TResponse : AuthResponse, new();
 
-        void GetBalance(BalanceRequest request, Action<BalanceResponse> onSuccess = null, Action<ErrorResponse> onError = null);
+        void GetBalance(BalanceRequest request, Action<BalanceResponse> onSuccess = null, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1);
 
         void SendRequest<TRequest, TResponse>(TRequest request, Action<TResponse> onSuccess, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1)
             where TRequest : BaseRequest

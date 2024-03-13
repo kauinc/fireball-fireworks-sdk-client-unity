@@ -264,9 +264,9 @@ namespace Fireball.Game.Client
             }
         }
 
-        public void GetBalance(BalanceRequest request, Action<BalanceResponse> onSuccess = null, Action<ErrorResponse> onError = null)
+        public void GetBalance(BalanceRequest request, Action<BalanceResponse> onSuccess = null, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1)
         {
-            SendRequest<BalanceRequest, BalanceResponse>(request, onSuccess, onError);
+            SendRequest<BalanceRequest, BalanceResponse>(request, onSuccess, onError, timeout, attempts);
         }
 
         public void SendPing() =>
