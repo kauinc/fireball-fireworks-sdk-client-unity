@@ -102,7 +102,17 @@ namespace Fireball.Game.Client.Modules
             if (!_fireball.Network.IsConnected)
             {
                 _logger.Error("Can't Reconnect... No network conection");
-                onError?.Invoke($"Server Unavailable: No network connection");
+                var errorMessage = $"Server Unavailable: No network connection";
+                if (onError != null)
+                {
+                    onError.Invoke(errorMessage);
+                }
+                else if(_onConnectFail != null)
+                {
+                    _onConnectFail.Invoke(errorMessage);
+                    _onConnectSuccess = null;
+                    _onConnectFail = null;
+                }
                 return;
             }
 
@@ -120,11 +130,19 @@ namespace Fireball.Game.Client.Modules
             else
             {
                 _logger.Error("Can't Reconnect...");
-                onError?.Invoke($"Server Unavailable after {_reconnectAttempt} reconnects attempts");
-                _reconnectAttempt = 0;
 
-                _onConnectSuccess = null;
-                _onConnectFail = null;
+                var errorMessage = $"Server Unavailable after {_reconnectAttempt} reconnects attempts";
+                if (onError != null)
+                {
+                    onError.Invoke(errorMessage);
+                }
+                else if (_onConnectFail != null)
+                {
+                    _onConnectFail.Invoke(errorMessage);
+                    _onConnectSuccess = null;
+                    _onConnectFail = null;
+                }
+                _reconnectAttempt = 0;
             }
         }
 
@@ -180,10 +198,18 @@ namespace Fireball.Game.Client.Modules
                 (error) =>
                 {
                     _logger.Error($"Can't reconnect - still: {error}");
-                    OnConnectionError?.Invoke(error);
+                    if (_onConnectFail != null)
+                    {
+                        _onConnectFail.Invoke(error);
+                        _onConnectSuccess = null;
+                        _onConnectFail = null;
+                    }
+                    else
+                    {
+                        OnConnectionError?.Invoke(error);
+                    }
                 });
             }
-            // _onConnectFail?.Invoke(error);
         }
 
         private void OnMessage(string message)

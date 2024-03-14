@@ -182,12 +182,16 @@ namespace Fireball.Game.Client
                     _logger.Info("OnInit: Success!");
                     _currentSession.ConnectionId = connectionId;
                     _onInitSuccess?.Invoke(_currentSession);
+
                     _onInitSuccess = null;
+                    _onInitError = null;
                 },
                 (error) =>
                 {
                     _logger.Error($"OnInit: Error! {error}");
                     _onInitError?.Invoke(error);
+
+                    _onInitSuccess = null;
                     _onInitError = null;
                 });
         }
