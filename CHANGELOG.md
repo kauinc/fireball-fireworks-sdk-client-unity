@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.1] - 2024-03-19
+- update get balance request with timeouts
+- fixed free bets campaign preserving for builds
+- fixed connection erros on init
+
 ## [0.9.0] - 2023-12-20
 - re-organizing folder structure
 - removed legacy messengers
