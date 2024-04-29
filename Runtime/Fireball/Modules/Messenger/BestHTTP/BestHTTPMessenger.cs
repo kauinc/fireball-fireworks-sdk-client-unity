@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using BestHTTP.SignalRCore;
-using BestHTTP.SignalRCore.Encoders;
+using Best.SignalR;
+using Best.SignalR.Encoders;
 using Fireball.Game.Client.Tools;
 using UnityEngine;
 
