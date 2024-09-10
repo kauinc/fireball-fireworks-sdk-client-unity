@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Fireball.Game.Client.Models;
 using Fireball.Game.Client.Modules;
 using Fireball.Game.Client.Tools;
@@ -600,11 +601,11 @@ namespace Fireball.Game.Client
             }
         }
 
-        public void GetBetTiers(string currency, Action<List<TierData>> onSuccess, Action<string> onError = null)
+        public void GetBetTiers(string currency, Action<List<BetTier>> onSuccess, Action<string> onError = null)
         {
             var query = new Dictionary<string, string>()
             {
-                { "currency", currency }
+                { "currencyIsoCode", currency }
             };
             Communicator.SendGET(FireballConfig.URL_BET_TIERS, query,
                 (json) =>
@@ -612,12 +613,18 @@ namespace Fireball.Game.Client
                     try
                     {
                         _logger.Log($"On BetTiers: success! {json}");
-                        var result = JsonConvert.DeserializeObject<BetTiers>(json, new JsonSerializerSettings()
+                        var result = JsonConvert.DeserializeObject<BetTiersData>(json, new JsonSerializerSettings()
                         {
                             ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
                         });
 
-                        onSuccess?.Invoke(result.Tiers);
+                        var betTierList = result.Data.Select(b => b.ToBetTier()).ToList();
+                        betTierList = betTierList.OrderBy(b => b.ValueDefault).ToList();
+                        betTierList.ForEach(b => b.Tier = betTierList.IndexOf(b) + 1);
+
+                        _logger.Log($"On BetTiers: sorted - {JsonConvert.SerializeObject(betTierList)}");
+
+                        onSuccess?.Invoke(betTierList);
                     }
                     catch (Exception e)
                     {

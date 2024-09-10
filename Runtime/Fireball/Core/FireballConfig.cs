@@ -5,11 +5,12 @@ namespace Fireball.Game.Client
     public static class FireballConfig
     {
         public const string URL_FIREBALL_SERVER = "https://cloud.fireballserver.com";
+        public const string URL_FIREBALL_SERVER_API = "https://api.fireballserver.com/api/v2.0";
         public const string URL_ROUTER_DEFAULT = URL_FIREBALL_SERVER + "/router";
         public const string URL_MESENGER_DEFAULT = URL_FIREBALL_SERVER + "/messages/messages";
         public const string URL_TRANSACTIONS_HISTORY = URL_FIREBALL_SERVER + "/sessions/replay/transactions";
         public const string URL_TRANSACTIONS_REPLAY = URL_FIREBALL_SERVER + "/sessions/replay";
-        public const string URL_BET_TIERS = URL_FIREBALL_SERVER + "/matchmaker/bettiers";
+        public const string URL_BET_TIERS = URL_FIREBALL_SERVER_API + "/bet-tiers";
         public const string URL_TRANSLATION = URL_FIREBALL_SERVER + "/translations/v1/translate";
 
         public const string DEFAULT_LANGUAGE_CODE = "en";
