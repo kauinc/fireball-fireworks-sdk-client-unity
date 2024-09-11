@@ -1,18 +1,6 @@
-using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-
-namespace Fireball.Game.Client.Models
+﻿namespace Fireball.Game.Client.Models.Internal
 {
-    internal class BetTiersData
-    {
-        public List<BetTierFull> Data { get; set; }
-
-        [UnityEngine.Scripting.Preserve]
-        public BetTiersData() { }
-    }
-
-    internal class BetTierFull
+    public class BetTierFull
     {
         public string Id { get; set; }
         public string CurrencyIsoCode { get; set; }
@@ -47,28 +35,5 @@ namespace Fireball.Game.Client.Models
                 CurrencyDefault = this.BetTier.CurrencyIsoCode,
             };
         }
-    }
-
-    internal class BetTierDefault
-    {
-        public string Id { get; set; }
-        public long Value { get; set; }
-        public string CurrencyIsoCode { get; set; }
-
-        [UnityEngine.Scripting.Preserve]
-        public BetTierDefault() { }
-    }
-
-    public class BetTier
-    {
-        public int Tier { get; set; }
-        public string Id { get; set; }
-        public long Value { get; set; }
-        public long ValueDefault { get; set; }
-        public string Currency { get; set; }
-        public string CurrencyDefault { get; set; }
-
-        [UnityEngine.Scripting.Preserve]
-        public BetTier() { }
     }
 }
