@@ -1,14 +1,14 @@
-﻿namespace Fireball.Game.Client.Models.Internal
+﻿namespace Fireball.Game.Client.Models
 {
-    public class BetTierFull
+    public class ServerBetTier
     {
         public string Id { get; set; }
         public string CurrencyIsoCode { get; set; }
         public long Value { get; set; }
-        public BetTierDefault BetTier { get; set; }
+        public ServerBetTierDefault BetTier { get; set; }
 
         [UnityEngine.Scripting.Preserve]
-        public BetTierFull() { }
+        public ServerBetTier() { }
 
         public BetTier ToBetTier()
         {

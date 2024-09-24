@@ -613,7 +613,7 @@ namespace Fireball.Game.Client
                     try
                     {
                         _logger.Log($"On BetTiers: success! {json}");
-                        var result = JsonConvert.DeserializeObject<BetTiersData>(json, new JsonSerializerSettings()
+                        var result = JsonConvert.DeserializeObject<ServerBetTiersData>(json, new JsonSerializerSettings()
                         {
                             ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
                         });

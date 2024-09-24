@@ -1,6 +1,3 @@
-using System;
-using Newtonsoft.Json;
-
 namespace Fireball.Game.Client.Models
 {
     public class BetTier
