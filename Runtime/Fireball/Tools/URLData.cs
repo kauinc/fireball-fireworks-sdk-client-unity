@@ -109,12 +109,6 @@ namespace Fireball.Game.Client.Tools
                 session.Language = FireballConfig.DEFAULT_LANGUAGE_CODE;
             }
 
-            if (string.IsNullOrEmpty(session.Currency))
-            {
-                logger.Warning("Url params don't contain - currency!");
-                session.Currency = FireballConfig.DEFAULT_CURRENCY;
-            }
-
             if (string.IsNullOrEmpty(session.Country))
             {
                 logger.Warning("Url params don't contain - country!");
@@ -154,6 +148,14 @@ namespace Fireball.Game.Client.Tools
             {
                 logger.Warning($"Can't parse - Environments! Environments String = {session.Environment}");
                 session.Environment = FireballConfig.DEFAULT_ENVIRONMENT.ToString();
+            }
+
+            if (string.IsNullOrEmpty(session.Currency))
+            {
+                logger.Warning("Url params don't contain - currency!");
+                session.Currency = session.GameMode == GameMode.coins.ToString() ?
+                    FireballConfig.DEFAULT_COINS_CURRENCY :
+                    FireballConfig.DEFAULT_CURRENCY;
             }
 
             return session;
