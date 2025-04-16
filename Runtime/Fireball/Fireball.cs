@@ -214,6 +214,21 @@ namespace Fireball.Game.Client
                     _currentSession.OperatorPlayerId = response.OperatorPlayerId;
                     _currentSession.OperatorPlayerSession = response.OperatorPlayerSession;
 
+                    // copy extra params
+                    if (response.Extra != null)
+                    {
+                        if (_currentSession.Extra == null)
+                        {
+                            _currentSession.Extra = new Dictionary<string, string>();
+                        }
+
+                        foreach (var key in response.Extra.Keys)
+                        {
+                            _currentSession.Extra[key] = response.Extra[key];
+                        }
+                    }
+
+                    // fixing currency changing
                     if (response.Currency != null && _currentSession.Currency != response.Currency)
                     {
                         _logger.Warning($"Currency changed: {_currentSession.Currency} -> {response.Currency}");
