@@ -7,6 +7,7 @@ namespace Fireball.Game.Client.Modules
         bool IsInit { get; }
         bool IsConnected { get; }
         bool IsClosed { get; }
+        string ConnectionId { get; }
 
         Action<bool, string> OnConnectionChange { get; set; }
         Action<string> OnMessageReceived { get; set; }

@@ -166,7 +166,7 @@ namespace Fireball.Game.Client
             _messenger = new BestHTTPMessenger(this);
 
             _messenger.OnMessageReceived += OnMessageReceived;
-            _messenger.OnConnectionChange += OnMessangerConnectionChange;
+            _messenger.OnConnectionChange += OnMessengerConnectionChange;
             _messenger.OnConnectionError += OnMessangerConnectionError;
 
             // Send ping to warm up Fireball system
@@ -311,7 +311,7 @@ namespace Fireball.Game.Client
             }
         }
 
-        private void OnMessangerConnectionChange(bool isConnected, string connectionId)
+        private void OnMessengerConnectionChange(bool isConnected, string connectionId)
         {
             if (isConnected && _currentSession.ConnectionId != connectionId)
             {
@@ -385,6 +385,14 @@ namespace Fireball.Game.Client
             float timePassed = 0;
             int attemptsLeft = attemptsCount - 1;
             _pendingRequests[request.ActionId] = request.Name;
+            
+            var connectionId = _messenger.ConnectionId;
+            if (request.ConnectionId != connectionId)
+            {
+                _logger.Log($"Connection Id different from messengers! Changing Connection Id: {request.ConnectionId} -> {connectionId}");
+                request.ConnectionId = connectionId;
+                _currentSession.ConnectionId = connectionId;
+            }
 
             if (!IsPendingResponse(request.ActionId))
             {
@@ -739,5 +747,5 @@ namespace Fireball.Game.Client
             }
             action?.Invoke();
         }
-    }
+    } 
 }

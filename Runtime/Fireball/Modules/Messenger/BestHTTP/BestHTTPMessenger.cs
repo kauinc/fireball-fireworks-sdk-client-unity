@@ -28,6 +28,7 @@ namespace Fireball.Game.Client.Modules
         public bool IsInit => _signalR != null;
         public bool IsConnected => _signalR != null && _signalR.State == ConnectionStates.Connected;
         public bool IsClosed => _signalR != null && _signalR.State == ConnectionStates.Closed;
+        public string ConnectionId => _signalR.NegotiationResult?.ConnectionId;
 
         private Action<string> _onConnectSuccess = null;
         private Action<string> _onConnectFail = null;
@@ -101,7 +102,7 @@ namespace Fireball.Game.Client.Modules
         {
             if (!_fireball.Network.IsConnected)
             {
-                _logger.Error("Can't Reconnect... No network conection");
+                _logger.Error("Can't Reconnect... No network connection");
                 var errorMessage = $"Server Unavailable: No network connection";
                 if (onError != null)
                 {
@@ -180,10 +181,10 @@ namespace Fireball.Game.Client.Modules
             {
                 _isDisconnecting = false;
             }
-            else
-            {
-                Reconnect(_onConnectSuccess, _onConnectFail);
-            }
+            // else
+            // {
+            //     Reconnect(_onConnectSuccess, _onConnectFail);
+            // }
         }
 
         private void OnErrorReceived(HubConnection connection, string error)
@@ -193,7 +194,7 @@ namespace Fireball.Game.Client.Modules
             {
                 Reconnect((id) =>
                 {
-                    _logger.Log($"Reconnection successfull after error {error}");
+                    _logger.Log($"Reconnection successful after error {error}");
                 },
                 (error) =>
                 {
