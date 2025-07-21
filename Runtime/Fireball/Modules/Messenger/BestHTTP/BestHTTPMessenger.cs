@@ -81,7 +81,7 @@ namespace Fireball.Game.Client.Modules
 
                 _signalR = new HubConnection(new Uri(serverUrlFull), new JsonProtocol(new LitJsonEncoder()), new HubOptions()
                 {
-                    PingInterval = TimeSpan.FromSeconds(5),
+                    PingInterval = TimeSpan.FromSeconds(3),
                     PingTimeoutInterval = TimeSpan.FromSeconds(10),
                     ConnectTimeout = TimeSpan.FromSeconds(5),
                 });

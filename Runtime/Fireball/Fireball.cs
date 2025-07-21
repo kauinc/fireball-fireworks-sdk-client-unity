@@ -167,7 +167,7 @@ namespace Fireball.Game.Client
 
             _messenger.OnMessageReceived += OnMessageReceived;
             _messenger.OnConnectionChange += OnMessengerConnectionChange;
-            _messenger.OnConnectionError += OnMessangerConnectionError;
+            _messenger.OnConnectionError += OnMessengerConnectionError;
 
             // Send ping to warm up Fireball system
             // SendPing();
@@ -195,6 +195,8 @@ namespace Fireball.Game.Client
                     _onInitSuccess = null;
                     _onInitError = null;
                 });
+
+            WebBrowser.OnTabVisibility(OnTabVisibility);
         }
 
         public void Authorize(AuthRequest authRequest, Action<AuthResponse> onSuccess = null, Action<ErrorResponse> onError = null, float timeout = 0, int attempts = 1)
@@ -329,18 +331,20 @@ namespace Fireball.Game.Client
             }
         }
 
-        private void OnMessangerConnectionError(string error)
+        private void OnMessengerConnectionError(string error)
         {
             if (!_networkChecker.IsConnected)
             {
-                _logger.Error($"Messanger Error: {error}");
+                _logger.Error($"Messenger Error: {error}");
             }
 
             OnServerConnectionError?.Invoke(error);
         }
-
+        
         private void OnDestroy()
         {
+            WebBrowser.RemoveTabVisibility(OnTabVisibility);
+            
             if (_networkChecker != null)
             {
                 _networkChecker.StopNetworkCheck();
@@ -355,11 +359,8 @@ namespace Fireball.Game.Client
             _dispatcher?.Dispose();
             _instance = null;
         }
-
-
-
-
-
+        
+        
         public void SendRequest<TRequest, TResponse>(TRequest request, Action<TResponse> onSuccess, Action<ErrorResponse> onError = null, float timeout = FireballConfig.DEFAULT_TIMEOUT, int attempts = 1)
             where TRequest : BaseRequest
             where TResponse : BaseResponse
@@ -727,9 +728,7 @@ namespace Fireball.Game.Client
                 WebBrowser.SetLocation(CurrentSession.HomeUrl);
             }
         }
-
-
-
+        
 
         public void InvokeInMainThread(Action action, float delay = 0)
         {
@@ -746,6 +745,18 @@ namespace Fireball.Game.Client
                 yield return new WaitForSeconds(delay);
             }
             action?.Invoke();
+        }
+        
+        private void OnTabVisibility(bool visible)
+        {
+            if (visible)
+            {
+                if (!_messenger.IsConnected)
+                {
+                    _logger.Error("Disconnected due inactive!");
+                    OnServerConnectionError?.Invoke("Disconnected due inactive!");
+                }
+            }
         }
     } 
 }
