@@ -196,6 +196,7 @@ namespace Fireball.Game.Client
                     _onInitError = null;
                 });
 
+            CurrencyHelper.SetSession(_currentSession);
             WebBrowser.OnTabVisibility(OnTabVisibility);
         }
 
@@ -240,6 +241,13 @@ namespace Fireball.Game.Client
                             _currentSession.Extra[URLData.PARAM_NAME_CURRENCY] = response.Currency;
                         }
                     }
+
+                    if (response.Multiplier != null)
+                    {
+                        _currentSession.Multiplier = response.Multiplier;
+                    }
+                    
+                    CurrencyHelper.SetSession(_currentSession);
 
                     onSuccess?.Invoke(response);
                 },

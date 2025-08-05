@@ -26,6 +26,7 @@ namespace Fireball.Game.Client
         // Personal info
         public string Language = string.Empty;
         public string Currency = string.Empty;
+        public long? Multiplier = null;
         public string Country = string.Empty;
         public string Gender = string.Empty;
 

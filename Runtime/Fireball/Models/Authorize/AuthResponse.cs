@@ -7,6 +7,7 @@ namespace Fireball.Game.Client.Models
         public const string RESPONSE_NAME = "session";
 
         public long Balance;
+        public long? Multiplier;
         public Dictionary<string, object> GameState;
         public List<JackpotDetail> Jackpots;
         public List<FreeBetCampaign> FreeBetCampaigns;
