@@ -86,7 +86,7 @@ namespace Fireball.Game.Client.Tools
             // format fiat currencies
             if (currency != null && culture != null && IsFiatCurrency(currency))
             {
-                return money.ToString("C", culture);
+                return (money * 0.01d).ToString("C", culture);
             }
             
             // format virtual currencies
