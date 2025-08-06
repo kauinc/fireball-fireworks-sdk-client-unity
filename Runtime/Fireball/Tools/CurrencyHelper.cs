@@ -51,8 +51,8 @@ namespace Fireball.Game.Client.Tools
 
         private static readonly Dictionary<string, CurrencyData> _cryptoCurrencies = new Dictionary<string, CurrencyData>
         {
-            { "MBTC", new CurrencyData("MBTC", "mBTC {0}", 3, 0.00001d, "Milli Bitcoin") },
-            { "BTC", new CurrencyData("BTC", "BTC {0}", 5, 0.00000001d, "Bitcoin") },
+            { "MBTC", new CurrencyData("MBTC", "mBTC {0}", 5, 0.00001d, "Milli Bitcoin") },
+            { "BTC", new CurrencyData("BTC", "BTC {0}", 8, 0.00000001d, "Bitcoin") },
         };
         
         public static void SetSession(FireballSession session)
