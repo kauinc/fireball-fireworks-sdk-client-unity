@@ -106,12 +106,12 @@ namespace Fireball.Game.Client.Tools
                 if (data != null)
                 {
                     var cryptoMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : data.DecimalsMultiplier;
-                    return string.Format(data.SymbolFormat, (money * cryptoMultiplier).ToString(culture));
+                    return string.Format(data.SymbolFormat, (money * cryptoMultiplier).ToString("0.################", culture));
                 }
             }
             
             var decimalsMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : 0.01d;
-            return string.Format(currency + " {0}", (money * decimalsMultiplier).ToString(culture));
+            return string.Format(currency + " {0}", (money * decimalsMultiplier).ToString("0.################", culture));
         }
 
         private static FireballSession GetCurrentSession()
