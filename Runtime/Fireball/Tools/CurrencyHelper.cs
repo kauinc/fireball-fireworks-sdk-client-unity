@@ -51,8 +51,18 @@ namespace Fireball.Game.Client.Tools
 
         private static readonly Dictionary<string, CurrencyData> _cryptoCurrencies = new Dictionary<string, CurrencyData>
         {
-            { "MBTC", new CurrencyData("MBTC", "mBTC {0}", 5, 0.00001d, "Milli Bitcoin") },
             { "BTC", new CurrencyData("BTC", "BTC {0}", 8, 0.00000001d, "Bitcoin") },
+            { "MBTC", new CurrencyData("MBTC", "mBTC {0}", 5, 0.00001d, "Milli Bitcoin") },
+            { "UBTC", new CurrencyData("UBTC", "uBTC {0}", 5, 0.01d, "Micro Bitcoin") },
+            { "ETH", new CurrencyData("ETH", "ETH {0}", 8, 0.000000000000000001d, "Ethereum") },
+            { "METH", new CurrencyData("METH", "mETH {0}", 8, 0.000000000000001d, "Milli Ethereum") },
+            { "UETH", new CurrencyData("UETH", "uETH {0}", 8, 0.000000000001d, "Micro Ethereum") },
+            { "USDT", new CurrencyData("USDT", "USDT {0}", 8, 0.01d, "Tether") },
+            { "ADA", new CurrencyData("ADA", "ADA {0}", 8, 0.000001d, "Cardano") },
+            { "BNB", new CurrencyData("BNB", "BNB {0}", 8, 0.000000000000000001d, "Binance Coin") },
+            { "XRP", new CurrencyData("XRP", "XRP {0}", 8, 0.000001d, "Ripple") },
+            { "MLTC", new CurrencyData("MLTC", "mLTC {0}", 8, 0.00001d, "Milli Litecoin") },
+            { "ULTC", new CurrencyData("ULTC", "uLTC {0}", 8, 0.01d, "Micro Litecoin") },
         };
         
         public static void SetSession(FireballSession session)
