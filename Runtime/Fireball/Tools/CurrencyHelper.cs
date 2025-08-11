@@ -13,14 +13,16 @@ namespace Fireball.Game.Client.Tools
             public readonly string SymbolFormat;
             public readonly int Decimals;
             public readonly double DecimalsMultiplier;
+            public readonly double BetMultiplier;
             public readonly string Desc;
 
-            public CurrencyData(string code, string symbolFormat, int decimals = 2, double multiplier = 0.01d, string desc = null)
+            public CurrencyData(string code, string symbolFormat, int decimals = 2, double multiplier = 0.01d, double betMultiplier = 1, string desc = null)
             {
                 Code = code;
                 SymbolFormat = symbolFormat;
                 Decimals = decimals;
-                DecimalsMultiplier = System.Math.Pow(0.1d, decimals);
+                DecimalsMultiplier = multiplier;
+                BetMultiplier = betMultiplier;
                 Desc = desc;
             }
         }
@@ -51,18 +53,19 @@ namespace Fireball.Game.Client.Tools
 
         private static readonly Dictionary<string, CurrencyData> _cryptoCurrencies = new Dictionary<string, CurrencyData>
         {
-            { "BTC", new CurrencyData("BTC", "BTC {0}", 8, 0.00000001d, "Bitcoin") },
-            { "MBTC", new CurrencyData("MBTC", "mBTC {0}", 5, 0.00001d, "Milli Bitcoin") },
-            { "UBTC", new CurrencyData("UBTC", "uBTC {0}", 5, 0.01d, "Micro Bitcoin") },
-            { "ETH", new CurrencyData("ETH", "ETH {0}", 8, 0.000000000000000001d, "Ethereum") },
-            { "METH", new CurrencyData("METH", "mETH {0}", 8, 0.000000000000001d, "Milli Ethereum") },
-            { "UETH", new CurrencyData("UETH", "uETH {0}", 8, 0.000000000001d, "Micro Ethereum") },
-            { "USDT", new CurrencyData("USDT", "USDT {0}", 8, 0.01d, "Tether") },
-            { "ADA", new CurrencyData("ADA", "ADA {0}", 8, 0.000001d, "Cardano") },
-            { "BNB", new CurrencyData("BNB", "BNB {0}", 8, 0.000000000000000001d, "Binance Coin") },
-            { "XRP", new CurrencyData("XRP", "XRP {0}", 8, 0.000001d, "Ripple") },
-            { "MLTC", new CurrencyData("MLTC", "mLTC {0}", 8, 0.00001d, "Milli Litecoin") },
-            { "ULTC", new CurrencyData("ULTC", "uLTC {0}", 8, 0.01d, "Micro Litecoin") },
+            { "BTC", new CurrencyData("BTC", "BTC {0}", 8, 0.00000001d, 10, "Bitcoin") },
+            { "MBTC", new CurrencyData("MBTC", "mBTC {0}", 5, 0.00001d, 10, "Milli Bitcoin") },
+            { "UBTC", new CurrencyData("UBTC", "uBTC {0}", 5, 0.01d, 10, "Micro Bitcoin") },
+            { "ETH", new CurrencyData("ETH", "ETH {0}", 8, 0.000000000000000001d, 1000000000000, "Ethereum") },
+            { "METH", new CurrencyData("METH", "mETH {0}", 8, 0.000000000000001d, 1000000000000, "Milli Ethereum") },
+            { "UETH", new CurrencyData("UETH", "uETH {0}", 8, 0.000000000001d, 1000000000000, "Micro Ethereum") },
+            { "USDT", new CurrencyData("USDT", "USDT {0}", 8, 0.01d, 1, "Tether") },
+            { "ADA", new CurrencyData("ADA", "ADA {0}", 8, 0.000001d, 10000, "Cardano") },
+            { "BNB", new CurrencyData("BNB", "BNB {0}", 8, 0.000000000000000001d, 10000000000000, "Binance Coin") },
+            { "XRP", new CurrencyData("XRP", "XRP {0}", 8, 0.000001d, 1000, "Ripple") },
+            { "LTC", new CurrencyData("LTC", "LTC {0}", 8, 0.00000001d, 10000, "Litecoin") },
+            { "MLTC", new CurrencyData("MLTC", "mLTC {0}", 8, 0.00001d,	10000, "Milli Litecoin") },
+            { "ULTC", new CurrencyData("ULTC", "uLTC {0}", 8, 0.01d, 10000, "Micro Litecoin") },
         };
         
         public static void SetSession(FireballSession session)
@@ -122,6 +125,21 @@ namespace Fireball.Game.Client.Tools
             
             var decimalsMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : 0.01d;
             return string.Format(currency + " {0}", (money * decimalsMultiplier).ToString("0.################", culture));
+        }
+
+        public static double GetDefaultBetMultiplier(string currencyCode)
+        {
+            if (_virtualCurrencies.TryGetValue(currencyCode.ToUpper(), out var data))
+            {
+                return data.BetMultiplier;
+            }
+
+            if (_cryptoCurrencies.TryGetValue(currencyCode.ToUpper(), out data))
+            {
+                return data.BetMultiplier;
+            }
+
+            return 1;
         }
 
         private static FireballSession GetCurrentSession()
