@@ -99,7 +99,8 @@ namespace Fireball.Game.Client.Tools
             // format fiat currencies
             if (currency != null && culture != null && IsFiatCurrency(currency))
             {
-                return (money * 0.01d).ToString("C", culture);
+                var fiatMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : 0.01d;
+                return (money * fiatMultiplier).ToString("C", culture);
             }
             
             // format virtual currencies
