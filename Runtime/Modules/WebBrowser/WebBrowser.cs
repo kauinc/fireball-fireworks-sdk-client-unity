@@ -41,6 +41,7 @@ namespace Fireball.Game.Client.Modules
         [DllImport("__Internal")] private static extern void sendBeacon(string url, string json);
         [DllImport("__Internal")] private static extern void postMessage(string msg);
         [DllImport("__Internal")] private static extern void setLocation(string url);
+        [DllImport("__Internal")] private static extern string getLocalTime();
 
         [DllImport("__Internal")] private static extern bool inIFrame();
         [DllImport("__Internal")] private static extern bool isFullScreen();
@@ -97,6 +98,11 @@ namespace Fireball.Game.Client.Modules
         public static void SetLocation(string url)
         {
             setLocation(url);
+        }
+
+        public static string GetLocalTime()
+        {
+            return getLocalTime();
         }
 
         public static bool InIFrame => inIFrame();
@@ -174,6 +180,7 @@ namespace Fireball.Game.Client.Modules
         public static void SendBeacon(string url, string json) { }
         public static void PostMessage(string msg) { }
         public static void SetLocation(string url) { }
+        public static string GetLocalTime() { return DateTime.Now.ToString("HH:mm"); }
 
         public static bool InIFrame => false;
         public static bool IsFullScreen => false;
