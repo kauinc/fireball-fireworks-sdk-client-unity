@@ -127,6 +127,45 @@ namespace Fireball.Game.Client.Tools
             var decimalsMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : 0.01d;
             return string.Format(currency + " {0}", (money * decimalsMultiplier).ToString("0.################", culture));
         }
+        
+        public static string FormatMoneyNumbersOnly(long money, string customCurrency = null, CultureInfo customCulture = null)
+        {
+            var session = GetCurrentSession();
+            var currency = customCurrency ?? session?.Currency;
+            var culture = customCulture ?? GetCurrentCulture();
+            
+            // format fiat currencies
+            if (currency != null && culture != null && IsFiatCurrency(currency))
+            {
+                var fiatMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : 0.01d;
+                var decimals = session?.Multiplier != null ? CalculateDecimals(session.Multiplier.Value) : 2;
+                return (money * fiatMultiplier).ToString($"N{decimals}", culture);
+            }
+            
+            // format virtual currencies
+            if (currency != null && _virtualCurrencies.TryGetValue(currency.ToUpper(), out var data))
+            {
+                if (data != null)
+                {
+                    var virtualMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : data.DecimalsMultiplier;
+                    return (money * virtualMultiplier).ToString($"N{data.Decimals}", culture);
+                }
+                return (money * 0.01d).ToString("N2", culture);
+            }
+            
+            // format crypto currencies
+            if (currency != null && _cryptoCurrencies.TryGetValue(currency.ToUpper(), out data))
+            {
+                if (data != null)
+                {
+                    var cryptoMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : data.DecimalsMultiplier;
+                    return (money * cryptoMultiplier).ToString("0.################", culture);
+                }
+            }
+            
+            var decimalsMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : 0.01d;
+            return (money * decimalsMultiplier).ToString("0.################", culture);
+        }
 
         public static double GetDefaultBetMultiplier(string currencyCode)
         {
