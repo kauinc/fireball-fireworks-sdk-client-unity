@@ -61,13 +61,13 @@ namespace Fireball.Game.Client.Tools
             { "UETH", new CurrencyData("UETH", "uETH {0}", 8, 0.000000000001d, 1000000000000, "Micro Ethereum") },
             { "USDT", new CurrencyData("USDT", "USDT {0}", 8, 0.01d, 1, "Tether") },
             { "ADA", new CurrencyData("ADA", "ADA {0}", 8, 0.000001d, 10000, "Cardano") },
-            { "BNB", new CurrencyData("BNB", "BNB {0}", 8, 0.000000000000000001d, 10000000000000, "Binance Coin") },
+            { "BNB", new CurrencyData("BNB", "BNB {0}", 8, 0.000000000001d, 1000000000, "Binance Coin") },
             { "XRP", new CurrencyData("XRP", "XRP {0}", 8, 0.000001d, 1000, "Ripple") },
             { "LTC", new CurrencyData("LTC", "LTC {0}", 8, 0.00000001d, 10000, "Litecoin") },
             { "MLTC", new CurrencyData("MLTC", "mLTC {0}", 8, 0.00001d,	10000, "Milli Litecoin") },
             { "ULTC", new CurrencyData("ULTC", "uLTC {0}", 8, 0.01d, 10000, "Micro Litecoin") },
         };
-        
+
         public static void SetSession(FireballSession session)
         {
             _session = session;
