@@ -56,7 +56,7 @@ namespace Fireball.Game.Client.Tools
             { "BTC", new CurrencyData("BTC", "BTC {0}", 8, 0.00000001d, 10, "Bitcoin") },
             { "MBTC", new CurrencyData("MBTC", "mBTC {0}", 5, 0.00001d, 10, "Milli Bitcoin") },
             { "UBTC", new CurrencyData("UBTC", "uBTC {0}", 5, 0.01d, 10, "Micro Bitcoin") },
-            { "ETH", new CurrencyData("ETH", "ETH {0}", 8, 0.000000000000000001d, 1000000000000, "Ethereum") },
+            { "ETH", new CurrencyData("ETH", "ETH {0}", 8, 0.000000000001d, 1000000, "Ethereum") },
             { "METH", new CurrencyData("METH", "mETH {0}", 8, 0.000000000000001d, 1000000000000, "Milli Ethereum") },
             { "UETH", new CurrencyData("UETH", "uETH {0}", 8, 0.000000000001d, 1000000000000, "Micro Ethereum") },
             { "USDT", new CurrencyData("USDT", "USDT {0}", 8, 0.01d, 1, "Tether") },
