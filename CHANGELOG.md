@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.9.6] - 2025-09-01
+- added formating money without currency symbol
+- added local time in web browser plugin
+- updated crypto currencies multipliers
+
+## [0.9.5] - 2025-08-15
+- added crypto currencies
+- added currencies multiplier to session
+- added currency helper for virtual and crypto currency support 
+- added culture and region helper
+
+## [0.9.4] - 2025-07-21
+- fixed websocket autoreconnect connectionId update
+- fixing extra params after authorize
+
+## [0.9.3] - 2024-10-02
+- added new bet tiers api endpoint
+- fixed default currency for coins mode
+
+## [0.9.2] - 2024-04-29
+- update BestHttp plugin to version 3.0
+
 ## [0.9.1] - 2024-03-19
 - update get balance request with timeouts
 - fixed free bets campaign preserving for builds
