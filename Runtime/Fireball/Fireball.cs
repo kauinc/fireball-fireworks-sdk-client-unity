@@ -115,6 +115,7 @@ namespace Fireball.Game.Client
         private string _customRouterUrl;
         private string _lastActionID;
         private string _lastFailedActionID;
+        private bool _networkWasDown = false;
 
         private readonly Dictionary<string, string> _pendingRequests = new Dictionary<string, string>();
         private readonly Dictionary<string, JToken> _pendingResponses = new Dictionary<string, JToken>();
@@ -162,21 +163,15 @@ namespace Fireball.Game.Client
 
             _customRouterUrl = _currentSession.Router;
 
-            // Websocket messenger module init
             _messenger = new BestHTTPMessenger(this);
 
             _messenger.OnMessageReceived += OnMessageReceived;
             _messenger.OnConnectionChange += OnMessengerConnectionChange;
             _messenger.OnConnectionError += OnMessengerConnectionError;
 
-            // Send ping to warm up Fireball system
-            // SendPing();
-
-            // Start check network connection
             _networkChecker.StartNetworkCheck();
             _networkChecker.OnNetworkConnectionChanged += OnInternetConnection;
 
-            // Connect to App Messages WebSocket server
             _messenger.Connect(_currentSession.WsServer, _currentSession.ConnectionToken,
                 (connectionId) =>
                 {
@@ -217,7 +212,6 @@ namespace Fireball.Game.Client
                     _currentSession.OperatorPlayerId = response.OperatorPlayerId;
                     _currentSession.OperatorPlayerSession = response.OperatorPlayerSession;
 
-                    // copy extra params
                     if (response.Extra != null)
                     {
                         if (_currentSession.Extra == null)
@@ -231,7 +225,6 @@ namespace Fireball.Game.Client
                         }
                     }
 
-                    // fixing currency changing
                     if (response.Currency != null && _currentSession.Currency != response.Currency)
                     {
                         _logger.Warning($"Currency changed: {_currentSession.Currency} -> {response.Currency}");
@@ -286,6 +279,8 @@ namespace Fireball.Game.Client
                 response.OperatorPlayerSession = _currentSession.OperatorPlayerSession;
                 response.Extra = _currentSession.Extra;
 
+                CurrencyHelper.SetSession(_currentSession);
+                
                 onSuccess?.Invoke(response);
             }
             catch (Exception e)
@@ -311,13 +306,19 @@ namespace Fireball.Game.Client
 
             if (!connected)
             {
+                _networkWasDown = true;
                 OnServerConnectionError?.Invoke("Connection lost...");
+                return;
             }
-
-            if (_messenger is { IsClosed: true })
+            
+            if (_messenger != null && (!_messenger.IsConnected || _networkWasDown))
             {
-                _logger.Log($"OnInternetConnection: Connection lost, trying to reconnect...");
-                _messenger.Reconnect();
+                _networkWasDown = false;
+                _logger.Log($"OnInternetConnection: network restored " +
+                            $"(WS connected={_messenger.IsConnected}), forcing reconnect.");
+                _messenger.ForceReconnect(
+                    onConnect: null,
+                    onError: (err) => OnServerConnectionError?.Invoke(err));
             }
         }
 
@@ -380,21 +381,33 @@ namespace Fireball.Game.Client
             where TRequest : BaseRequest
             where TResponse : BaseResponse
         {
-            if (_messenger == null || !_messenger.IsConnected || !_networkChecker.IsConnected)
+            // ── Phase 1: Wait for an active WS connection ────────────────────────────
+            if (_messenger == null || !_messenger.IsConnected)
             {
-                _logger.Error("Can't send request! Fail to connect to server");
-                onError?.Invoke(ErrorResponse.CustomError(request.ActionId, ErrorResponse.NO_CONNECTION_REASON));
-                yield break;
+                _logger.Warning($"SendRequest: not connected, waiting for reconnect... ({request.Name})");
+                float reconnectWait = 0f;
+                const float RECONNECT_WAIT_MAX = 35f;
+                while ((_messenger == null || !_messenger.IsConnected) && reconnectWait < RECONNECT_WAIT_MAX)
+                {
+                    yield return new WaitForSeconds(0.25f);
+                    reconnectWait += 0.25f;
+                }
+                if (_messenger == null || !_messenger.IsConnected)
+                {
+                    _logger.Error($"SendRequest: reconnect timeout ({request.Name})");
+                    onError?.Invoke(ErrorResponse.CustomError(request.ActionId, ErrorResponse.NO_CONNECTION_REASON));
+                    yield break;
+                }
+                _logger.Log($"SendRequest: reconnected after {reconnectWait:F1}s, sending ({request.Name})");
             }
 
-            //CheckAndClearPendingResponses();
             _lastFailedActionID = null;
             _lastActionID = request.ActionId;
-
+            
             float timePassed = 0;
             int attemptsLeft = attemptsCount - 1;
             _pendingRequests[request.ActionId] = request.Name;
-            
+
             var connectionId = _messenger.ConnectionId;
             if (request.ConnectionId != connectionId)
             {
@@ -405,16 +418,83 @@ namespace Fireball.Game.Client
 
             if (!IsPendingResponse(request.ActionId))
             {
-                Communicator.SendPOST(URLRouter, request, null,
-                    errorReason =>
+                bool isPostNetworkError = false;
+                float networkErrorWait = 0f;
+                const float NETWORK_ERROR_WAIT_MAX = 35f;
+
+                float globalElapsed = 0f;
+                const float GLOBAL_TIMEOUT = 120f;
+
+                Action<string> postErrorCallback = null;
+                postErrorCallback = errorReason =>
+                {
+                    bool networkIsDown = (_messenger == null || !_messenger.IsConnected)
+                                        || !_networkChecker.IsConnected;
+                    if (networkIsDown)
                     {
+                        isPostNetworkError = true;
+                        networkErrorWait = 0f;
+                        _logger.Warning($"POST network error (WS={_messenger?.IsConnected}, " +
+                                        $"net={_networkChecker.IsConnected}), " +
+                                        $"waiting for reconnect to retry ({request.Name})");
+                    }
+                    else
+                    {
+                        isPostNetworkError = false;
                         var error = ErrorResponse.CustomError(request.ActionId, errorReason);
                         AddPendingResponse(request.ActionId, JToken.FromObject(error));
-                    });
+                    }
+                };
+
+                Communicator.SendPOST(URLRouter, request, null, postErrorCallback);
 
                 while (!IsPendingResponse(request.ActionId))
                 {
-                    if (timeout > 0 && timePassed >= timeout)
+                    if (globalElapsed >= GLOBAL_TIMEOUT)
+                    {
+                        _logger.Error($"SendRequest: global timeout ({GLOBAL_TIMEOUT}s) exceeded for ({request.Name})");
+                        AddPendingResponse(request.ActionId, JToken.FromObject(
+                            ErrorResponse.TimeoutResponse(request.ActionId, GLOBAL_TIMEOUT)));
+                        break;
+                    }
+
+                    if (isPostNetworkError)
+                    {
+                        if (_messenger != null && _messenger.IsConnected)
+                        {
+                            var currentConnIdOnError = _messenger.ConnectionId;
+                            if (!string.IsNullOrEmpty(currentConnIdOnError) && currentConnIdOnError != connectionId)
+                            {
+                                _logger.Log($"POST error resolved: reconnected " +
+                                            $"({connectionId} -> {currentConnIdOnError}), resending ({request.Name})");
+                                connectionId = currentConnIdOnError;
+                                request.ConnectionId = connectionId;
+                                _currentSession.ConnectionId = connectionId;
+                                isPostNetworkError = false;
+                                networkErrorWait = 0f;
+                                Communicator.SendPOST(URLRouter, request, null, postErrorCallback);
+                            }
+                            else
+                            {
+                                yield return new WaitForSeconds(0.25f);
+                                networkErrorWait += 0.25f;
+                                globalElapsed += 0.25f;
+                            }
+                        }
+                        else if (networkErrorWait >= NETWORK_ERROR_WAIT_MAX)
+                        {
+                            _logger.Error($"Network error: reconnect timeout after {networkErrorWait:F0}s ({request.Name})");
+                            AddPendingResponse(request.ActionId, JToken.FromObject(
+                                ErrorResponse.CustomError(request.ActionId, ErrorResponse.NO_CONNECTION_REASON)));
+                        }
+                        else
+                        {
+                            yield return new WaitForSeconds(0.25f);
+                            networkErrorWait += 0.25f;
+                            globalElapsed += 0.25f;
+                        }
+                    }
+                    else if (timeout > 0 && timePassed >= timeout)
                     {
                         if (attemptsLeft > 0)
                         {
@@ -433,8 +513,18 @@ namespace Fireball.Game.Client
                     }
                     else
                     {
+                        var currentConnId = _messenger?.ConnectionId;
+                        if (!string.IsNullOrEmpty(currentConnId) && currentConnId != connectionId)
+                        {
+                            _logger.Log($"ConnectionId changed while waiting: {connectionId} -> {currentConnId}");
+                            connectionId = currentConnId;
+                            _currentSession.ConnectionId = connectionId;
+                        }
+
                         yield return null;
-                        timePassed += Time.deltaTime;
+                        float dt = Time.deltaTime;
+                        timePassed += dt;
+                        globalElapsed += dt;
                     }
                 }
             }
@@ -442,7 +532,7 @@ namespace Fireball.Game.Client
             {
                 _logger.Log($" Found Pending Response!");
             }
-
+            
             var responseObject = GetPendingResponse(request.ActionId);
             try
             {
@@ -495,25 +585,26 @@ namespace Fireball.Game.Client
 
             while (_lastFailedActionID != null && _lastFailedActionID != RESEND_FAILED_REQUEST_ACTION)
             {
-                //_logger.Warning("Wait for resend failed request...");
                 yield return null;
             }
 
             if (_lastFailedActionID == RESEND_FAILED_REQUEST_ACTION)
             {
-                //_logger.Warning("Resending last failed request...");
                 _lastFailedActionID = null;
                 SendRequest(request, onSuccess, onError, timeout, attemptsCount);
             }
-            else
-            {
-                //_logger.Warning("Skipped failed request...");
-            }
         }
 
-        private bool IsPendingResponse(string actionID) =>
-            _pendingResponses.ContainsKey(actionID) ||
-            string.Join(",", _pendingResponses.Keys).Contains(actionID);
+        private bool IsPendingResponse(string actionID)
+        {
+            if (_pendingResponses.ContainsKey(actionID)) return true;
+            foreach (var key in _pendingResponses.Keys)
+            {
+                if (key.Contains(actionID) || actionID.Contains(key))
+                    return true;
+            }
+            return false;
+        }
 
         private JToken GetPendingResponse(string actionID)
         {
@@ -535,7 +626,6 @@ namespace Fireball.Game.Client
 
         private void AddPendingResponse(string actionID, JToken response)
         {
-            //_logger.Log($"Set Pending response actionID = {actionID}");
             if (_pendingResponses.ContainsKey(actionID))
             {
                 _pendingResponses[actionID] = response;
@@ -570,7 +660,6 @@ namespace Fireball.Game.Client
 
         private void OnMessageReceived(string json)
         {
-            //_logger.Log($"On Message Received: {json}");
             try
             {
                 var data = JObject.Parse(json);
@@ -601,11 +690,10 @@ namespace Fireball.Game.Client
                     {
                         _logger.Error("On Message error: actionID == null!");
                         AddPendingResponse(_lastActionID, messageObject);
+                        return;
                     }
-                    else
-                    {
-                        AddPendingResponse(actionId, messageObject);
-                    }
+
+                    AddPendingResponse(actionId, messageObject);
 
                     if (!_pendingRequests.ContainsKey(actionId))
                     {
@@ -761,8 +849,15 @@ namespace Fireball.Game.Client
             {
                 if (!_messenger.IsConnected)
                 {
-                    _logger.Error("Disconnected due inactive!");
-                    OnServerConnectionError?.Invoke("Disconnected due inactive!");
+                    _logger.Log("Tab focused: connection lost, attempting silent reconnect...");
+                    _messenger.ForceReconnect(
+                        onConnect: (id) => _logger.Log($"Tab reconnect success: {id}"),
+                        onError: (err) =>
+                        {
+                            _logger.Error($"Tab reconnect failed: {err}");
+                            OnServerConnectionError?.Invoke(err);
+                        }
+                    );
                 }
             }
         }

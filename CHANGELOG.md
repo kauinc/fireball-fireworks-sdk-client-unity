@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.10.0] - 2026-05-28
+- added soft auto reconnect on bad/lost connection
+- added send acknowledge message on receive response from server
+- fixed currency display in format method
+
 ## [0.9.6] - 2025-09-01
 - added formating money without currency symbol
 - added local time in web browser plugin

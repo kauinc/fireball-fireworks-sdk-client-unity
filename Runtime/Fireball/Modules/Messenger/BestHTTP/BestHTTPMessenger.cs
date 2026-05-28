@@ -18,17 +18,18 @@ namespace Fireball.Game.Client.Modules
         private string _connectionToken;
 
         private const string MESSAGE_RECEIVE = "ReceiveMessage";
-        private const string MESSAGE_SEND = "SendMessage";
         private const string MESSAGE_ACKNOWLEDGE = "AcknowledgeMessage";
 
-        private const int RECONNECT_MAX = 3;
+        private const int RECONNECT_MAX = 7;
         private int _reconnectAttempt;
         private bool _isDisconnecting = false;
+        private bool _isReconnecting = false;
+        private bool _isConnecting = false;
 
         public bool IsInit => _signalR != null;
         public bool IsConnected => _signalR != null && _signalR.State == ConnectionStates.Connected;
-        public bool IsClosed => _signalR != null && _signalR.State == ConnectionStates.Closed;
-        public string ConnectionId => _signalR.NegotiationResult?.ConnectionId;
+        public bool IsClosed => _signalR == null || _signalR.State == ConnectionStates.Closed;
+        public string ConnectionId => _signalR?.NegotiationResult?.ConnectionId;
 
         private Action<string> _onConnectSuccess = null;
         private Action<string> _onConnectFail = null;
@@ -51,16 +52,23 @@ namespace Fireball.Game.Client.Modules
                 onError?.Invoke("Can't connect! Server = null");
                 return;
             }
-
             if (string.IsNullOrEmpty(connectionToken))
             {
                 _logger.Error("Can't connect! ConnectionToken = null");
                 onError?.Invoke("Can't connect! ConnectionToken = null");
                 return;
             }
+            
+            UnsubscribeCurrentSignalR();
+            
+            if (_signalR != null && _signalR.State == ConnectionStates.Connected)
+            {
+                _logger.Log("Closing old connection before reconnect...");
+                _isDisconnecting = true;
+                _signalR.StartClose();
+            }
 
-            Disconnect();
-
+            _isConnecting = true;
             try
             {
                 string serverUrlFull = FireballTools.FormatUrlAndParams(server, new Dictionary<string, string>()
@@ -81,74 +89,55 @@ namespace Fireball.Game.Client.Modules
 
                 _signalR = new HubConnection(new Uri(serverUrlFull), new JsonProtocol(new LitJsonEncoder()), new HubOptions()
                 {
-                    PingInterval = TimeSpan.FromSeconds(3),
-                    PingTimeoutInterval = TimeSpan.FromSeconds(10),
-                    ConnectTimeout = TimeSpan.FromSeconds(5),
+                    PingInterval = TimeSpan.FromSeconds(5),
+                    PingTimeoutInterval = TimeSpan.FromSeconds(25),
+                    ConnectTimeout = TimeSpan.FromSeconds(10),
                 });
                 _signalR.OnConnected += OnConnected;
                 _signalR.OnClosed += OnClose;
                 _signalR.OnError += OnErrorReceived;
-                _signalR.On(MESSAGE_RECEIVE, (string message) => { OnMessage(message); });
+                _signalR.On(MESSAGE_RECEIVE, (string message) => OnMessage(message));
                 _signalR.StartConnect();
             }
             catch (Exception e)
             {
                 _logger.Error($"Exception! {e.ToString()}");
+                _isReconnecting = false;
+                _isConnecting = false;
                 onError?.Invoke(e.Message);
             }
         }
 
         public void Reconnect(Action<string> onConnect = null, Action<string> onError = null)
         {
-            if (!_fireball.Network.IsConnected)
+            if (_isReconnecting || _isConnecting)
             {
-                _logger.Error("Can't Reconnect... No network connection");
-                var errorMessage = $"Server Unavailable: No network connection";
-                if (onError != null)
-                {
-                    onError.Invoke(errorMessage);
-                }
-                else if(_onConnectFail != null)
-                {
-                    _onConnectFail.Invoke(errorMessage);
-                    _onConnectSuccess = null;
-                    _onConnectFail = null;
-                }
+                _logger.Log($"Reconnect: skipping — isReconnecting={_isReconnecting}, isConnecting={_isConnecting}.");
                 return;
             }
-
-            if (_reconnectAttempt < RECONNECT_MAX)
+            if (!_fireball.Network.IsConnected)
             {
-                _fireball.InvokeInMainThread(() =>
-                {
-                    _logger.Log($"Reconnecting... ({_reconnectAttempt + 1}/{RECONNECT_MAX})");
-                    _signalR = null;
-                    _reconnectAttempt++;
-                    Connect(_serverURL, _connectionToken, _onConnectSuccess, _onConnectFail);
-                },
-                _reconnectAttempt * 0.5f);
+                _logger.Warning("Reconnect: no network — will retry when network restores.");
+                return;
             }
-            else
-            {
-                _logger.Error("Can't Reconnect...");
+            ScheduleReconnect(onConnect, onError);
+        }
 
-                var errorMessage = $"Server Unavailable after {_reconnectAttempt} reconnects attempts";
-                if (onError != null)
-                {
-                    onError.Invoke(errorMessage);
-                }
-                else if (_onConnectFail != null)
-                {
-                    _onConnectFail.Invoke(errorMessage);
-                    _onConnectSuccess = null;
-                    _onConnectFail = null;
-                }
-                _reconnectAttempt = 0;
+        public void ForceReconnect(Action<string> onConnect = null, Action<string> onError = null)
+        {
+            if (_isReconnecting || _isConnecting)
+            {
+                _logger.Log($"ForceReconnect: skipping — isReconnecting={_isReconnecting}, isConnecting={_isConnecting}.");
+                return;
             }
+            _logger.Log($"ForceReconnect: resetting backoff (was attempt {_reconnectAttempt}).");
+            _reconnectAttempt = 0;
+            ScheduleReconnect(onConnect, onError);
         }
 
         public void Disconnect()
         {
+            UnsubscribeCurrentSignalR();
             if (_signalR != null && _signalR.State == ConnectionStates.Connected)
             {
                 _logger.Log("Disconnecting...");
@@ -157,10 +146,59 @@ namespace Fireball.Game.Client.Modules
             }
         }
 
+        private void ScheduleReconnect(Action<string> onConnect, Action<string> onError)
+        {
+            if (_reconnectAttempt < RECONNECT_MAX)
+            {
+                _isReconnecting = true;
+                float delay = (float)Math.Pow(2, _reconnectAttempt);
+                _logger.Log($"Reconnecting in {delay:F1}s... ({_reconnectAttempt + 1}/{RECONNECT_MAX})");
 
+                var capturedUrl = _serverURL;
+                var capturedToken = _connectionToken;
+                _fireball.InvokeInMainThread(() =>
+                {
+                    _isReconnecting = false;
+                    _reconnectAttempt++;
+                    Connect(capturedUrl, capturedToken,
+                        onConnect ?? _onConnectSuccess,
+                        onError ?? _onConnectFail);
+                }, delay);
+            }
+            else
+            {
+                _logger.Error($"Can't Reconnect after {RECONNECT_MAX} attempts.");
+                _isReconnecting = false;
+                _reconnectAttempt = 0;
+
+                var msg = $"Server Unavailable after {RECONNECT_MAX} reconnect attempts";
+                if (onError != null)
+                    onError.Invoke(msg);
+                else if (_onConnectFail != null)
+                {
+                    _onConnectFail.Invoke(msg);
+                    _onConnectSuccess = null;
+                    _onConnectFail = null;
+                }
+                else
+                    OnConnectionError?.Invoke(msg);
+            }
+        }
+
+        private void UnsubscribeCurrentSignalR()
+        {
+            if (_signalR == null) return;
+            _signalR.OnConnected -= OnConnected;
+            _signalR.OnClosed   -= OnClose;
+            _signalR.OnError    -= OnErrorReceived;
+            _signalR.Remove(MESSAGE_RECEIVE);
+        }
+        
         private void OnConnected(HubConnection connection)
         {
             _reconnectAttempt = 0;
+            _isReconnecting = false;
+            _isConnecting = false;
             _isDisconnecting = false;
             _connectionId = connection?.NegotiationResult?.ConnectionId;
 
@@ -174,65 +212,73 @@ namespace Fireball.Game.Client.Modules
 
         private void OnClose(HubConnection connection)
         {
+            _isConnecting = false;
             _logger.Log($"Disconnected - {_connectionId} {(_isDisconnecting ? "(Normal)" : "(Abnormal)")}");
             OnConnectionChange?.Invoke(false, _connectionId);
 
             if (_isDisconnecting)
-            {
                 _isDisconnecting = false;
-            }
-            // else
-            // {
-            //     Reconnect(_onConnectSuccess, _onConnectFail);
-            // }
+            else
+                Reconnect(_onConnectSuccess, _onConnectFail);
         }
 
         private void OnErrorReceived(HubConnection connection, string error)
         {
+            _isConnecting = false;
             _logger.Error($"Error - {error} (state = {_signalR?.State})");
             if (!IsConnected)
             {
-                Reconnect((id) =>
-                {
-                    _logger.Log($"Reconnection successful after error {error}");
-                },
-                (error) =>
-                {
-                    _logger.Error($"Can't reconnect - still: {error}");
-                    if (_onConnectFail != null)
+                _isReconnecting = false;
+                Reconnect(
+                    onConnect: (id) => _logger.Log($"Reconnected after error: {error}"),
+                    onError: (err) =>
                     {
-                        _onConnectFail.Invoke(error);
-                        _onConnectSuccess = null;
-                        _onConnectFail = null;
-                    }
-                    else
-                    {
-                        OnConnectionError?.Invoke(error);
-                    }
-                });
+                        _logger.Error($"Can't reconnect after error: {err}");
+                        if (_onConnectFail != null)
+                        {
+                            _onConnectFail.Invoke(err);
+                            _onConnectSuccess = null;
+                            _onConnectFail = null;
+                        }
+                        else
+                            OnConnectionError?.Invoke(err);
+                    });
             }
         }
 
         private void OnMessage(string message)
         {
-            _logger.Log($"{MESSAGE_RECEIVE} - {message}");
             SignalRMessageData data = Newtonsoft.Json.JsonConvert.DeserializeObject<SignalRMessageData>(message);
             if (data == null)
             {
-                _logger.Error("Can't parse message...");
+                OnMessageReceived?.Invoke(message);
                 return;
             }
 
-            SendMessage(MESSAGE_ACKNOWLEDGE, data.WsMessageId);
+            if (!string.IsNullOrEmpty(data.WsMessageId))
+            {
+                SendAcknowledge(data.WsMessageId);
+            }
+
             OnMessageReceived?.Invoke(message);
         }
 
-        private void SendMessage(string channel, string message)
+        private void SendAcknowledge(string wsMessageId)
         {
-            if (IsConnected)
+            try
             {
-                _logger.Log($"Sending {channel} message = {message}");
-                _signalR.Send(channel, message);
+                if (_signalR == null || !IsConnected)
+                {
+                    _logger.Error($"SendAcknowledge: not connected (state={_signalR?.State}), skip {wsMessageId}");
+                    return;
+                }
+
+                _signalR.Send(MESSAGE_ACKNOWLEDGE, wsMessageId)
+                    .OnError(ex => _logger.Error($"AcknowledgeMessage failed: {ex.Message}"));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"SendAcknowledge exception: {ex}");
             }
         }
     }

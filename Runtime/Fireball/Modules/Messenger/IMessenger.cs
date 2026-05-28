@@ -15,6 +15,8 @@ namespace Fireball.Game.Client.Modules
 
         void Connect(string server, string connectionToken, Action<string> onConnect = null, Action<string> onError = null);
         void Reconnect(Action<string> onConnect = null, Action<string> onError = null);
+        void ForceReconnect(Action<string> onConnect = null, Action<string> onError = null);
+
         void Disconnect();
     }
 }

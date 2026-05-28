@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using UnityEngine;
 
 namespace Fireball.Game.Client.Tools
 {
@@ -100,7 +99,7 @@ namespace Fireball.Game.Client.Tools
             if (currency != null && culture != null && IsFiatCurrency(currency))
             {
                 var fiatMultiplier = session?.Multiplier != null ? 1.0d / session.Multiplier.Value : 0.01d;
-                return (money * fiatMultiplier).ToString("C", culture);
+                return (money * fiatMultiplier).ToString("C2", culture);
             }
             
             // format virtual currencies
