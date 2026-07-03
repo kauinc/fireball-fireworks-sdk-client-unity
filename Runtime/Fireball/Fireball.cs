@@ -381,7 +381,6 @@ namespace Fireball.Game.Client
             where TRequest : BaseRequest
             where TResponse : BaseResponse
         {
-            // ── Phase 1: Wait for an active WS connection ────────────────────────────
             if (_messenger == null || !_messenger.IsConnected)
             {
                 _logger.Warning($"SendRequest: not connected, waiting for reconnect... ({request.Name})");
@@ -424,26 +423,20 @@ namespace Fireball.Game.Client
 
                 float globalElapsed = 0f;
                 const float GLOBAL_TIMEOUT = 120f;
+                const float RECONNECT_GRACE = 5f;
+                const int   MAX_POST_RESENDS = 1;
+                int   postResends = 0;
+                float graceTimer  = 0f;
 
                 Action<string> postErrorCallback = null;
                 postErrorCallback = errorReason =>
                 {
-                    bool networkIsDown = (_messenger == null || !_messenger.IsConnected)
-                                        || !_networkChecker.IsConnected;
-                    if (networkIsDown)
-                    {
-                        isPostNetworkError = true;
-                        networkErrorWait = 0f;
-                        _logger.Warning($"POST network error (WS={_messenger?.IsConnected}, " +
-                                        $"net={_networkChecker.IsConnected}), " +
-                                        $"waiting for reconnect to retry ({request.Name})");
-                    }
-                    else
-                    {
-                        isPostNetworkError = false;
-                        var error = ErrorResponse.CustomError(request.ActionId, errorReason);
-                        AddPendingResponse(request.ActionId, JToken.FromObject(error));
-                    }
+                    isPostNetworkError = true;
+                    networkErrorWait = 0f;
+                    _logger.Warning($"POST transport error '{errorReason}' (WS={_messenger?.IsConnected}, " +
+                                    $"net={_networkChecker.IsConnected}) — waiting for server response ({request.Name})");
+                    
+                    _messenger?.ForceReconnect();
                 };
 
                 Communicator.SendPOST(URLRouter, request, null, postErrorCallback);
@@ -460,38 +453,52 @@ namespace Fireball.Game.Client
 
                     if (isPostNetworkError)
                     {
-                        if (_messenger != null && _messenger.IsConnected)
+                        bool healthy = _messenger != null && _messenger.IsConnected;
+
+                        if (!healthy)
                         {
-                            var currentConnIdOnError = _messenger.ConnectionId;
-                            if (!string.IsNullOrEmpty(currentConnIdOnError) && currentConnIdOnError != connectionId)
+                            if (networkErrorWait >= NETWORK_ERROR_WAIT_MAX)
                             {
-                                _logger.Log($"POST error resolved: reconnected " +
-                                            $"({connectionId} -> {currentConnIdOnError}), resending ({request.Name})");
-                                connectionId = currentConnIdOnError;
-                                request.ConnectionId = connectionId;
-                                _currentSession.ConnectionId = connectionId;
-                                isPostNetworkError = false;
-                                networkErrorWait = 0f;
-                                Communicator.SendPOST(URLRouter, request, null, postErrorCallback);
+                                _logger.Error($"Network error: no reconnect after {networkErrorWait:F0}s ({request.Name})");
+                                AddPendingResponse(request.ActionId, JToken.FromObject(
+                                    ErrorResponse.CustomError(request.ActionId, ErrorResponse.NO_CONNECTION_REASON)));
                             }
                             else
                             {
                                 yield return new WaitForSeconds(0.25f);
                                 networkErrorWait += 0.25f;
                                 globalElapsed += 0.25f;
+                                graceTimer = 0f;
                             }
                         }
-                        else if (networkErrorWait >= NETWORK_ERROR_WAIT_MAX)
+                        else if (graceTimer < RECONNECT_GRACE)
                         {
-                            _logger.Error($"Network error: reconnect timeout after {networkErrorWait:F0}s ({request.Name})");
-                            AddPendingResponse(request.ActionId, JToken.FromObject(
-                                ErrorResponse.CustomError(request.ActionId, ErrorResponse.NO_CONNECTION_REASON)));
+                            yield return new WaitForSeconds(0.25f);
+                            graceTimer += 0.25f;
+                            globalElapsed += 0.25f;
+                        }
+                        else if (postResends < MAX_POST_RESENDS)
+                        {
+                            postResends++;
+                            var resendConnId = _messenger.ConnectionId;
+                            if (!string.IsNullOrEmpty(resendConnId))
+                            {
+                                request.ConnectionId = resendConnId;
+                                connectionId = resendConnId;
+                                _currentSession.ConnectionId = resendConnId;
+                            }
+                            _logger.Log($"No response {graceTimer:F1}s after reconnect — resending POST " +
+                                        $"(attempt {postResends}/{MAX_POST_RESENDS}) ({request.Name})");
+                            graceTimer = 0f;
+                            networkErrorWait = 0f;
+                            isPostNetworkError = false;
+                            Communicator.SendPOST(URLRouter, request, null, postErrorCallback);
                         }
                         else
                         {
-                            yield return new WaitForSeconds(0.25f);
-                            networkErrorWait += 0.25f;
-                            globalElapsed += 0.25f;
+                            _logger.Error($"No response after {postResends} post-reconnect resend(s) ({request.Name})");
+                            AddPendingResponse(request.ActionId, JToken.FromObject(
+                                ErrorResponse.CustomError(request.ActionId, ErrorResponse.NO_CONNECTION_REASON)));
                         }
                     }
                     else if (timeout > 0 && timePassed >= timeout)

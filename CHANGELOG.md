@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.10.1] - 2026-06-03
+- improved check network error conditions
+- improved reaction on short lost connection
+
 ## [0.10.0] - 2026-05-28
 - added soft auto reconnect on bad/lost connection
 - added send acknowledge message on receive response from server
