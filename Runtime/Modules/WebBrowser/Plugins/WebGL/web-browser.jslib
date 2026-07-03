@@ -138,6 +138,13 @@ var unityWebBrowser = {
             window.location.href = url;
         }
     },
+    
+    getLocalTime: function () {
+        var now = new Date();
+        var timeString = now.getHours().toString().padStart(2, '0') + ":" +
+            now.getMinutes().toString().padStart(2, '0');
+        return allocateUTF8(timeString);
+    },
 
     inIFrame: function () {
         try {

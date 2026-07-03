@@ -1,0 +1,26 @@
+﻿using System.Collections.Generic;
+
+namespace Fireball.Game.Client.Models
+{
+    public class AuthResponse : BaseResponse
+    {
+        public const string RESPONSE_NAME = "session";
+
+        public long Balance;
+        public long? Multiplier;
+        public Dictionary<string, object> GameState;
+        public List<JackpotDetail> Jackpots;
+        public List<FreeBetCampaign> FreeBetCampaigns;
+
+        [UnityEngine.Scripting.Preserve]
+        public AuthResponse()
+        {
+            Name = RESPONSE_NAME;
+        }
+    }
+
+    public class AuthResponse<T> : AuthResponse where T: class
+    {
+        public new T GameState;
+    }
+}
