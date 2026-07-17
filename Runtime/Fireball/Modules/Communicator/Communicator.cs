@@ -61,9 +61,12 @@ namespace Fireball.Game.Client.Modules
         {
             long responceCode = 0;
             string responceText = string.Empty;
+
+            request.MessageClientDeviceSequence = FireballTools.GetNextDeviceSequence();
+
             byte[] bytes = Encoding.UTF8.GetBytes(request.ToJson());
 
-            _logger.Info($"Message - {request.Name} - Sending... (ActionId: {request.ActionId}, GameSession: {request?.GameSession})" +
+            _logger.Info($"Message - {request.Name} - Sending... (ActionId: {request.ActionId}, MessageId: {request.MessageId}, MessageClientDeviceSequence: {request.MessageClientDeviceSequence}, GameSession: {request?.GameSession})" +
                 $"\nMesaage: {request.ToJson()}");
 
             UploadHandler uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(request.ToJson()));

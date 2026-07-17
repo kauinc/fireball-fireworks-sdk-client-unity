@@ -9,6 +9,12 @@ namespace Fireball.Game.Client.Tools
     public static class FireballTools
     {
         private static long _requestNum;
+        private static int _deviceSequence;
+
+        public static int GetNextDeviceSequence()
+        {
+            return _deviceSequence++;
+        }
 
         public static long GetNowTimestampMilliSeconds()
         {

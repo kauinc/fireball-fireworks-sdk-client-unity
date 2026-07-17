@@ -5,6 +5,7 @@
         public BaseRequest(string name, FireballSession session, string customActionID = null)
         {
             ActionId = string.IsNullOrEmpty(customActionID) ? Tools.FireballTools.GenerateActionID() : customActionID;
+            MessageId = Tools.FireballTools.GenerateActionID();
             Name = name;
             MessageTimestamp = Tools.FireballTools.GetNowTimestampMilliSeconds();
 

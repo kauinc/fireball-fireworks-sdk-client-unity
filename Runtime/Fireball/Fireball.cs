@@ -423,7 +423,7 @@ namespace Fireball.Game.Client
 
                 float globalElapsed = 0f;
                 const float GLOBAL_TIMEOUT = 120f;
-                const float RECONNECT_GRACE = 5f;
+                const float RECONNECT_GRACE = 7f;
                 const int   MAX_POST_RESENDS = 1;
                 int   postResends = 0;
                 float graceTimer  = 0f;

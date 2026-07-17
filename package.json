@@ -1,7 +1,7 @@
 {
   "name": "com.fireball.unitysdk",
   "displayName": "Fireball SDK",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "unity": "2019.2",
   "keywords": [
     "Fireball",

@@ -7,6 +7,9 @@ namespace Fireball.Game.Client.Models
     {
         public string Name;
         public string ActionId;
+        public string MessageId;
+        public int MessageClientDeviceSequence;
+        public int MessageServerDeviceSequence;
         public string Environment;
         public string OperatorId;
         public string OperatorPlayerSession;

@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.11.0] - 2026-07-06
+- add additional params in request body
+
 ## [0.10.1] - 2026-06-03
 - improved check network error conditions
 - improved reaction on short lost connection
